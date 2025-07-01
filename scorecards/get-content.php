@@ -12,7 +12,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 	@$objectType = $_POST["objectType"];
 	@$objectPeriod = $_POST['objectPeriod'];
 	@$objectDate = $_POST['objectDate'];
-	//@$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
+	@$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
 	//$table = "measure".$objectPeriod;
 	//$objectDate = strtotime($objectDate);
 	//$objectDate = date("Y-m-d", strtotime("-1 month", $objectDate));
@@ -549,7 +549,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 				}
 				$kpiId = $row['id'];
 				//echo $kpiId.', '.$table;
-				$indMeasure_query = "SELECT date, actual, green, 3score FROM $table WHERE measureId = '$kpiId' AND date <= '$objectDate%' ORDER BY date DESC LIMIT 1";
+				$indMeasure_query = "SELECT date, actual, green, 3score FROM $table WHERE measureId = '$kpiId' AND date <= '$objectDate' ORDER BY date DESC LIMIT 1";
 				//$indMeasure_query = "SELECT AVG(3score) FROM $table WHERE measureId = '$kpiId' AND date LIKE '$objectDate%'";
 				$indMeasure_result=mysqli_query($connect, $indMeasure_query);
 				$indMeasure_count = mysqli_num_rows($indMeasure_result);
