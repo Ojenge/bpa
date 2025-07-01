@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug - Dojo Path Resolution</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .info { background: #e7f3ff; padding: 10px; margin: 10px 0; border-left: 4px solid #2196F3; }
+        .error { background: #ffebee; padding: 10px; margin: 10px 0; border-left: 4px solid #f44336; }
+        .success { background: #e8f5e8; padding: 10px; margin: 10px 0; border-left: 4px solid #4caf50; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Analytics Local - Debug Information</h1>
+    
+    <div class="info">
+        <h3>Current URL Information</h3>
+        <pre id="urlInfo"></pre>
+    </div>
+    
+    <div class="info">
+        <h3>Expected URLs</h3>
+        <ul>
+            <li><strong>Application:</strong> http://localhost/analytics.local/</li>
+            <li><strong>Dojo:</strong> https://accent-analytics.com/dojo/dojo.js</li>
+            <li><strong>Dijit Registry:</strong> https://accent-analytics.com/dijit/registry.js</li>
+        </ul>
+    </div>
+    
+    <div class="info">
+        <h3>URL Tests</h3>
+        <div id="urlTests"></div>
+    </div>
+    
+    <div class="info">
+        <h3>Dojo Configuration Test</h3>
+        <div id="dojoTest"></div>
+    </div>
+    
+    <script>
+        // Display current URL information
+        document.getElementById('urlInfo').textContent = 
+            'Current URL: ' + window.location.href + '\n' +
+            'Protocol: ' + window.location.protocol + '\n' +
+            'Host: ' + window.location.host + '\n' +
+            'Pathname: ' + window.location.pathname + '\n' +
+            'Origin: ' + window.location.origin;
+        
+        // Test URL accessibility
+        async function testUrl(url, description) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return {
+                    url: url,
+                    description: description,
+                    status: response.status,
+                    success: response.ok
+                };
+            } catch (error) {
+                return {
+                    url: url,
+                    description: description,
+                    status: 'Error',
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        // Test multiple URLs
+        async function runUrlTests() {
+            const tests = [
+                { url: 'http://localhost/analytics.local/', desc: 'Analytics Application' },
+                { url: 'https://accent-analytics.com/dojo/dojo.js', desc: 'Dojo Core' },
+                { url: 'https://accent-analytics.com//dijit/registry.js', desc: 'Dijit Registry' },
+                { url: 'http://localhost/analytics.local/userCalls/get-users.php', desc: 'User Calls API' },
+                { url: 'http://localhost/analytics.local/layout/tree.php', desc: 'Layout Tree' }
+            ];
+            
+            const results = await Promise.all(
+                tests.map(test => testUrl(test.url, test.desc))
+            );
+            
+            let html = '';
+            results.forEach(result => {
+                const className = result.success ? 'success' : 'error';
+                html += `<div class="${className}">
+                    <strong>${result.description}:</strong> ${result.status}<br>
+                    <small>${result.url}</small>
+                    ${result.error ? '<br><em>Error: ' + result.error + '</em>' : ''}
+                </div>`;
+            });
+            
+            document.getElementById('urlTests').innerHTML = html;
+        }
+        
+        // Test Dojo configuration
+        function testDojoConfig() {
+            const dojoTestDiv = document.getElementById('dojoTest');
+            
+            // Set up Dojo config
+            window.dojoConfig = {
+                async: true,
+                parseOnLoad: false,
+                baseUrl: "https://accent-analytics.com/",
+                packages: [
+                    { name: "dojo", location: "https://accent-analytics.com/dojo" },
+                    { name: "dijit", location: "https://accent-analytics.com/dijit" },
+                    { name: "dojox", location: "https://accent-analytics.com/dojox" }
+                ]
+            };
+            
+            dojoTestDiv.innerHTML = `
+                <div class="info">
+                    <strong>Dojo Config Set:</strong><br>
+                    <pre>${JSON.stringify(window.dojoConfig, null, 2)}</pre>
+                </div>
+                <div class="info">
+                    <p>Now loading Dojo script...</p>
+                    <div id="dojoLoadResult">Loading...</div>
+                </div>
+            `;
+            
+            // Load Dojo script
+            const script = document.createElement('script');
+            script.src = 'https://accent-analytics.com/dojo/dojo.js';
+            script.onload = function() {
+                document.getElementById('dojoLoadResult').innerHTML = 
+                    '<div class="success">✅ Dojo loaded successfully!</div>';
+                
+                // Test require
+                setTimeout(() => {
+                    try {
+                        require(['dijit/registry'], function(registry) {
+                            document.getElementById('dojoLoadResult').innerHTML += 
+                                '<div class="success">✅ dijit/registry loaded successfully!</div>';
+                        });
+                    } catch (error) {
+                        document.getElementById('dojoLoadResult').innerHTML += 
+                            '<div class="error">❌ Error loading dijit/registry: ' + error.message + '</div>';
+                    }
+                }, 1000);
+            };
+            script.onerror = function() {
+                document.getElementById('dojoLoadResult').innerHTML = 
+                    '<div class="error">❌ Failed to load Dojo script</div>';
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', function() {
+            runUrlTests();
+            setTimeout(testDojoConfig, 2000);
+        });
+        
+        // Add navigation links
+        document.body.innerHTML += `
+            <div class="info">
+                <h3>Navigation</h3>
+                <p><a href="http://localhost/analytics.local/">Go to Analytics Application</a></p>
+                <p><a href="http://localhost/analytics.local/bpa.php">Go to BPA (Main App)</a></p>
+            </div>
+        `;
+    </script>
+</body>
+</html>

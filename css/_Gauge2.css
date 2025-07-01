@@ -1,0 +1,92 @@
+@CHARSET "ISO-8859-1";
+
+.dojoxGaugeContent {
+	font-family: "Leelawadee", "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+}
+
+.dojoxGaugeRange1 { /* Red */
+	fill: #ff0000;
+	stroke: #ff0000;
+}
+
+.dojoxGaugeRange2 { /* Yellow */
+	fill: #FFD900;
+	stroke: #FFD900 ;
+}
+
+.dojoxGaugeRange3 { /* Green */
+	fill: #33CC00;
+	stroke: #33CC00;
+}
+.dojoxGaugeRange4 { /* Dark Green */
+	fill: #006600;
+	stroke: #006600;
+}
+.dojoxGaugeRange5 { /* Blue */
+	fill: #0000FF;
+	stroke: #0000FF;
+}
+
+
+/* Original
+.dojoxGaugeContent {
+	font-family: "Leelawadee", "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #CCCCCC;
+}
+
+.dojoxGaugeRange1 {
+	fill: #ff0000 ;
+	stroke: #ff0000 ;
+}
+
+.dojoxGaugeRange2 {
+	fill: #ff0000 ;
+	stroke: #ff0000 ;
+}
+
+.dojoxGaugeRange3 {
+	fill: #ff0000;
+	stroke: #ff0000;
+}
+
+.dojoxGaugeRange4 {
+	fill: #FFD900;
+	stroke: #FFD900;
+}
+
+.dojoxGaugeRange5 {
+	fill: #FFD900;
+	stroke: #FFD900;
+}
+
+.dojoxGaugeRange6 {
+	fill: #FFD900;
+	stroke: #FFD900;
+}
+
+.dojoxGaugeRange7 {
+	fill: #33CC00;
+	stroke: #33CC00;
+}
+
+.dojoxGaugeRange8 {
+	fill: #33CC00;
+	stroke: #33CC00;
+}
+
+.dojoxGaugeRange9 {
+	fill: #33CC00;
+	stroke: #33CC00;
+}
+
+.dojoxGaugeRange10 {
+	fill: #33CC00;
+	stroke: #33CC00;
+}
+
+.testing {
+	fill: blue;
+	stroke: blue;
+}*/

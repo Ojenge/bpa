@@ -1,0 +1,71 @@
+[
+    {
+        "name": "Organizations",
+        "id": "root"
+    },
+        {
+            "name": "BSEA",
+            "id": "bsea",
+            "parent": "root"
+        },
+            {
+                "name": "Consulting",
+                "id": "consulting",
+                "parent": "bsea"
+            },
+            {
+                "name": "Training",
+                "id": "training",
+                "parent": "bsea"
+            },
+{
+                "name": "Automation",
+                "id": "automation",
+                "parent": "bsea"
+            },
+        {
+            "name": "BSCI",
+            "id": "bsci",
+            "parent": "root"
+        },
+            {
+                "name": "Africa",
+                "id": "africa",
+                "parent": "bsci"
+            },
+            {
+                "name": "USA",
+                "id": "usa",
+                "parent": "bsci"
+            },
+            {
+                "name": "Europe",
+                "id": "europe",
+                "parent": "bsci"
+            },
+            {
+                "name": "Australia",
+                "id": "australia",
+                "parent": "bsci"
+            },
+                {
+                    "name": "Sydney",
+                    "id": "sydney",
+                    "parent": "australia"
+                },
+                {
+                    "name": "Adelaide",
+                    "id": "adelaide",
+                    "parent": "australia"
+                },
+                {
+                    "name": "Perth",
+                    "id": "perth",
+                    "parent": "australia"
+                },
+        {
+            "name": "Measure",
+            "id": "measure",
+            "parent": "root"
+        }
+]

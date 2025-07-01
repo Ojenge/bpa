@@ -1,0 +1,89 @@
+#divObjectiveName
+{
+	overflow:hidden;
+}
+#divGaugeGoal
+{
+	margin-top:3px;
+}
+#divGauge3
+{
+	margin-top:3px;
+}
+#divGauge4
+{
+	margin-top:3px;
+}
+#divGroup1
+{
+	float:left;
+	width:29.7%
+}
+
+#divGroup2
+{
+	width:70%;
+	float:right;
+	margin-left:0.3%;
+}
+#divOwner
+{
+	margin-top:3px;
+}
+
+#divChart
+{
+	width:80%;
+	height:250px;
+	margin-top:3px;
+	float:left;
+}
+#divChartType
+{
+	float:right;
+	margin-left:2.0%;
+	width:18.0%;
+}
+
+#divMeasures
+{
+	width: 33%;
+	float: left;
+	margin-top:60px;
+}
+
+#divInitiatives
+{
+	width: 33%;
+	float: left;
+	margin-top:60px;
+	margin-left:0.3%
+}
+
+#divCascadedTo
+{
+	width: 33%;
+	float: left;
+	margin-top:60px;
+	margin-left:0.3%;
+}
+
+#divDevelopmentPlan
+{
+	float: left;
+	margin-top:3px;
+}
+
+#divNotes
+{
+	float: left;
+	margin-top:3px;
+	width:100%;
+}
+
+#divNotes2
+{
+	float: left;
+	margin-top:3px;
+	width:100%;
+}

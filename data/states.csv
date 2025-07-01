@@ -1,0 +1,37 @@
+name,id,type
+All,AL,other
+Andaman and Nicobar Islands,AN,UT
+Andhra Pradesh,AP,state
+Arunachal Pradesh,AR,state
+Assam,AS,state
+Bihar,BR,state
+Chandigarh,CH,UT
+Chhattisgarh,CG,state
+Dadra and Nagar Haveli,DN,UT
+Daman and Diu,DD,UT
+Delhi,DL,UT
+Goa,GA,state
+Gujarat,GJ,state
+Haryana,HR,state
+Himachal Pradesh,HP,state
+Jammu and Kashmir,JK,state
+Jharkhand,JH,state
+Karnataka,KA,state
+Kerala,KL,state
+Lakshadweep,LD,UT
+Madhya Pradesh,MP,state
+Maharashtra,MH,state
+Manipur,MN,state
+Meghalaya,ML,state
+Mizoram,MZ,state
+Nagaland,NL,state
+Orissa,OR,state
+Pondicherry,PB,UT
+Punjab,PB,state
+Rajasthan,RJ,state
+Sikkim,SK,state
+Tamil Nadu,TN,state
+Tripura,TR,state
+Uttar Pradesh,UP,state
+Uttarakhand,UA,state
+West Bengal,WB,state

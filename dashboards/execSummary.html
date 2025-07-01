@@ -1,0 +1,246 @@
+<script>
+require([
+"dojo/request",
+"dojo/dom",
+"dojo/dom-style",
+"dojo/domReady!"
+], function(request, dom, domStyle)
+{
+
+summaryTable = function()
+{
+	domStyle.set(dom.byId("detailsTable"), "display", "block");
+	domStyle.set(dom.byId("executiveDbHome"), "display", "none");
+	domStyle.set(dom.byId("reportees"), "display", "none");
+}
+
+executiveDbHome = function()
+{
+	domStyle.set(dom.byId("detailsTable"), "display", "none");
+	domStyle.set(dom.byId("executiveDbHome"), "display", "block");
+	domStyle.set(dom.byId("reportees"), "display", "block");
+}
+
+listReportees = function(hod)
+{
+	request.post("get-reportees.php",{
+	data: { filter: hod }				
+	}).then(function(reportees) 
+	{
+		dom.byId("reportees").innerHTML = reportees;
+	});
+}
+
+function getColumns()
+{
+	return [
+	{	
+		field: 'id',
+		title: 'Id',
+		valign: 'top',
+		visible: false
+	},
+	{	
+		field: 'display_name',
+		title: 'Name',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'title',
+		title: 'Title',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'name',
+		title: 'Department',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'taskCount',
+		title: 'Assigned<br>Initiatives',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'updateCount',
+		title: 'Initiatives Updated<br>Within a Month',
+		sortable: true
+	},
+	{	
+		field: 'indScorePrevious',
+		title: 'Previous Period<br>Score',
+		sortable: true
+	},
+	{	
+		field: 'indScore',
+		title: 'Current<br>Score',
+		sortable: true
+	},
+	{
+		field: 'lastSignIn',
+		title: 'Last<br>Sign In',
+		//events:'actionEvents',
+		valign: 'top',
+		align: 'right'
+	}];
+}
+
+function getColumnsTwo()
+{
+	return [
+	{	
+		field: 'id',
+		title: 'Id',
+		valign: 'top',
+		visible: false
+	},
+	{	
+		field: 'display_name',
+		title: 'Name',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'title',
+		title: 'Title',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'taskCount',
+		title: 'Assigned<br>Initiatives',
+		valign: 'top',
+		sortable: true
+	},
+	{	
+		field: 'updateCount',
+		title: 'Initiatives Updated<br>Within a Month',
+		sortable: true
+	},
+	{	
+		field: 'indScorePrevious',
+		title: 'Previous Period<br>Score',
+		sortable: true
+	},
+	{	
+		field: 'indScore',
+		title: 'Current<br>Score',
+		sortable: true
+	},
+	{
+		field: 'lastSignIn',
+		title: 'Last<br>Sign In',
+		//events:'actionEvents',
+		valign: 'top',
+		align: 'right'
+	}];
+}
+
+$table = $('#execSummary');
+	
+$table.bootstrapTable({
+	url: "executive-summary-bootstrap.php",
+	method: 'post',
+	contentType: 'application/x-www-form-urlencoded',
+	queryParams: function (p) 
+	{
+		return {
+			//filter:'1',
+			objectDate: globalDate
+			};
+	},
+	columns: getColumns(),
+	language: 
+	{
+		infoEmpty: "No Initiatives Returned",
+	}
+});
+
+$table.on('expand-row.bs.table', function (e, index, row, $detail) 
+{
+	$detail.html('Loading details...');
+	$.each(row, function (key, value) 
+	{
+		 if(key == "id")
+		 {
+			$detail.html('<table></table>').find('table').bootstrapTable({
+				url: "get-exec-summary-details.php",
+				method: 'post',
+				contentType: 'application/x-www-form-urlencoded',
+				queryParams: function (p) 
+				{
+					return {
+						objectId: value,
+						objectDate: globalDate
+						};
+				},
+				columns: getColumnsTwo()
+			})
+		 }
+	})
+});
+
+request.post("get-hods.php",{
+	//data: { filterContent: filterContent }				
+}).then(function(hods) 
+{
+	dom.byId("executiveDbHome").innerHTML = hods;
+});
+
+});
+</script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Executive Dashboard</title>
+</head>
+<body>
+<div class="container border border-light bg-light rounded">
+	<nav class="navbar navbar-expand-lg navbar-light">
+	<div class="container-fluid">
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+		  <li class="nav-item"><a class="nav-link text-primary active" href="#" onclick="executiveDbHome();" aria-current="page" ><i class="bi bi-house"></i> Dashboard</a></li>
+		  <li class="nav-item"><a class="nav-link" href="#" onclick="summaryTable();"><i class="bi bi-list-ul"></i> Table</a></li>
+		</ul>
+	  </div>
+	</div>
+  </nav>
+</div>
+
+<div id="executiveDbHome">
+	<div class="spinner-border text-primary" role="status">
+		<span class="visually-hidden">Loading...</span>
+	</div>
+	<strong>Computing scores...</strong>
+</div>
+<div id="reportees"></div>
+<div id="detailsTable" style="display: none;">
+	<table id="execSummary"
+		data-id-field="id"
+		data-unique-id="id"
+		data-pagination="true"
+		data-toolbar="#toolbar" 
+		data-show-columns="true"
+		data-show-toggle="false"
+		data-search="true" 
+		data-show-pagination-switch="true"
+		data-show-export="true" 
+		data-striped="true"
+		data-classes="table table-hover table-responsive table-bordered table-sm table-condensed table-striped"
+		data-detail-view="true"
+		data-buttons="buttonsPIP"
+		data-filter-control="true"
+		data-show-footer="false"
+		data-row-style="rowStyle"
+		data-visible="true">
+	</table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<div class="dijitHidden">
+	<div data-dojo-type="dijit/Dialog" data-dojo-props="title:'New Initiative'" id="newInitiativeDialog" style="font-size:11px;">
+    <div class="border border-primary rounded-3" style="overflow:hidden;">
+        <table id="newInitiativeDialog-table" class="table table-responsive table-bordered table-sm table-condensed">
+    <tr>
+        <td width="9%" valign="top" rowspan="2"><strong>Initiative Name</strong></td>
+        <td width="20%" id="initiativeName" rowspan="2">
+        <div data-dojo-type="dijit/Editor" id="initiativeNameInput" data-dojo-props="plugins:['undo','redo','|','bold','italic','underline','subscript','superscript','|', 'insertOrderedList', 'insertUnorderedList',  'indent', 'outdent', '|', 'justifyLeft', 'justifyCenter']" style="width:330px; height:100px; overflow:scroll;"></div>
+        </td>
+        <td width="9%" valign="top"><strong>Deliverable</strong></td>
+        <td width="20%" id="initiativeDeliverable"><input type='text' style='width:90%' id='initiativeDeliverableInput'/></td>
+        <td width="9%" valign="top" rowspan="2"><strong>Target/ Scope</strong></td>
+        <td width="20%" id="initiativeScope" rowspan="2">
+        <div data-dojo-type="dijit/Editor" id="scopeInput" data-dojo-props="plugins:['undo','redo','|','bold','italic','underline','subscript','superscript','|', 'insertOrderedList', 'insertUnorderedList',  'indent', 'outdent', '|', 'justifyLeft', 'justifyCenter']" style="width:330px; height:100px; overflow:scroll;"></div>
+        </td>
+        <!--<td width="9%" valign="top" rowspan="2"><strong>Include In Scoring?:</strong></td>
+        <td width="24%" id="initiativeScore" rowspan="2"><input type='checkbox' id='scoringInput' checked/></td>-->
+     </tr>
+     <tr>
+     	<td width="9%" valign="top"><strong>Deliverable Met?:</strong></td>
+        <td width="20%" id="initiativeDeliverable"><input type='checkbox' id='deliverableStatusInput'/></td>
+     </tr>
+     <tr>
+        <td width="9%" valign="top" style="display:none;"><strong>Sponsor</strong></td>
+        <td width="20%" id="initiativeSponsor" style="display:none;"><input type='text' style='width:90%' id='initiativeSponsorInput'/></td><!--Project sponsor has not been a practical add in the real world. LTK 28 Jun 2021 1225hrs-->
+        <td width="9%" valign="top"><strong>Project Manager</strong></td>
+        <td width="20%" id="initiativeManager"><input type='text' style='width:90%' id='initiativeManagerInput'/></td>
+        <td width="9%" valign="top"><strong>Project Team</strong></td>
+        <td width="20%" id="initiativeTeam"><input type='text' style='width:90%' id='initiativeTeamInput'/></td>
+        <td style="display:none;"><div id="teamMembers"></div></td>
+	
+        <td width="9%" valign="top" style="display:none;"><strong>Parent Initiative</strong></td>
+        <td width="20%" id="initiativeParent" style="display:none;"><input type='text' style='width:90%' id='initiativeParentInput'/></td>
+        <td width="9%" valign="top"><strong>Linked Objective (Corporate/Departmental)</strong></td>
+        <td width="20%" id="initiativeLink"><input type='text' style='width:90%' id='initiativeLinkInput'/></td>
+     </tr>
+     <tr>
+        <td width="9%" valign="top"><strong>Budget</strong></td>
+     	<td width="20%" id="initiativeBudget"><input type='text' style='width:90%' id='initiativeBudgetInput'/></td>
+        <td width="9%" valign="top"><strong>Cost Incurred</strong></td>
+     	<td width="20%" id="initiativeCost"><input type='text' style='width:90%' id='initiativeCostInput'/></td>
+     </tr>
+     <tr>
+        <td width="9%" valign="top"><strong>Start Date</strong></td>
+        <td width="20%" id="initiativeStart">        
+            <input id="initiativeStartInput" data-dojo-id="initiativeStartDojo" type="text" data-dojo-type="dijit/form/DateTextBox" 
+            onChange="initiativeDueDojo.constraints.min = arguments[0]; initiativeCompleteDojo.constraints.min = arguments[0];" data-dojo-props="constraints:{datePattern: 'dd-MMM-yyyy'}"/>
+        </td>
+        <td width="9%" valign="top"><strong>Due Date</strong></td>
+        <td width="20%" id="initiativeDue">
+            <input id="initiativeDueInput" data-dojo-id="initiativeDueDojo" type="text" data-dojo-type="dijit/form/DateTextBox" 
+            onChange="initiativeStartDojo.constraints.max = arguments[0];" data-dojo-props="constraints:{datePattern: 'dd-MMM-yyyy'}"/>
+        </td>
+        <td width="9%" valign="top"><strong>Completion Date</strong></td>
+        <td width="20%" id="initiativeComplete">
+        <input id="initiativeCompleteInput" data-dojo-id="initiativeCompleteDojo" type="text" data-dojo-type="dijit/form/DateTextBox" 
+            data-dojo-props="constraints:{datePattern: 'dd-MMM-yyyy', max: new Date()}"/>
+       </td>
+    </tr>
+     <tr>
+        <td width="9%" valign="top"><strong>Status</strong></td>
+     	<td width="20%" id="initiativeStatus">
+            <select id='initiativeStatusInput' style='width:90%'>
+                <option value=""></option>
+                <option value="Completed">Completed</option>
+                <option value="On Track">On Track</option>
+                <option value="Behind Schedule">Behind Schedule</option>
+            </select>
+     	</td>
+        <td width="9%" valign="top" rowspan="2"><strong>Intrepretation</strong></td>
+     	<td width="20%" id="initiativeStatusDetails" rowspan="2">
+     	<div data-dojo-type="dijit/Editor" id="initiativeStatusDetailsInput" data-dojo-props="plugins:['undo','redo','|','bold','italic','underline','subscript','superscript','|', 'insertOrderedList', 'insertUnorderedList',  'indent', 'outdent', '|', 'justifyLeft', 'justifyCenter']" style="width:330px; height:100px; overflow:scroll;"></div>
+     	</td>
+        <td width="9%" valign="top" rowspan="2"><strong>Way Forward</strong></td>
+     	<td width="20%" id="initiativeNotes" rowspan="2">
+     	<div data-dojo-type="dijit/Editor" id="initiativeNotesInput" data-dojo-props="plugins:['undo','redo','|','bold','italic','underline','subscript','superscript','|', 'insertOrderedList', 'insertUnorderedList',  'indent', 'outdent', '|', 'justifyLeft', 'justifyCenter']" style="width:330px; height:100px; overflow:scroll;"></div>
+     	</td>
+     </tr>
+     <tr><td width="9%" valign="top"><strong>Percentage Completion</strong></td><td width="24%" id="percentageCompletion"><input type='number' style='width:90%' id='percentageCompletionInput'/>%</td></tr>
+</table>
+</div>
+		<button data-dojo-type="dijit/form/Button" onClick="saveInitiative()" type="submit">Finish</button>
+   </div>
+</div>

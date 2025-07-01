@@ -1,0 +1,198 @@
+[
+{
+		"color": "#0000FF",
+		"style": "Solid",
+		"cap": "round",
+		"fill": {
+			"r": 256,
+			"g": 0,
+			"b": 0,
+			"a": 0.5
+		},
+		"borderWidth": 1,
+		"x": 20,
+		"y": 30,
+		"width": 10,
+		"height": 25.200000000000003,
+		"type": "textBlock",
+		"text": "DojoX Drawing Rocks",
+		"pad": 3,
+		"size": "24px",
+		"family": "sans-serif",
+		"weight": "bold"
+},
+{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 3,
+		"x1": 400,
+		"y1": 200,
+		"x2": 226.79491924311228,
+		"y2": 300,
+		"type": "arrow",
+		"label": "My Arrow"
+},
+{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 1,
+		"x": 300,
+		"y": 60,
+		"width": 200,
+		"height": 25.19999999999999,
+		"type": "text",
+		"text": "This is just text",
+		"pad": 3,
+		"size": "18px",
+		"family": "sans-serif",
+		"weight": "normal"
+},	
+{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 1,
+		"x": 480,
+		"y": 125,
+		"width": 201,
+		"height": 121,
+		"src": "images/3color.png",
+		"type": "image"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 1,
+		"x": 480,
+		"y": 285,
+		"width": 201,
+		"height": 121,
+		"src": "images/4color.png",
+		"type": "image"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "red",
+		"borderWidth": 1,
+		"x": 50,
+		"y": 65,
+		"width": 100,
+		"height": 50,
+		"r": 0,
+		"type": "rect",
+"label":"Objective 1"
+	},
+	{
+		"color": "#000000",
+"text":"test text",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "yellow",
+		"borderWidth": 1,
+		"x": 50,
+		"y": 130,
+		"width": 100,
+		"height": 50,
+		"r": 5,
+		"type": "rect",
+"label":"Objective 2"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "green",
+		"borderWidth": 1,
+		"x": 50,
+		"y": 205,
+		"width": 100,
+		"height": 50,
+		"r": 5,
+		"type": "rect",
+"label":"Objective 3"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "red",
+		"borderWidth": 1,
+		"cx": 300,
+		"cy": 120,
+		"rx": 20,
+		"ry": 20,
+		"type": "ellipse"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "yellow",
+		"borderWidth": 1,
+		"cx": 300,
+		"cy": 235,
+		"rx": 100,
+		"ry": 50,
+		"type": "ellipse"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "green",
+		"borderWidth": 1,
+		"cx": 300,
+		"cy": 350,
+		"rx": 100,
+		"ry": 50,
+		"type": "ellipse"
+	},
+	
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 1,
+		"x1": 500,
+		"y1": 100,
+		"x2": 600,
+		"y2": 100,
+		"type": "line"
+	},
+	{
+		"color": "#000000",
+		"style": "Solid",
+		"cap": "round",
+		"fill": "#CCCCCC",
+		"borderWidth": 1,
+		"points": [
+			{
+				"x": 10,
+				"y": 390
+			},
+			{
+				"x": 50,
+				"y": 260
+			},
+			{
+				"x": 175,
+				"y": 330
+			},
+			{
+				"x": 100,
+				"y": 300
+			}
+		],
+		"type": "path"
+	}
+]

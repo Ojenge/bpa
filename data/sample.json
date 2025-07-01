@@ -1,0 +1,24 @@
+[{
+	"id":"item-13",
+	"type":"Rectangle",
+	"transform":"rotate(-60) translate(255.32754963085074,202.5763061492192)",
+	"stroke-color":"#ffa500",
+	"stroke-width":"10",
+	"fill":"#87ceeb",
+	"x":"0",
+	"width":"186",
+	"y":"0",
+	"height":"122",
+	"Text":
+	{
+		"fill":"#ffff00",
+		"size":"18",
+		"family":"Helvetica",
+		"weight":"bold",
+		"fontstyle":"normal",
+		"text-anchor":"middle",
+		"x":"93",
+		"y":"61", 
+		"Label":"Rectangle with a rotation angle"
+	}
+}]

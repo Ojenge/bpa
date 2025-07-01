@@ -1,0 +1,23 @@
+<?php
+include_once("config_mysqli.php");
+	
+$user_query="SELECT id, name FROM commentarygoal";
+$user_result=mysqli_query($connect, $user_query) or die("Could not query uc_users table");;
+
+$row_count = mysqli_num_rows($user_result);// or die("Could not count rows");
+if ($row_count == NULL) exit;
+
+$count = 1;
+echo "{ \"identifier\": \"Goal\", \"label\": \"Goal\", \"items\": [";
+while($row = mysqli_fetch_assoc($user_result))
+{
+	$data["id"] = $row["id"];
+	$data["Goal"] = $row["name"];
+	$data = json_encode($data);
+	echo $data;
+	if($count<$row_count) echo ", ";
+	$data = NULL;
+	$count++;
+}
+echo "]}";
+?>

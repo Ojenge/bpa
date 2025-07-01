@@ -1,0 +1,37 @@
+@charset "utf-8";
+#orgConnect, #perspConnect, #objConnect {
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:11px;
+}
+.dgrid {
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:10px !important;
+}
+#gridConnect {
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:10px !important;
+}
+#gridCopyConnect {
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:10px;
+}
+#gridConnect .dgrid-cell {
+	border: 1;
+}
+#gridConnect .dgrid-header th {
+	border: 0;
+	border-right: 1px solid #a6a6a6;
+}
+#gridConnect .dgrid-header th:last-child {
+	border: 0;
+}
+#gridConnect .dgrid-row-even {
+	background-color: #f2f6fa;
+	font-size:11px !important;
+}
+#gridConnect .dgrid-row-even.dgrid-selected {
+	background-color: #bfd6eb;
+}
+#gridConnect .field-Time, #gridConnect .field-Year { 
+	text-align: right; 
+}

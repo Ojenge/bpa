@@ -1,0 +1,17 @@
+{   
+"items": [
+		{
+			"organization": "Balanced Scorecard Eastern Africa", 
+			"perspective1": "Financial", 
+			"perspective2": "Customer", 
+			"objective1": "Increase Revenue", 
+			"objective2": "Reduce Costs",			
+			"measure1": "Revenue",
+			"measure2": "+ve Budget Variance",
+			"score1":3, 
+			"score2":6, 
+			"actual1": 3000000, 
+			"actual2": 7000000 
+		}
+	]
+}

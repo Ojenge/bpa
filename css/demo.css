@@ -1,0 +1,25 @@
+@charset "utf-8";
+/* CSS Document */
+
+{
+    outline: none !important;
+}
+
+body {
+    margin: 0;
+    padding: 2em;
+    font-family: Lucida Sans,Lucida Grande,Arial !important;
+    font-size: 13px !important;
+    background: white;
+    color: #333;
+}
+
+h1 {
+	font-size:1.5em;
+}
+
+.break
+{
+float:none;
+clear:both;
+}

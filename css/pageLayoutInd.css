@@ -1,0 +1,82 @@
+@charset "utf-8";
+/* CSS Document */
+
+#divIndName
+{
+	overflow:hidden;
+}
+
+#divIndGauge3
+{
+	/*margin-top:3px;*/
+}
+#divIndGauge4
+{
+	/*margin-top:3px;*/
+}
+#divIndGroup1
+{
+	float:left;
+	width:29.7%
+}
+
+#divIndGroup2
+{
+	width:70%;
+	float:right;
+	margin-left:0.3%;
+}
+#divOwner
+{
+	margin-top:3px;
+}
+
+#divIndChart
+{
+	width:80%;
+	height:250px;
+	margin-top:3px;
+	float:left;
+}
+#divIndChartType
+{
+	float:right;
+	margin-left:2.0%;
+	width:18.0%;
+}
+
+#divIndInitiatives
+{
+	width: 66%;
+	float: left;
+	margin-top:60px;
+	margin-left:0.3%
+}
+
+#divIndCascadedTo
+{
+	width: 33%;
+	float: left;
+	margin-top:60px;
+	margin-left:0.3%;
+}
+
+#divIndDevelopmentPlan
+{
+	float: left;
+	margin-top:3px;
+}
+
+#divIndNotes
+{
+	float: left;
+	margin-top:3px;
+	width:100%;
+}
+
+#divIndNotes2
+{
+	float: left;
+	margin-top:3px;
+	width:100%;
+}

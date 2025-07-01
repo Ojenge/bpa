@@ -1,0 +1,45 @@
+@charset "utf-8";
+/* CSS Document */
+
+html, body {
+    height: 98.2%;
+	width:100%;
+    margin: 0;
+    overflow:visible;
+    padding: 0;
+	font-family: "Leelawadee", "Lucida Sans Unicode", "Lucida Grande", "Sans-Serif" !important;
+	font-size:14px !important;
+}
+ 
+.claro .dijitDialogUnderlay { background:#000; }
+ 
+#appLayout {
+    height: 99%;
+	overflow:visible;
+}
+#leftCol {
+    width: 18em;
+}
+ 
+.claro .demoLayout .edgePanel {
+    background-color: #d0e9fc;
+}
+ /*
+#viewsChart {
+    width: 550px;
+    height: 550px;
+}*/
+#topBar {
+	margin: 0; padding: 0; border: none;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>th 
+{
+   background-color: #cfe2ff !important; /*Changing the default bootstrap striped color. LTK 31Aug2021 1430Hrs*/
+}
+
+/*.perspective {
+background-image:url(../images/goal.png) !important;
+	background-repeat: no-repeat;
+}*/

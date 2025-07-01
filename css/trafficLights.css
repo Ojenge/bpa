@@ -1,0 +1,74 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.redLight
+{
+	border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+	width: 30px;
+    height: 30px;
+    background: red;
+    border: 1px solid black;
+}
+.trafficLightBootstrap
+{
+	width: 24px;
+    height: 24px;
+	border: 1px solid grey;
+}
+.yellowLight
+{
+	border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+	width: 30px;
+    height: 30px;
+    background: yellow;
+    border: 1px solid black;
+}
+.greenLight
+{
+	border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+	width: 30px;
+    height: 30px;
+    background: green;
+    border: 1px solid black;
+}
+.greyLight
+{
+	border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+	width: 30px;
+    height: 30px;
+    background: grey;
+    border: 1px solid black;
+}
+.redColor
+{
+    color: red;
+}
+
+.yellowColor
+{
+    color: yellow;
+}
+
+.greenColor
+{
+    color: green;
+}
+
+.lightRedColor
+{
+    color: red;
+}
+
+.lightYellowColor
+{
+    color: #FFFF00; /*cross check*/
+}
+
+.lightGreenColor
+{
+    color: #009900; /*cross check*/
+}

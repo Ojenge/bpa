@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Dashboard Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Department Dashboard Function Test</h1>
+        <p>This page tests the <code>departmentDashboard()</code> function and related dashboard functionality.</p>
+
+        <div class="test-section">
+            <h3>1. Function Availability Test</h3>
+            <p>Testing if the required functions are available in the global scope:</p>
+            <button class="test-button" onclick="testFunctionAvailability()">Test Function Availability</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Department Dashboard Test</h3>
+            <p>Test the department dashboard function with different parameters:</p>
+            <button class="test-button" onclick="testDepartmentDashboard()">Test Default Department</button>
+            <button class="test-button" onclick="testDepartmentDashboard('org1')">Test with org1</button>
+            <button class="test-button" onclick="testDepartmentDashboard('org2')">Test with org2</button>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Dashboard Selection Test</h3>
+            <p>Test the dashboard selection interface:</p>
+            <button class="test-button" onclick="testDashboardSelection()">Test Dashboard Selection</button>
+        </div>
+
+        <div class="test-section">
+            <h3>4. API Endpoints Test</h3>
+            <p>Test if the dashboard API endpoints are working:</p>
+            <button class="test-button" onclick="testQuickStats()">Test Quick Stats API</button>
+            <button class="test-button" onclick="testDepartmentMetrics()">Test Department Metrics API</button>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Manual Department Selection</h3>
+            <p>Select a department and test the dashboard:</p>
+            <select id="manualDeptSelect">
+                <option value="org1">Department 1</option>
+                <option value="org2">Department 2</option>
+                <option value="org3">Department 3</option>
+            </select>
+            <button class="test-button" onclick="testManualSelection()">Open Selected Department Dashboard</button>
+        </div>
+
+        <div id="results">
+            <h4>Test Results:</h4>
+            <p>Click the test buttons above to see results here...</p>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            results.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function testFunctionAvailability() {
+            log('Testing function availability...', 'info');
+            
+            const functions = [
+                'departmentDashboard',
+                'departmentDashboardWithSelection', 
+                'openDepartmentDashboard',
+                'safeContentPaneTransition'
+            ];
+            
+            functions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    log(`✓ ${funcName} is available`, 'success');
+                } else {
+                    log(`✗ ${funcName} is NOT available`, 'error');
+                }
+            });
+        }
+
+        function testDepartmentDashboard(departmentId) {
+            const deptParam = departmentId ? `'${departmentId}'` : 'default';
+            log(`Testing departmentDashboard(${deptParam})...`, 'info');
+            
+            try {
+                if (typeof departmentDashboard === 'function') {
+                    departmentDashboard(departmentId);
+                    log(`✓ departmentDashboard(${deptParam}) called successfully`, 'success');
+                } else {
+                    log('✗ departmentDashboard function not found', 'error');
+                }
+            } catch (error) {
+                log(`✗ Error calling departmentDashboard: ${error.message}`, 'error');
+            }
+        }
+
+        function testDashboardSelection() {
+            log('Testing dashboard selection...', 'info');
+            
+            try {
+                if (typeof departmentDashboardWithSelection === 'function') {
+                    departmentDashboardWithSelection();
+                    log('✓ departmentDashboardWithSelection called successfully', 'success');
+                } else {
+                    log('✗ departmentDashboardWithSelection function not found', 'error');
+                }
+            } catch (error) {
+                log(`✗ Error calling departmentDashboardWithSelection: ${error.message}`, 'error');
+            }
+        }
+
+        function testQuickStats() {
+            log('Testing Quick Stats API...', 'info');
+            
+            fetch('get-quick-stats.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        log(`✗ Quick Stats API error: ${data.error}`, 'error');
+                    } else {
+                        log(`✓ Quick Stats API working. Departments: ${data.totalDepartments}, Staff: ${data.totalStaff}`, 'success');
+                    }
+                })
+                .catch(error => {
+                    log(`✗ Quick Stats API fetch error: ${error.message}`, 'error');
+                });
+        }
+
+        function testDepartmentMetrics() {
+            log('Testing Department Metrics API...', 'info');
+            
+            const formData = new FormData();
+            formData.append('departmentId', 'org1');
+            
+            fetch('get-department-metrics.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        log(`✗ Department Metrics API error: ${data.error}`, 'error');
+                    } else {
+                        log(`✓ Department Metrics API working. Score: ${data.overallScore}, Team: ${data.teamSize}`, 'success');
+                    }
+                })
+                .catch(error => {
+                    log(`✗ Department Metrics API fetch error: ${error.message}`, 'error');
+                });
+        }
+
+        function testManualSelection() {
+            const selectedDept = document.getElementById('manualDeptSelect').value;
+            log(`Testing manual selection with department: ${selectedDept}`, 'info');
+            testDepartmentDashboard(selectedDept);
+        }
+
+        // Initialize
+        log('Department Dashboard Test Page Loaded', 'info');
+        log('Note: Some functions may not be available if not loaded in the main application context', 'info');
+    </script>
+</body>
+</html>
