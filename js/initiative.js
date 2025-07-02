@@ -243,6 +243,8 @@ editInitiative = function(initiativeId, presetObjectiveId)
 		}
 		else dom.byId("selectedElement").innerHTML = initiativeId;
 		
+		dijit.byId("newInitiativeDialog").show(); //moved this here to circumvent the error: TypeError: can't access property "replace", html is undefined. This issue occurs, when you are trying to access dijit controls before parsing
+		
 		request.post("initiatives/get-initiative.php",{
 		handleAs: "json",
 		data: {
@@ -254,9 +256,11 @@ editInitiative = function(initiativeId, presetObjectiveId)
 			sponsorSelect.set("value", initiativeDetails.sponsor);
 			managerId = initiativeDetails.managerId; //Manager and Sponsor would not be saved when editing an existing initiative. LTK 17Jun2021 2157hrs
 			sponsorId = initiativeDetails.sponsorId;
-			//console.log("Manager = " + initiativeDetails.manager);
+			
 			parentSelect.set("value", initiativeDetails.parent);
 			initiativeParentId = initiativeDetails.parentId;
+
+			//console.log("Manager = " + initiativeDetails.manager + ", Sponsor = " + initiativeDetails.sponsor + ", Parent = " + initiativeDetails.parent);
 		
 			dom.byId("editSaveDelete").innerHTML = "Edit";
 			//console.log("Here");
@@ -284,8 +288,6 @@ editInitiative = function(initiativeId, presetObjectiveId)
 			//dom.byId("initiativeStatusDetailsInput").value = initiativeDetails.statusWithoutCircle;
 			dijit.byId("initiativeStatusDetailsInput").set("value", initiativeDetails.statusDetails);
 			dijit.byId("initiativeNotesInput").set("value", initiativeDetails.notes);
-			
-			dijit.byId("newInitiativeDialog").show();
 		});
 	}
 }

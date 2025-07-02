@@ -161,12 +161,9 @@ include_once("../config/config_mysqli.php");
 	$data["archive"] = $row["archive"];
 	
 	$status_result = mysqli_query($connect, "SELECT status, percentageCompletion, details, notes FROM initiative_status WHERE initiativeId = '$initiativeId' ORDER BY updatedOn DESC LIMIT 1") or file_put_contents("errorInitiative.txt", "\t\n Cannot select initiative status with error => ".mysqli_error($connect), FILE_APPEND);
+	$statusCount = mysqli_num_rows($status_result);
 	$status_row = mysqli_fetch_assoc($status_result);
-	if($status_row["status"] == NULL) 
-	{
-		$data["status"] = '<table class="table-borderless" style="background-color: #ffffff !important;"><tr class="table-light"><td><div class="rounded-circle bg-light trafficLightBootstrap"></div></td><td></td></tr></table>';
-	}
-	else 
+	if($statusCount > 0) 
 	{
 		if($status_row["status"] == "Behind Schedule")
 		{
@@ -180,13 +177,17 @@ include_once("../config/config_mysqli.php");
 		{
 			$data["status"] = '<table class="table-borderless" style="background-color: #ffffff !important;"><tr class="table-light"><td><div class="rounded-circle bg-success trafficLightBootstrap"></div></td><td>'.$status_row["status"].'</td></tr></table>';
 		}
+
+		$data["percentageCompletion"] = (empty($status_row["percentageCompletion"])) ? '' : $status_row["percentageCompletion"];
+		$data["statusDetails"] = (empty($status_row["details"])) ? '' : $status_row["details"];
+		$data["notes"] = (empty($status_row["notes"])) ? '' : $status_row["notes"];
+		$data["statusWithoutCircle"] = (empty($status_row["status"])) ? '' : $status_row["status"];
 	}
-	
-	if($status_row["percentageCompletion"] == NULL) $data["percentageCompletion"] = ''; else $data["percentageCompletion"] = $status_row["percentageCompletion"];
-	if($status_row["details"] == NULL) $data["statusDetails"] = ''; else $data["statusDetails"] = $status_row["details"];
-	if($status_row["notes"] == NULL) $data["notes"] = ''; else $data["notes"] = $status_row["notes"];
-	if($status_row["status"] == NULL) $data["statusWithoutCircle"] = ''; else $data["statusWithoutCircle"] = $status_row["status"];
-	
+	else 
+	{
+		$data["status"] = '<table class="table-borderless" style="background-color: #ffffff !important;"><tr class="table-light"><td><div class="rounded-circle bg-light trafficLightBootstrap"></div></td><td></td></tr></table>';
+	}
+		
 	$issue_result = mysqli_query($connect, "SELECT * FROM initiative_issue WHERE initiativeId = '$initiativeId' ORDER BY updatedOn DESC") or file_put_contents("errorInitiative.txt", "\t\n Cannot select initiative issues with error => ".mysqli_error($connect), FILE_APPEND);
 	$issue = "<table><tr><th>Issue</th><th>Way Forward</th><th>Severity</th><th>Status</th><th>Owner</th><th>Last Updated</th></tr>";
 	while($issue_row = mysqli_fetch_assoc($issue_result))
