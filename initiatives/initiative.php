@@ -208,49 +208,17 @@ $table.on('expand-row.bs.table', function (e, index, row, $detail)
 		}).then(function(returnedDetails) 
 		{
 			$detail.html(returnedDetails.replace(/\n/g, '<br>'));
-			dom.byId("expandedProject").innerHTML = value;
+			//dom.byId("expandedProject").innerHTML = value;
 			
-			request.post("initiatives/get-team.php",{
+			/*request.post("initiatives/get-team.php",{
 				data: {initiativeId: value}
 			}).then(function(team)
 			{
 				var teamMembers = "teamMembers"+value;
 				dom.byId(teamMembers).innerHTML = team;
-			});//End of initiatives/get-team.php
+			});*/
 			
-			var waitForDetails = setTimeout(function()
-			{
-				request.post("../userCalls/get-users.php",{
-				handleAs: "json",
-				data: {}
-				}).then(function(userData)
-				{	
-					var userListInput = "userListInput"+value;
-					var userStore = new Memory({data:userData});
-					
-					select1 = new FilteringSelect({
-					name: "userSelectManager",
-					placeHolder: "Add To Team",
-					store: userStore,
-					searchAttr: "User",
-					maxHeight: -1, 
-					onChange: function(){
-						userId = this.item.id;
-						request.post("initiatives/save-team.php",{
-							data: {
-								userId: this.item.id,
-								initiativeId: value
-							}
-						}).then(function(team)
-						{
-							var teamMembers = "teamMembers"+value;
-							dom.byId(teamMembers).innerHTML = team;
-						});//End of initiatives/save-team.php
-					}
-					}, userListInput);
-					select1.startup();
-				});
-			},1200);
+		
 		});
 	 }
 	});

@@ -6,7 +6,7 @@ date_default_timezone_set('Africa/Nairobi');
 //$initiativeId = "63";
 $initiativeId = $_POST["id"];
 
-$project_result = mysqli_query($GLOBALS["___mysqli_ston"], $project_query);
+//$project_result = mysqli_query($GLOBALS["___mysqli_ston"], $project_query);// Sasa hii ilitoka wapi? Preventing the rest of the code from running. LTK 02Jul25 1839hrs
 
 $initiativeLink_query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT linkedobjectid FROM initiativeimpact WHERE initiativeid = '$initiativeId'") or file_put_contents("aError.txt", "Error is ".mysqli_error($GLOBALS["___mysqli_ston"]));
 $row2 = mysqli_fetch_assoc($initiativeLink_query);
@@ -67,7 +67,9 @@ $sponsor_query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT display_name F
 $sponsor_result = mysqli_fetch_assoc($sponsor_query);
 $sponsor = ($sponsor_result && isset($sponsor_result["display_name"])) ? $sponsor_result["display_name"] : '';
 
+if(isset($result['damage']))
 $damage = number_format($result['damage']);
+else $damage = "";
 if($result['completionDate'] == NULL) $completionDate = "";
 else $completionDate = date("d M Y", strtotime($result['completionDate'])); 
 
