@@ -181,7 +181,7 @@ saveInitiative = function()
 	{
 		//eval($table);
 		$table.bootstrapTable("refresh", {
-			url: "../initiatives/get-all-initiatives.php",
+			url: "initiatives/get-all-initiatives.php",
 			silent: true
 		});
 	} catch (e) 
@@ -370,7 +370,7 @@ deleteInitiative = function()
 		},3000);
 		
 		$table.bootstrapTable("refresh", {
-				url: "../initiatives/get-all-initiatives.php",
+				url: "initiatives/get-all-initiatives.php",
 				silent: true
 			});
 	});
@@ -410,7 +410,7 @@ archiveInitiative = function(initiativeId)
 		},3000);
 		
 		$table.bootstrapTable("refresh", {
-				url: "../initiatives/get-all-initiatives.php",
+				url: "initiatives/get-all-initiatives.php",
 				silent: true
 			});
 	});
@@ -425,7 +425,7 @@ removeMember = function(userId)
 		return;
 	}
 
-	request.post("../initiatives/remove-member.php",{
+	request.post("initiatives/remove-member.php",{
 	//handleAs: "json",
 	data: {
 		userId: userId,
@@ -506,7 +506,7 @@ initiativeListFunction = function(initiativeId)
 			
 			postComment();
 			
-			request.post("../initiatives/get-team.php",{
+			request.post("initiatives/get-team.php",{
 			//handleAs: "json",
 			data: {
 				initiativeId: initiativeId
