@@ -1448,7 +1448,7 @@ indDashboard = function()
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 		dojo.byId("dynamicMenu").innerHTML = "";
 		domConstruct.destroy("stratMap");
@@ -1465,7 +1465,7 @@ indDashboard = function()
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 		dojo.byId("dynamicMenu").innerHTML = "";
 		domConstruct.destroy("orgStructure");
@@ -4750,7 +4750,7 @@ else
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');	
 	}
 	else if(menuItemId == "home_previous")
@@ -4775,7 +4775,7 @@ else
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "block");
-			domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 
@@ -4855,7 +4855,7 @@ else
 			domStyle.set(dom.byId("tree"), "display", "block");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 			if(dijit.byId("updateMeasureDialog")){
@@ -5002,7 +5002,7 @@ else
 			domStyle.set(dom.byId("tree"), "display", "block");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 			
@@ -5152,7 +5152,7 @@ else
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 		dojo.byId("dynamicMenu").innerHTML = "";
 	}
@@ -5169,7 +5169,7 @@ else
 		domStyle.set(dom.byId("tree"), "display", "block");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "none");
-		domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 		dojo.byId("dynamicMenu").innerHTML = "";
 		domConstruct.destroy('displayReport');
@@ -5297,7 +5297,7 @@ else
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "block");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 			domConstruct.destroy("objName");
@@ -5330,7 +5330,7 @@ else
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 			domConstruct.destroy("main");
