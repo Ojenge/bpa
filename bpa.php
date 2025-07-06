@@ -51,9 +51,9 @@ if(!empty($_GET))
 	<link rel="stylesheet" href="https://accent-analytics.com/dijit/themes/soria/soria.css" media="all">
     <link rel="stylesheet" href="https://accent-analytics.com/dojox/editor/plugins/resources/css/Save.css"  media="all"/>
     <!--<link rel="stylesheet" href="css/dTuned.css">-->
-	<link rel="stylesheet" href="css/navigableDnd.css" media="all">
+	<!--<link rel="stylesheet" href="css/navigableDnd.css" media="all">
     <link rel="stylesheet" href="css/dashboardTables.css" media="all">
-    <link rel="stylesheet" href="css/mapDetails.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/mapDetails.css" type="text/css" media="all">-->
     
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://accent-analytics.com/bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
@@ -409,8 +409,12 @@ Global ID Holder
             <td><input type="text"  id="kpiDescription" data-dojo-type="dijit/form/TextArea" /></td>
         </tr>
          <tr id="addOutcome">     
+            <td>Outcome:</td>
+            <td><input type="text"  id="kpiOutcome" data-dojo-type="dijit/form/TextBox" /></td>
+        </tr>
+        <tr id="addKRA">     
             <td>Key Result Area:</td>
-            <td><input type="text"  id="kpiOutcome" data-dojo-type="dijit/form/TextArea" /></td>
+            <td><div id="strategicResult"></div></td>
         </tr>
         <tr id="addMission">     
             <td>Mission:</td>

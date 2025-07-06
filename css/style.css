@@ -36,7 +36,8 @@ html, body {
 .table-striped>tbody>tr:nth-child(odd)>td, 
 .table-striped>tbody>tr:nth-child(odd)>th 
 {
-   background-color: #cfe2ff !important; /*Changing the default bootstrap striped color. LTK 31Aug2021 1430Hrs*/
+   /*background-color: #cfe2ff !important;*/ /*Changing the default bootstrap striped color. LTK 31Aug2021 1430Hrs*/
+   /*change my mind about this. a lot has changed in the bootstrap world. no need for these. LTK 04Jul2025 1842Hrs*/
 }
 
 /*.perspective {

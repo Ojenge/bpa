@@ -323,7 +323,6 @@ data: {
 });
 },2000)
 
-
 var tempwait = setTimeout(function(){
 request.post("layout/get-objectives.php",{
 handleAs: "json",
@@ -352,8 +351,34 @@ data: {
 });
 },2000)
 
+var tempwait = setTimeout(function(){
+	request.post("scorecards/kra/getKRASelect.php",{
+	handleAs: "json",
+	data: {
+	}
+	}).then(function(kraData)
+	{
+		var kraStore = new Memory({data:kraData});
+	
+		selectKra = new FilteringSelect({
+		name: "strategicResult",
+		//displayedValue: managerDisplay,
+		//placeHolder: "Select a User",
+		store: kraStore,
+		searchAttr: "kraName",
+		maxHeight: -1,
+		onChange: function(){
+			kraListId = this.item.kraId;
+			kraName = this.item.kraName;
+			console.log("Selected KRA: " + kraName + " (ID: " + kraListId + ")");
+		}
+		}, "strategicResult");
+		selectKra.startup();
+	});
+	},2000)
+
 	//Global Variables Go Here...
-	var saveGoal, saveRed, thresholdType, indName, kpiDescription, kpiOutcome, collectionFrequency, kpiType, aggregationType, kpiOwner, kpiUpdater, darkGreen, green, blue, red, darkGreenType, greenType, blueType, redType, kpiMission, kpiVision, kpiValues, weight, formula, kpiCascade;
+	var saveGoal, saveRed, thresholdType, indName, kpiDescription, kpiOutcome, kraListId, kraName, collectionFrequency, kpiType, aggregationType, kpiOwner, kpiUpdater, darkGreen, green, blue, red, darkGreenType, greenType, blueType, redType, kpiMission, kpiVision, kpiValues, weight, formula, kpiCascade;
 
 	// VirtualSelect state tracking
 	var virtualSelectReady = false;

@@ -54,8 +54,8 @@ switch(substr($linkedobjectid,0,3))
 
 if($linkName == '') $linkName = 'No Parent';
 
-echo"<table class='table table-hover table-responsive table-bordered table-sm table-condensed table-striped'>";
-echo "<tr><td colspan='5'>Linked Scorecard Item: ".$linkName."</td></tr>";
+echo"<table class='table table-responsive table-bordered table-sm table-condensed table-striped'>";
+echo "<tr class='table-info'><td rowspan='6'>&nbsp;</td></tr>";
 
 $initiative = "SELECT sponsor, damage, completionDate, deliverable, deliverableStatus, scope FROM initiative WHERE id = '$initiativeId'";
 

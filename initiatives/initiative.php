@@ -164,7 +164,8 @@ function getColumns()
 	{	
 		field: 'impact',
 		title: 'Linked To',
-		filterControl: 'select',
+		//filterControl: 'select',
+		valign: 'top',
 		sortable: true
 	},
 	{
@@ -311,20 +312,10 @@ $tablePIP.bootstrapTable({
 	}
 });
 
+window.headerStyle = column => ({classes: 'table-primary'});
+
 });
-function rowStyle(row, index) 
-{
-    var classes = ['table-active', 'table-primary', 'table-info', 'table-warning', 'table-danger', 'table-success'];
-    if (index % 2 === 0 && index / 2 < classes.length) 
-	{
-       // return {classes: classes[1]};
-    }
-    return {
-		/*css: {
-			color: 'blue'
-		  }*/
-		};
-}
+
 function buttons() 
 {
     return {
@@ -471,12 +462,13 @@ function dueDateFormatter(value, row)
 		data-show-pagination-switch="true"
 		data-show-export="true" 
 		data-striped="true"
-		data-classes="table table-hover table-responsive table-bordered table-sm table-condensed table-striped"
+		data-classes="table table-hover table-responsive table-sm table-condensed table-striped"
+		data-header-style="headerStyle"
+		data-buttons-class="primary"
 		data-detail-view="true"
         data-buttons="buttons"
         data-filter-control="true"
 		data-show-footer="false"
-		data-row-style="rowStyle"
 		data-visible="true">
 	</table>
 	</div>
@@ -504,7 +496,6 @@ function dueDateFormatter(value, row)
         data-buttons="buttonsPIP"
         data-filter-control="true"
 		data-show-footer="false"
-		data-row-style="rowStyle"
 		data-visible="true">
 	</table>
 	</div>
