@@ -291,8 +291,8 @@ Global ID Holder
                 <a href="#" onClick="adminUpdaters();">Admin Updaters</a><br>
                 <a href="#" onClick="adminPermissions();">Module Permissions</a><br>
                 <!-- <a href="#" onClick="adminPages();">Admin Pages</a>-->
-                <!-- <a href="#" onClick="scheduler();">Mail/Alerts Scheduler</a><br> -->
-                <a href="#" onClick="notificationAdmin();">Notification Management</a><br>
+                <a href="#" onClick="scheduler();">Mail/Alerts Scheduler</a><br>
+                <a href="#" onClick="notificationAdmin();">Notification Management (New)</a><br>
                 <a href="#" onClick="recomputeScores();">Updated Scoring</a><br>
                 <a href="#" onClick="restoreScores();">Original Scoring</a><br>
                 <?php } ?>

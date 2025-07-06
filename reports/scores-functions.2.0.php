@@ -1,6 +1,7 @@
 <?php
 //file_put_contents("test.txt", "Are we getting here?");
 //include("../../config/config_mysqli.php");
+include("../functions/functions.php");
 
 function getScoreFromTarget($actual, $red, $green)
 {
@@ -277,9 +278,9 @@ function getMeasures($parentId)
 				break;	
 			}
 		}//end switch
-		$result = mysqli_query($connect, "SELECT actual, green, darkGreen FROM $table WHERE measureId = '".$row["id"]."' ORDER BY date DESC LIMIT 1");
-		$actual = mysqli_fetch_assoc($result);
-		$actualCount = mysqli_num_rows($result);
+		$resultActual = mysqli_query($connect, "SELECT actual, green, darkGreen FROM $table WHERE measureId = '".$row["id"]."' ORDER BY date DESC LIMIT 1");
+		$actual = mysqli_fetch_assoc($resultActual);
+		$actualCount = mysqli_num_rows($resultActual);
 		if($actualCount > 0)
 		{
 			$ids[$arrayPosition]["actual"] = $actual["actual"];

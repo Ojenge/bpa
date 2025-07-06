@@ -112,15 +112,15 @@ echo "<tr>
 for($k=0; $k < count($fullReport["perspectives"]); $k++)
 {
 	echo "<tr>
-			<td rowspan=".$fullReport["perspectives"][$k]["objCount"].">".
+			<td rowspan=".@$fullReport["perspectives"][$k]["objCount"].">".
 				//$fullReport["perspectives"][$k]["id"].". ".
 				$fullReport["perspectives"][$k]["name"].
 			"</td>
-			<td rowspan=".$fullReport["perspectives"][$k]["objCount"]." class=".getColor(getPerspScore($fullReport["perspectives"][$k]["id"])).">".
+			<td rowspan=".@$fullReport["perspectives"][$k]["objCount"]." class=".getColor(getPerspScore($fullReport["perspectives"][$k]["id"])).">".
 				getPerspScore($fullReport["perspectives"][$k]["id"]).
 			"</td>
 		</tr>";
-	for($l=0; $l < count($fullReport["perspectives"][$k]["objectives"]); $l++)
+	for($l=0; $l < count(@$fullReport["perspectives"][$k]["objectives"]); $l++)
 	{
 		$objRowSpan = $fullReport["perspectives"][$k]["objectives"][$l]["kpiCount"];
 		echo "<tr class='h-100'>

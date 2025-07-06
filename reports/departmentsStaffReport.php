@@ -53,7 +53,7 @@ require([
 	getDepartmentStaffReport('org1');
 	dom.byId("idParkingLot").innerHTML = "org1";
 	
-	request.post("get-departments-select.php", 
+	request.post("reports/get-departments-select.php", 
 	{
 		//handleAs: "json",
 		//data:{

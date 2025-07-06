@@ -3,6 +3,20 @@
     <link rel="stylesheet" href="../../../dijit/themes/soria/soria.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../../bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
+    <!--
+.gray-100 {
+  background-color: rgba(150, 150, 150, 0.06) !important;
+}
+
+.gray-200 {
+  background-color: rgba(150, 150, 150, 0.1) !important;
+}
+
+.gray-300 {
+  background-color: rgba(150, 150, 150, 0.2) !important;
+}
+
+    -->
 </head>
 <body class="soria">
 <button type="button" class="btn btn-primary" id="buttonKRA" onclick="coreValueDialogShow()">New Core Value</button>
