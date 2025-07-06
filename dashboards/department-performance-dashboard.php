@@ -38,13 +38,13 @@ $departmentName = $deptInfo['name'];
     <title>Department Performance Dashboard - <?php echo htmlspecialchars($departmentName); ?></title>
     
     <!-- Bootstrap CSS -->
-    <link href="../css/myBootstrap.min.css" rel="stylesheet">
+    <link href="css/myBootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Chart.js -->
-    <script src="../js/chart.min.js"></script>
+    <script src="js/chart.min.js"></script>
     <!-- Custom CSS -->
-    <link href="../css/dashboardTables.css" rel="stylesheet">
+    <link href="css/dashboardTables.css" rel="stylesheet">
     
     <style>
         .dashboard-card {
@@ -950,6 +950,6 @@ $departmentName = $deptInfo['name'];
     </script>
 
     <!-- Bootstrap JS -->
-    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
