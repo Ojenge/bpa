@@ -11,34 +11,16 @@ echo "<br>Scorecard summary report for ".$orgId." <br> Date: ".$globalDate."<br>
 $perspCount = count(getPerspectives($orgId));//Equal to table row numbers
 $perspectives = getPerspectives($orgId);
 $table = "<table class='table table-sm'>";
-/*$table .= "<thead class='thead-dark'>";
-$table .= "<tr>";
-$table .= "<th scope='col'>Perspective</th>";
-//$table .= "<th scope='col'>Score</th>";
-$table .= "<th scope='col'>";
-    $titleObjectives = "<table><tr>";
-    $titleObjectives .= "<th scope='col' class='col-1'>Objective</th>";
-    $titleObjectives .= "<th scope='col' class='col-2'>Measures</th>";
-    $titleObjectives .= "<th scope='col' class='col-2'>Initiatives</th>";
-    $titleObjectives .= "</tr></table";
-$table .= $titleObjectives;
-$table .= "</th>";
-$table .= "</tr>";
-$table .= "</thead>";*/
-
+$table .= "<thead class='bg-secondary text-white'>"; 
+$table .= "</thead>"; 
+$table .= "<tbody>";
 for($i = 0; $i < $perspCount; $i++)
 {
-    if($i % 2 == 0)
-    {//If even row then add class for background color
-       // $table .= "<tr style='background-color: rgba(150, 150, 150, 0.2) !important;'>";
-        //$table .= "<tr class='bg-gray-300'>";//Expected this to work but it doesn't so hacked as above.
-    }
-    else
-    {//If odd row then no class
-        //$table .= "<tr style='background-color: rgba(150, 150, 150, 0.2) !important;'>";
-        //$table .= "<tr>";
-    }
-    $table .= "<tr class='bg-info'><td class='border-bottom-0'>".$perspectives[$i]["name"]."</td></tr>";
+   $table .= "<tr class='bg-info'><td class='border-bottom-0'>".$perspectives[$i]["name"]."</td></tr>";
+
+    //$table .= "<tr style='background-color: rgba(150, 150, 150, 0.2) !important;'><td>".$perspectives[$i]["name"]."</td></tr>";
+    //$table .= "<tr class='bg-gray-300'>".$perspectives[$i]["name"]."</td></tr>";//Expected this to work but it doesn't so hacked as above.
+
     $perspScore = orgPerspKpiScore($perspectives[$i]["id"]);//this isn't returning the score.
     //$table .= "<td class='border-bottom-0 bg-danger'>score".$perspScore."</td>";
     $objectiveTable = "<table class='table table-sm m-0 p-0 table-bordered'>";
@@ -51,6 +33,7 @@ for($i = 0; $i < $perspCount; $i++)
     $objectiveTable .= "<th scope='col' class='col-3'>Initiatives</th>";
     $objectiveTable .= "</tr>";
     $objectiveTable .= "</thead>";
+    $objectiveTable .= "<tbody>";
 
         $objectives = getObjectives($perspectives[$i]["id"]);
         $objCount = count($objectives);
@@ -88,7 +71,7 @@ for($i = 0; $i < $perspCount; $i++)
                         $objectiveTable .= '<td class="">'.$kpis[$k]["name"]."</td>"
                         .'<td class="">Target</td>'
                         .'<td class="">Actual</td>'
-                        .'<td class=""><div class="yellowLight bg-success"></div></td>';
+                        .'<td class=""><div class="rounded-circle bg-danger trafficLightBootstrap"></div></td>';
                         if($k == 0)
                         $objectiveTable .= '<td rowspan="'.$kpiCount.'">'.$initiatives.'</td>';//both rowspan and kpiCount work??? rowspan cuts through though
                         
@@ -101,10 +84,11 @@ for($i = 0; $i < $perspCount; $i++)
                 }
             }
         }
-        
+        $objectiveTable .= "</tbody>";
         $objectiveTable .= "</table>";
     $table .= '<tr><td class="border-bottom-0">'.$objectiveTable."</td></tr>";
 }
+$table .= "</tbody>";
 $table .= "</table>";
 echo $table;
 ?>

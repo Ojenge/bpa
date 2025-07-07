@@ -1,0 +1,120 @@
+.triangle-up {
+	width: 0;
+	height: 0;
+	border-left: 250px solid transparent;
+	border-right: 250px solid transparent;
+	border-bottom: 180px solid rgb(182, 178, 178);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.triangle-up p {
+    text-align: center;
+    top: 80px;
+    left: -147px;
+    position: relative;
+    width: 293px;
+    height: 93px;
+    margin: 0px;
+    font-size: small;
+  }
+
+.square {
+    height: 50px;
+    width: 50px;
+    background-color: rgb(182, 178, 178);
+  }
+  
+.rectangle {
+    height:150px;
+    width: 100px;
+    background-color: rgb(182, 178, 178);
+  }
+
+  .rectangleFlat {
+    height:50px;
+    width: 505px;
+    background-color: rgb(182, 178, 178);
+  }
+
+  .trapezoid {
+	border-top: 50px solid rgb(177, 17, 17);
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	height: 0;
+	width: 505px;
+}
+
+.oval {
+    height: 50px;
+    width: 400px;
+    background-color: #555;
+    border-radius: 20%;
+  }
+
+  .triangle-down {
+	width: 0;
+	height: 0;
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	border-top: 50px solid rgb(182, 178, 178);
+}
+
+.triangle-left {
+	width: 0;
+	height: 0;
+	border-top: 25px solid transparent;
+	border-right: 50px solid #555;
+	border-bottom: 25px solid transparent;
+}
+
+.triangle-right {
+	width: 0;
+	height: 0;
+	border-top: 25px solid transparent;
+	border-left: 50px solid #555;
+	border-bottom: 25px solid transparent;
+}
+
+.parallelogram {
+	width: 100px;
+	height: 50px;
+	transform: skew(20deg);
+	background: #555;
+}
+
+.houseRoof {
+    background-image: url('../images/kdic/houseRoof.png');
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    width: 800px;
+	height:275px;
+}
+
+.housePillar {
+    background-image: url('../images/kdic/housePillar.png');
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    width: 160px;
+	height:200px;
+}
+
+.houseBeam {
+    background-image: url('../images/kdic/houseSlab.png');
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    width: 800px;
+	height:23px;
+}
+
+.houseFoundation {
+    background-image: url('../images/kdic/houseFoundation.png');
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    width: 920px;
+	height:65px;
+}
