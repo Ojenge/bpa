@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Jul 02, 2025 at 05:32 PM
+-- Generation Time: Jul 09, 2025 at 03:04 PM
 -- Server version: 8.0.35
 -- PHP Version: 8.3.8
 
@@ -240,6 +240,74 @@ CREATE TABLE `conversation` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `linkedId` varchar(12) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `core_value`
+--
+
+CREATE TABLE `core_value` (
+  `id` int NOT NULL,
+  `value` varchar(1200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(1200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `core_value`
+--
+
+INSERT INTO `core_value` (`id`, `value`, `description`) VALUES
+(1, 'Weka', 'Hapa'),
+(2, 'Game', 'On Kabisa'),
+(4, 'Tuko', 'Ndani sasa');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `core_value_attribute`
+--
+
+CREATE TABLE `core_value_attribute` (
+  `id` int NOT NULL,
+  `attribute` varchar(300) NOT NULL,
+  `description` varchar(1200) NOT NULL,
+  `core_value_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `core_value_attribute`
+--
+
+INSERT INTO `core_value_attribute` (`id`, `attribute`, `description`, `core_value_id`) VALUES
+(1, 'Weka', 'Volume', 1),
+(2, 'Tena', 'Ingine', 1),
+(3, 'Hapa Pia', 'Mambo', 2),
+(4, 'Tuko', 'Ehe Teba', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `core_value_attribute_score`
+--
+
+CREATE TABLE `core_value_attribute_score` (
+  `id` int NOT NULL,
+  `attribute_id` int NOT NULL,
+  `score` varchar(12) NOT NULL,
+  `date` date NOT NULL,
+  `updater` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `core_value_attribute_score`
+--
+
+INSERT INTO `core_value_attribute_score` (`id`, `attribute_id`, `score`, `date`, `updater`) VALUES
+(1, 1, '15', '2025-07-05', 'ind1'),
+(2, 1, '12', '2025-07-05', 'ind1'),
+(4, 4, '100', '2025-07-05', 'ind1'),
+(5, 1, '180', '2025-07-05', 'ind1');
 
 -- --------------------------------------------------------
 
@@ -841,7 +909,31 @@ INSERT INTO `kpi_audit` (`id`, `measureId`, `date`, `actual`, `red`, `blue`, `gr
 (87057, 'kpi2889', '2025-03-01', 0, 30, 0, 50, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1750422599),
 (87058, 'kpi2889', '2025-04-01', 90, 30, 0, 50, 0, 0, 10, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1750422599),
 (87059, 'kpi2889', '2025-05-01', 75, 30, 0, 50, 0, 0, 10, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1750422599),
-(87060, 'kpi2889', '2025-06-01', 55, 30, 0, 50, 0, 0, 10, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1750422599);
+(87060, 'kpi2889', '2025-06-01', 55, 30, 0, 50, 0, 0, 10, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1750422599),
+(87061, 'kpi6', '2014-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87062, 'kpi6', '2015-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87063, 'kpi6', '2016-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87064, 'kpi6', '2017-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87065, 'kpi6', '2018-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87066, 'kpi6', '2019-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87067, 'kpi6', '2020-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87068, 'kpi6', '2021-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87069, 'kpi6', '2022-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87070, 'kpi6', '2023-01-01', 800000000, 770000000, 0, 850000000, 0, 0, 5.83333, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87071, 'kpi6', '2024-01-01', 780000000, 770000000, 0, 850000000, 0, 0, 4.16667, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87072, 'kpi6', '2025-01-01', 790000000, 770000000, 0, 850000000, 0, 0, 5, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811505),
+(87073, 'kpi29', '2024-08-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87074, 'kpi29', '2024-09-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87075, 'kpi29', '2024-10-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87076, 'kpi29', '2024-11-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87077, 'kpi29', '2024-12-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87078, 'kpi29', '2025-01-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87079, 'kpi29', '2025-02-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87080, 'kpi29', '2025-03-01', NULL, 78, 0, 100, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87081, 'kpi29', '2025-04-01', 100, 78, 0, 100, NULL, 0, 10, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87082, 'kpi29', '2025-05-01', 90, 78, 0, 100, NULL, 0, 6.9697, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87083, 'kpi29', '2025-06-01', 76, 78, 0, 100, NULL, 0, 2.72727, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552),
+(87084, 'kpi29', '2025-07-01', 80, 78, 0, 100, NULL, 0, 3.93939, 0, 0, NULL, NULL, NULL, NULL, NULL, 'Accent Import', 1751811552);
 
 -- --------------------------------------------------------
 
@@ -943,7 +1035,7 @@ INSERT INTO `measure` (`id`, `name`, `calendarType`, `measureType`, `description
 ('kpi32', 'Management of Litigation Costs', 'Monthly', 'Standard KPI', '', 'obj121', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '79.6', '0', '100', '', NULL, 'threeColor', '', 'No', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('kpi33', 'Number of engagements', 'Monthly', 'Standard KPI', '', 'obj122', '', 'Last Value', 'ind8', 'ind8', NULL, '2', '0', '2', '', NULL, 'goalOnly', '', 'No', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('kpi34', 'Level of compliance with service delivery timelines', 'Monthly', 'Standard KPI', '', 'obj123', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '69', '0', '71', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
-('kpi35', 'Approval of the Deposit Insurance Academy', 'Monthly', 'Standard KPI', '', 'obj124', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '70', '0', '90', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
+('kpi35', 'Approval of the Deposit Insurance Academy', 'Monthly', 'Standard KPI', '', 'obj122', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '70', '0', '90', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
 ('kpi36', 'Development & implementation of proposed guidelines on Trust Accounts', 'Monthly', 'Standard KPI', '', 'obj125', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '15.69', '0', '15.80', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
 ('kpi37', 'Percentage of discharges processed against requests made', 'Monthly', 'Standard KPI', '', 'obj126', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '50', '0', '100', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
 ('kpi38', 'Percentage of contracts reviewed against requests made', 'Monthly', 'Standard KPI', '', 'obj127', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '50', '0', '100', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind8\\\",\\\"label\\\":\\\"Eunice Kitche\\\"}]'),
@@ -1078,6 +1170,24 @@ CREATE TABLE `measuremonths` (
   `updater` varchar(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Dumping data for table `measuremonths`
+--
+
+INSERT INTO `measuremonths` (`id`, `measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `UNPL`, `LNPL`, `centralLine`, `mR`, `signalPointer`, `updater`) VALUES
+(2, 'kpi29', '2024-08-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(3, 'kpi29', '2024-09-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(4, 'kpi29', '2024-10-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(5, 'kpi29', '2024-11-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(6, 'kpi29', '2024-12-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(7, 'kpi29', '2025-01-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(8, 'kpi29', '2025-02-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(9, 'kpi29', '2025-03-01', NULL, '78', '0', '100', NULL, '0', 0, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(10, 'kpi29', '2025-04-01', '100', '78', '0', '100', NULL, '0', 10, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(11, 'kpi29', '2025-05-01', '90', '78', '0', '100', NULL, '0', 6.9697, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(12, 'kpi29', '2025-06-01', '76', '78', '0', '100', NULL, '0', 2.72727, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import'),
+(13, 'kpi29', '2025-07-01', '80', '78', '0', '100', NULL, '0', 3.93939, '0', '0', '0', '0', '0', NULL, NULL, 'Accent Import');
+
 -- --------------------------------------------------------
 
 --
@@ -1164,7 +1274,19 @@ CREATE TABLE `measureyears` (
 --
 
 INSERT INTO `measureyears` (`id`, `measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `UNPL`, `LNPL`, `centralLine`, `mR`, `signalPointer`, `updater`) VALUES
-(999, 'kpi2861', '2024-01-01', '100', 50, 95, 80, 90, 0, 8.10526, 0, 8.10526, 73.2, -33.2, 20, NULL, NULL, 'test');
+(999, 'kpi2861', '2024-01-01', '100', 50, 95, 80, 90, 0, 8.10526, 0, 8.10526, 73.2, -33.2, 20, NULL, NULL, 'test'),
+(1001, 'kpi6', '2014-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1002, 'kpi6', '2015-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1003, 'kpi6', '2016-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1004, 'kpi6', '2017-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1005, 'kpi6', '2018-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1006, 'kpi6', '2019-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1007, 'kpi6', '2020-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1008, 'kpi6', '2021-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1009, 'kpi6', '2022-01-01', NULL, 770000000, 0, 850000000, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1010, 'kpi6', '2023-01-01', '800000000', 770000000, 0, 850000000, 0, 0, 5.83333, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1011, 'kpi6', '2024-01-01', '780000000', 770000000, 0, 850000000, 0, 0, 4.16667, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import'),
+(1012, 'kpi6', '2025-01-01', '790000000', 770000000, 0, 850000000, 0, 0, 5, 0, 0, 0, 0, 0, NULL, NULL, 'Accent Import');
 
 -- --------------------------------------------------------
 
@@ -1267,7 +1389,7 @@ INSERT INTO `notification_schedules` (`id`, `name`, `description`, `template_id`
 (1, 'Weekly Measure Reminder', 'Weekly reminder for users to update their measures', 1, 'weekly', 1, '2025-06-17 16:44:06', NULL, NULL, 1, '{\"type\": \"all_users\"}', 1, '2025-06-17 16:44:06', '2025-06-17 16:44:06'),
 (2, 'Monthly Initiative Update', 'Monthly reminder for initiative status updates', 2, 'monthly', 1, '2025-06-17 16:44:06', NULL, NULL, 1, '{\"type\": \"all_users\"}', 1, '2025-06-17 16:44:06', '2025-06-17 16:44:06'),
 (3, 'Weekly Performance Summary', 'Weekly performance summary for all users', 3, 'weekly', 1, '2025-06-17 16:44:06', NULL, NULL, 0, '{\"type\": \"all_users\"}', 1, '2025-06-17 16:44:06', '2025-06-17 16:44:06'),
-(4, 'sample schedule', 'deadline alert sample', 7, 'monthly', 1, '2025-06-18 16:50:00', '2025-06-24 16:50:00', NULL, 1, '{\"type\": \"specific_users\", \"user_ids\": [\"1\"]}', 1, '2025-06-17 16:50:44', '2025-06-17 16:50:44');
+(4, 'sample schedule', 'deadline alert sample', 7, 'monthly', 1, '2025-06-18 16:50:00', '2025-06-24 16:50:00', NULL, 1, '{\"type\": \"specific_users\", \"user_ids\": [\"1\", \"3\"]}', 1, '2025-06-17 16:50:44', '2025-07-06 09:16:20');
 
 --
 -- Triggers `notification_schedules`
@@ -1385,7 +1507,6 @@ INSERT INTO `objective` (`id`, `name`, `description`, `outcome`, `linkedObject`,
 ('obj121', 'Enhance prudence in the utilisation of resources', '', 'Institutional Capacity Development', 'persp12', NULL, '[]', NULL, NULL, NULL, '', '1.00', 3000, NULL),
 ('obj122', 'Establish & enhance strategic collaborations & partnerships with stakeholders', '', 'Risk minimization', 'persp13', NULL, 'ind8', NULL, NULL, NULL, '', '0.33', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj123', 'Promote confidence & trust among stakeholders', '', 'Institutional Capacity Development', 'persp13', NULL, 'ind8', NULL, NULL, NULL, '', '0.33', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
-('obj124', 'Establish & enhance strategic collaborations & partnerships with stakeholders', '', 'Risk minimization', 'persp13', NULL, 'ind8', NULL, NULL, NULL, '', '0.33', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj125', 'Enhance depositor protection & compensation', '', 'Deposit insurance', 'persp14', NULL, 'ind8', NULL, NULL, NULL, '', '0.11', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj126', 'Provision of legal advisory services in the Discharge of Securities', '', 'Resolution of Problem Banks', 'persp14', NULL, 'ind8', NULL, NULL, NULL, '', '0.11', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj127', 'Provision of legal advisory in Contract Management', '', 'Resolution of Problem Banks', 'persp14', NULL, 'ind8', NULL, NULL, NULL, '', '0.11', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
@@ -1656,6 +1777,29 @@ INSERT INTO `settings` (`id`, `item`, `value`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `strategic_results`
+--
+
+CREATE TABLE `strategic_results` (
+  `id` int NOT NULL,
+  `priority` varchar(1200) NOT NULL,
+  `result` varchar(1200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `strategic_results`
+--
+
+INSERT INTO `strategic_results` (`id`, `priority`, `result`) VALUES
+(1, 'First Priority', 'First result'),
+(11, 'Now we are', 'game! :-)'),
+(14, 'Third priority', 'With its result'),
+(15, 'Format the', 'tables now'),
+(17, 'Value', 'Professionals');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `supervisor_score`
 --
 
@@ -1751,10 +1895,9 @@ INSERT INTO `tree` (`idTree`, `id`, `name`, `parent`, `type`, `linked`, `sort`) 
 (343, 'persp13', 'Customer Perspective', 'org2', 'perspective', 'no', 2),
 (344, 'obj122', 'Establish & enhance strategic collaborations & partnerships with stakeholders', 'persp13', 'objective', 'no', 3000),
 (345, 'obj123', 'Promote confidence & trust among stakeholders', 'persp13', 'objective', 'no', 3000),
-(346, 'obj124', 'Establish & enhance strategic collaborations & partnerships with stakeholders', 'persp13', 'objective', 'no', 3000),
 (347, 'kpi33', 'Number of engagements', 'obj122', 'measure', 'no', 3000),
 (348, 'kpi34', 'Level of compliance with service delivery timelines', 'obj123', 'measure', 'no', 3000),
-(349, 'kpi35', 'Approval of the Deposit Insurance Academy', 'obj124', 'measure', 'no', 3000),
+(349, 'kpi35', 'Approval of the Deposit Insurance Academy', 'obj122', 'measure', 'no', 3000),
 (350, 'persp14', 'Internal Business Process', 'org2', 'perspective', 'no', 3000),
 (351, 'obj125', 'Enhance depositor protection & compensation', 'persp14', 'objective', 'no', 3000),
 (352, 'kpi36', 'Development & implementation of proposed guidelines on Trust Accounts', 'obj125', 'measure', 'no', 3000),
@@ -2227,7 +2370,10 @@ INSERT INTO `uc_permissions` (`id`, `name`, `orgId`, `status`, `callFunction`, `
 (9, 'Data Entry Matrix', NULL, 'Inactive', NULL, NULL, 'No', ''),
 (10, 'Root', 'root', 'Active', NULL, NULL, 'No', ''),
 (11, 'KDIC', 'org1', 'Active', NULL, NULL, 'No', ''),
-(22, 'Home Page', '', 'Active', 'homePage()', 'layout/hacoVisualBoard.html', 'Yes', ''),
+(22, 'Home Page', '', 'Active', 'homePage()', 'dashboards/strategy-house.php', 'Yes', ''),
+(23, 'Department Staff Scores', 'func15', 'Active', 'departmentStaffScores()', NULL, 'No', '<i class=\'bi bi-trophy text-info\'></i>'),
+(24, 'Individual Staff Scores', 'func16', 'Active', 'staffScores()', '', 'No', '<i class=\'bi bi-person-square text-warning\'></i>'),
+(25, 'Accent Usage', 'func17', 'Active', 'accentUsage()', '', 'No', '<i class=\'bi bi-speedometer2 text-danger\'></i>'),
 (31, 'Admin', 'func6', 'Inactive', NULL, NULL, 'No', ''),
 (100, 'Legal Services Directorate', 'org2', 'Active', '', '', 'No', NULL),
 (540, 'Eunice Kitche', 'ind8', 'Active', NULL, NULL, 'No', NULL);
@@ -2347,7 +2493,8 @@ INSERT INTO `uc_user_permission_matches` (`id`, `user_id`, `permission_id`) VALU
 (3, 1, 11),
 (4, 1, 22),
 (5, 1, 100),
-(6, 1, 540);
+(6, 1, 540),
+(7, 1, 23);
 
 -- --------------------------------------------------------
 
@@ -2532,6 +2679,24 @@ ALTER TABLE `commentaryworkunit`
 -- Indexes for table `conversation`
 --
 ALTER TABLE `conversation`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `core_value`
+--
+ALTER TABLE `core_value`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `core_value_attribute`
+--
+ALTER TABLE `core_value_attribute`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `core_value_attribute_score`
+--
+ALTER TABLE `core_value_attribute_score`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -2843,6 +3008,12 @@ ALTER TABLE `settings`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `strategic_results`
+--
+ALTER TABLE `strategic_results`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `supervisor_score`
 --
 ALTER TABLE `supervisor_score`
@@ -2971,6 +3142,24 @@ ALTER TABLE `conversation`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `core_value`
+--
+ALTER TABLE `core_value`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `core_value_attribute`
+--
+ALTER TABLE `core_value_attribute`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `core_value_attribute_score`
+--
+ALTER TABLE `core_value_attribute_score`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `formats`
 --
 ALTER TABLE `formats`
@@ -3058,7 +3247,7 @@ ALTER TABLE `kpidesign`
 -- AUTO_INCREMENT for table `kpi_audit`
 --
 ALTER TABLE `kpi_audit`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87061;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87085;
 
 --
 -- AUTO_INCREMENT for table `mail`
@@ -3088,7 +3277,7 @@ ALTER TABLE `measurelinks`
 -- AUTO_INCREMENT for table `measuremonths`
 --
 ALTER TABLE `measuremonths`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `measurequarters`
@@ -3106,7 +3295,7 @@ ALTER TABLE `measureweeks`
 -- AUTO_INCREMENT for table `measureyears`
 --
 ALTER TABLE `measureyears`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1000;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1013;
 
 --
 -- AUTO_INCREMENT for table `note`
@@ -3193,6 +3382,12 @@ ALTER TABLE `settings`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `strategic_results`
+--
+ALTER TABLE `strategic_results`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
 -- AUTO_INCREMENT for table `supervisor_score`
 --
 ALTER TABLE `supervisor_score`
@@ -3238,7 +3433,7 @@ ALTER TABLE `uc_users`
 -- AUTO_INCREMENT for table `uc_user_permission_matches`
 --
 ALTER TABLE `uc_user_permission_matches`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `user_backup`

@@ -1,3 +1,5 @@
+<a href="#" class="btn btn-block btn-primary" id="startTour">Start tour</a>
+<a href='scorecard-summary.php' data-intro='Hello step one!'></a>
 <?php
 include("../lab/header.html");
 include("scores-functions.2.0.php");
@@ -10,7 +12,8 @@ echo "<br>Scorecard summary report for ".$orgId." <br> Date: ".$globalDate."<br>
 // Organization has Perspectives
 $perspCount = count(getPerspectives($orgId));//Equal to table row numbers
 $perspectives = getPerspectives($orgId);
-$table = "<table class='table table-sm'>";
+echo "<div class=''>Start Tour</div>";
+$table = "<table class='table table-sm introduction-farm'>";
 $table .= "<thead class='bg-secondary text-white'>"; 
 $table .= "</thead>"; 
 $table .= "<tbody>";
@@ -91,4 +94,11 @@ for($i = 0; $i < $perspCount; $i++)
 $table .= "</tbody>";
 $table .= "</table>";
 echo $table;
+
+echo '<div id="my-other-element">End Tour</div>';
 ?>
+
+<script>
+  introJs.tour().start();
+  //introJs.tour(".introduction-farm").start();
+</script>
