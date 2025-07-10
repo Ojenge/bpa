@@ -1,7 +1,7 @@
 <?php
-include_once("../analytics/config_mysqli.php");
+include_once("../config/config_mysqli.php");
 include_once("import_functions.php");
-include_once("../analytics/scorecards/functions.php");
+include_once("../functions/functions.php");
 include_once("../mathParser/math_parser.php");
 
 require 'vendor/autoload.php';

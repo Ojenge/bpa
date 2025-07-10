@@ -1,7 +1,7 @@
 <?php
 //file_put_contents("test.txt", "Are we getting here?");
 //include("../../config/config_mysqli.php");
-include("../functions/functions.php");
+include_once("../functions/functions.php");
 
 function getScoreFromTarget($actual, $red, $green)
 {

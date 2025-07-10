@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="css/shapes.css" media="all">
+<link rel="stylesheet" href="/bpa/css/shapes.css" media="all">
 <?php 
 //include("../lab/header.html");
 

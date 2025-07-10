@@ -17,3 +17,41 @@ processed weight: 1.0000
 weight type: numeric
 Updating measure kpi7 with weight: 1.0000
 Successfully updated measure kpi7 with weight: 1.0000
+POST data received for measure edit:
+tree_id: kpi29
+raw weight: 25
+processed weight: 0.2500
+weight type: numeric
+Updating measure kpi29 with weight: 0.2500
+Successfully updated measure kpi2 with weight: 0.2500
+Successfully updated measure kpi29 with weight: 0.2500
+POST data received for measure edit:
+tree_id: kpi30
+raw weight: 25
+processed weight: 0.2500
+weight type: numeric
+Updating measure kpi30 with weight: 0.2500
+Successfully updated measure kpi3 with weight: 0.2500
+Successfully updated measure kpi30 with weight: 0.2500
+POST data received for measure edit:
+tree_id: kpi31
+raw weight: 25
+processed weight: 0.2500
+weight type: numeric
+Updating measure kpi31 with weight: 0.2500
+Successfully updated measure kpi31 with weight: 0.2500
+Successfully updated measure kpi4 with weight: 0.2500
+POST data received for measure edit:
+tree_id: kpi32
+raw weight: 25
+processed weight: 0.2500
+weight type: numeric
+Updating measure kpi32 with weight: 0.2500
+Successfully updated measure kpi32 with weight: 0.2500
+POST data received for measure edit:
+tree_id: kpi33
+raw weight: 100
+processed weight: 1.0000
+weight type: numeric
+Updating measure kpi33 with weight: 1.0000
+Successfully updated measure kpi33 with weight: 1.0000

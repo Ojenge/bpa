@@ -1,5 +1,5 @@
 <?php
-include_once("../analytics/config_mysqli.php");
+include_once("../config/config_mysqli.php");
 $importId = $_POST["importId"];
 
 $kpiId = mysqli_query($connect, "SELECT kpi FROM import_map WHERE id = '$importId'");

@@ -1,6 +1,6 @@
 <?php
 include_once("../../config/config_mysqli.php");
-include_once("functions.php");
+include_once("../../functions/functions.php");
 
 $strategicPriority = $_POST["strategicPriority"];
 $strategicResult = $_POST["strategicResult"];

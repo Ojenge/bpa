@@ -7,11 +7,11 @@
 
     
     <!-- Bootstrap CSS -->
-    <link href="css/myBootstrap.min.css" rel="stylesheet">
+    <link href="/bpa/css/myBootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/dashboardTables.css" rel="stylesheet">
+    <link href="/bpa/css/dashboardTables.css" rel="stylesheet">
 
     <style>
         body {
@@ -444,9 +444,9 @@ echo '</tbody></table>';
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="/bpa/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery for legacy functionality -->
-    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="/bpa/js/jquery-3.2.1.min.js"></script>
 
     <script>
         // Legacy table expand/collapse functionality

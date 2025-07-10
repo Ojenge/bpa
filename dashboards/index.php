@@ -32,7 +32,7 @@ $deptQuery = mysqli_query($connect, "
     <title>Analytics Dashboards</title>
     
     <!-- Bootstrap CSS -->
-    <link href="../css/myBootstrap.min.css" rel="stylesheet">
+    <link href="/bpa/css/myBootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -251,7 +251,7 @@ $deptQuery = mysqli_query($connect, "
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script src="/bpa/js/bootstrap.bundle.min.js"></script>
     
     <script>
         // Open department dashboard

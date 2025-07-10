@@ -1,5 +1,5 @@
 <?php
-include_once("../analytics/config_mysqli.php");
+include_once("../config/config_mysqli.php");
 
 $query="SELECT id, name FROM measure";
 	

@@ -1,6 +1,6 @@
 <?php
 include_once("../../config/config_mysqli.php");
-include_once("functions.php");
+include_once("../../functions/functions.php");
 
 $attributeScore = $_POST["attributeScore"];
 $attributeScoreDate = $_POST["attributeScoreDate"];

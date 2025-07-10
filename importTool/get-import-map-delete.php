@@ -1,5 +1,5 @@
 <?php
-include_once("../analytics/config_mysqli.php");
+include_once("../config/config_mysqli.php");
 $importId = $_POST["importId"];
 //$importId = "2";
 $getItem = mysqli_query($connect, "SELECT * FROM import_map WHERE id = '$importId'") or file_put_contents("deleteError.txt", "Error => ".mysqli_error());

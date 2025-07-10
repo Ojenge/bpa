@@ -4,6 +4,7 @@ include_once("../config/config_mysqli.php");
 //include_once("functions/perspOrg-scores.php");
 //echo return_color(5.0000, "fourColor");
 
+if (!function_exists('return_color')) {
 function return_color($score, $gaugeType)
 {
 	//$score = (int)$score;
@@ -45,6 +46,8 @@ function return_color($score, $gaugeType)
 		}
 		return @$scoreColor;
 	}
+}
+
 }
 /*********************************************************************************************************************
 BSC Traditional Scoring:
