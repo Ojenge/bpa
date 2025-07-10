@@ -1,6 +1,6 @@
 <?php
-include('../config/config_msqli.php');
-include('../functions/scorecard-associations.php');
+include_once('../config/config_mysqli.php');
+include_once('../functions/scorecard-associations.php');
 
 echo "{ \"identifier\": \"name\", \"label\": \"name\", \"items\": ";
 //$query = mysqli_query($connect, "SELECT DISTINCT linkedobjectid FROM initiativeimpact");
@@ -8,7 +8,7 @@ echo "{ \"identifier\": \"name\", \"label\": \"name\", \"items\": ";
 $count = 0;
 $data = array();
 
-$query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT user_id, display_name, department FROM uc_users");
+$query = mysqli_query($connect, "SELECT user_id, display_name, department FROM uc_users");
 while($row = mysqli_fetch_assoc($query))
 {
 	$data[$count]['id'] = $row["user_id"];
@@ -18,7 +18,7 @@ while($row = mysqli_fetch_assoc($query))
 	$count++;
 }
 
-$query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT id, name, linkedObject FROM objective");
+$query = mysqli_query($connect, "SELECT id, name, linkedObject FROM objective");
 while($row = mysqli_fetch_assoc($query))
 {
 	$data[$count]['id'] = $row["id"];
@@ -28,7 +28,7 @@ while($row = mysqli_fetch_assoc($query))
 	$count++;
 }
 
-$query = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT id, name, linkedObject FROM measure");
+$query = mysqli_query($connect, "SELECT id, name, linkedObject FROM measure");
 while($row = mysqli_fetch_assoc($query))
 {
 	$data[$count]['id'] = $row["id"];

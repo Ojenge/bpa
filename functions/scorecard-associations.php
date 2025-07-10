@@ -2,6 +2,9 @@
 include('../config/config_msqli.php');
 function getParentOrganization($linkedObject) //LTK 03May2021 1542 Hours
 {
+	if (empty($linkedObject)) {
+		return '';
+	}
 	switch(substr($linkedObject, 0, 3))
 	{
 		case "kpi":
@@ -12,14 +15,15 @@ function getParentOrganization($linkedObject) //LTK 03May2021 1542 Hours
 		case "obj":
 		{
 			//Get Objective Parent
-			$objParent = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT linkedObject FROM objective WHERE id = '$linkedObject'");
-			$objParent = mysqli_fetch_array($objParent);
-			$objParent = $objParent["linkedObject"];
-			if(substr($objParent, 0, 3) == "per")//Get Perspective Parent if Objective linked to Perspective
+			$objParentResult = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT linkedObject FROM objective WHERE id = '$linkedObject'");
+			$objParentRow = mysqli_fetch_array($objParentResult);
+			$objParent = ($objParentRow && isset($objParentRow["linkedObject"])) ? $objParentRow["linkedObject"] : null;
+
+			if ($objParent !== null && substr($objParent, 0, 3) == "per")//Get Perspective Parent if Objective linked to Perspective
 			{ 
-				$perspParent = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT parentId FROM perspective WHERE id = '$objParent'");
-				$perspParent = mysqli_fetch_array($perspParent);
-				$perspParent = $perspParent["parentId"];
+				$perspParentResult = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT parentId FROM perspective WHERE id = '$objParent'");
+				$perspParentRow = mysqli_fetch_array($perspParentResult);
+				$perspParent = ($perspParentRow && isset($perspParentRow["parentId"])) ? $perspParentRow["parentId"] : '';
 				$orgQuery = "SELECT name FROM organization WHERE id = '$perspParent'";
 			}
 			else $orgQuery = "SELECT name FROM organization WHERE id = '$objParent'";
@@ -47,6 +51,6 @@ function getParentOrganization($linkedObject) //LTK 03May2021 1542 Hours
 	}//End of Switch
 	$orgResult = mysqli_query($GLOBALS["___mysqli_ston"], $orgQuery);
 	$orgName = mysqli_fetch_assoc($orgResult);
-	return $orgName["name"];
+	return $orgName && isset($orgName["name"]) ? $orgName["name"] : '';
 }
 ?>
