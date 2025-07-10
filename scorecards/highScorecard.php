@@ -125,6 +125,9 @@ if(@$userPermission[1]["permission_id"] == "3000" && $view == "True") $view = "F
 //var gauge3, gauge4, chart;
 //var indicators;
 
+// Global chart variable declaration
+var chart;
+
 var layout, toSave, dbBaseline, dbTarget, dbStretch, dbBest, csvGrid, gridTrue, savingId;//csvImport
 require([
 "dijit/registry",

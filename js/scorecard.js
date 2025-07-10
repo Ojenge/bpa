@@ -5,9 +5,11 @@ require([
 "dojo/request",
 "dijit/Dialog"
 ], function(dom, domStyle, domConstruct, request, Dialog){
+	// Global chart variable declaration
+	var chart;
 	mainChart = function()
 	{
-		chart = new Highcharts.Chart({
+		window.chart = new Highcharts.Chart({
 		//chart = new Highstock.stockChart({
 		chart: {
 			renderTo: 'chartDiv'

@@ -183,7 +183,45 @@ $darkGreen = isset($_POST['darkGreen']) ? str_replace(',', '', mysqli_real_escap
 $blue = isset($_POST['blue']) ? str_replace(',', '', mysqli_real_escape_string($connect, $_POST['blue'])) : '0';
 $green = isset($_POST['green']) ? str_replace(',', '', mysqli_real_escape_string($connect, $_POST['green'])) : '0';
 $red = isset($_POST['red']) ? str_replace(',', '', mysqli_real_escape_string($connect, $_POST['red'])) : '0';
-$weight = isset($_POST['weight']) ? mysqli_real_escape_string($connect, $_POST['weight']) : '1';
+// Process weight value - handle percentage conversion
+$rawWeight = isset($_POST['weight']) ? $_POST['weight'] : '1';
+$weight = mysqli_real_escape_string($connect, $rawWeight);
+
+// If weight contains '%', convert to decimal
+if (strpos($weight, '%') !== false) {
+    $weight = str_replace('%', '', $weight);
+    $weight = trim($weight);
+    if (is_numeric($weight)) {
+        $weight = (float)$weight / 100; // Convert percentage to decimal
+        $weight = number_format($weight, 4, '.', ''); // Format to 4 decimal places
+    } else {
+        $weight = '1'; // Default to 1 if invalid
+    }
+} else {
+    // If no percentage symbol, check if it's a percentage value (0-100)
+    if (is_numeric($weight)) {
+        $weightValue = (float)$weight;
+        if ($weightValue > 1 && $weightValue <= 100) {
+            // This looks like a percentage value, convert to decimal
+            $weight = $weightValue / 100;
+            $weight = number_format($weight, 4, '.', '');
+        } else {
+            // This looks like a decimal value (0-1), use as is
+            $weight = number_format($weightValue, 4, '.', '');
+        }
+    } else {
+        $weight = '1'; // Default to 1 if invalid
+    }
+}
+
+// Debug: Log all POST data for measure edits
+if ($objectType == 'measure' && $tree_edit == 'editMe') {
+    file_put_contents("weight_debug.txt", "POST data received for measure edit:\n", FILE_APPEND);
+    file_put_contents("weight_debug.txt", "tree_id: " . (isset($_POST['tree_id']) ? $_POST['tree_id'] : 'not set') . "\n", FILE_APPEND);
+    file_put_contents("weight_debug.txt", "raw weight: " . (isset($_POST['weight']) ? $_POST['weight'] : 'not set') . "\n", FILE_APPEND);
+    file_put_contents("weight_debug.txt", "processed weight: $weight\n", FILE_APPEND);
+    file_put_contents("weight_debug.txt", "weight type: " . (strpos($weight, '%') !== false ? 'percentage' : 'numeric') . "\n", FILE_APPEND);
+}
 $archive = isset($_POST['archive']) ? mysqli_real_escape_string($connect, $_POST['archive']) : 'No';
 $kpiCascade = isset($_POST['kpiCascade']) ? mysqli_real_escape_string($connect, $_POST['kpiCascade']) : '';
 $indPhoto = isset($_POST['indPhoto']) ? mysqli_real_escape_string($connect, $_POST['indPhoto']) : '';
@@ -412,6 +450,9 @@ switch($objectType)
 	{
 		if($tree_edit == "editMe")
 		{
+			// Debug: Log the weight value being updated
+			file_put_contents("weight_debug.txt", "Updating measure $tree_id with weight: $weight\n", FILE_APPEND);
+			
 			$originalName_query = mysqli_query($connect, "SELECT name FROM measure WHERE id = '$tree_id'") or file_put_contents("error.txt", "Error getting original measure name: " . mysqli_error($connect));
 
 			$originalName = mysqli_fetch_assoc($originalName_query);
@@ -425,9 +466,20 @@ switch($objectType)
 				//$kpiOwnerFromDB = $row["owner"];
 
 				$update_measure = mysqli_query($connect, "UPDATE measure SET name = '$tree_name', calendarType = '$collectionFrequency', measureType = '$measureType',
-				description = '$kpiDescription', dataType='$dataType', aggregationType = '$aggregationType', owner='$kpiOwner', updater='$kpiOwner', red='$red', blue='$blue', green = '$green', darkGreen = '$darkGreen', gaugeType = '$thresholdType', archive = '$archive', tags = '$kpiOwnerTags' WHERE id = '$kpiId'") or file_put_contents("error.txt", "Error updating measure: " . mysqli_error($connect));
+				description = '$kpiDescription', dataType='$dataType', aggregationType = '$aggregationType', owner='$kpiOwner', updater='$kpiOwner', red='$red', blue='$blue', green = '$green', darkGreen = '$darkGreen', gaugeType = '$thresholdType', archive = '$archive', tags = '$kpiOwnerTags', weight = '$weight' WHERE id = '$kpiId'");
+				if (!$update_measure) {
+					file_put_contents("error.txt", "Error updating measure: " . mysqli_error($connect));
+					die("Error updating measure: " . mysqli_error($connect));
+				}
 					
-				$update_tree = mysqli_query($connect, "UPDATE tree SET name='$tree_name' WHERE id='$kpiId'") or file_put_contents("error.txt", "Error updating tree: " . mysqli_error($connect));
+				$update_tree = mysqli_query($connect, "UPDATE tree SET name='$tree_name' WHERE id='$kpiId'");
+				if (!$update_tree) {
+					file_put_contents("error.txt", "Error updating tree: " . mysqli_error($connect));
+					die("Error updating tree: " . mysqli_error($connect));
+				}
+				
+				// Debug: Log successful update
+				file_put_contents("weight_debug.txt", "Successfully updated measure $kpiId with weight: $weight\n", FILE_APPEND);
 			}
 		}
 

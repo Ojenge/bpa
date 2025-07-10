@@ -1,0 +1,25 @@
+
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:23:53 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>10 Jul 2025 21:24:16 => 

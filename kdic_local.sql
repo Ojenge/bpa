@@ -2600,7 +2600,7 @@ CREATE TABLE `v_user_notification_summary` (
 --
 DROP TABLE IF EXISTS `v_notification_stats`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`accenta0_NGIwY`@`localhost` SQL SECURITY DEFINER VIEW `v_notification_stats`  AS SELECT `ns`.`id` AS `schedule_id`, `ns`.`name` AS `schedule_name`, `nt`.`email_type` AS `email_type`, count(`nl`.`id`) AS `total_sent`, count((case when (`nl`.`status` = 'sent') then 1 end)) AS `successful_sent`, count((case when (`nl`.`status` = 'failed') then 1 end)) AS `failed_sent`, max(`nl`.`sent_date`) AS `last_sent`, `ns`.`is_active` AS `is_active` FROM ((`notification_schedules` `ns` left join `notification_templates` `nt` on((`ns`.`template_id` = `nt`.`id`))) left join `notification_logs` `nl` on((`ns`.`id` = `nl`.`schedule_id`))) GROUP BY `ns`.`id`, `ns`.`name`, `nt`.`email_type`, `ns`.`is_active` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_notification_stats`  AS SELECT `ns`.`id` AS `schedule_id`, `ns`.`name` AS `schedule_name`, `nt`.`email_type` AS `email_type`, count(`nl`.`id`) AS `total_sent`, count((case when (`nl`.`status` = 'sent') then 1 end)) AS `successful_sent`, count((case when (`nl`.`status` = 'failed') then 1 end)) AS `failed_sent`, max(`nl`.`sent_date`) AS `last_sent`, `ns`.`is_active` AS `is_active` FROM ((`notification_schedules` `ns` left join `notification_templates` `nt` on((`ns`.`template_id` = `nt`.`id`))) left join `notification_logs` `nl` on((`ns`.`id` = `nl`.`schedule_id`))) GROUP BY `ns`.`id`, `ns`.`name`, `nt`.`email_type`, `ns`.`is_active` ;
 
 -- --------------------------------------------------------
 
@@ -2609,7 +2609,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`accenta0_NGIwY`@`localhost` SQL SECURITY DEF
 --
 DROP TABLE IF EXISTS `v_user_notification_summary`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`accenta0_NGIwY`@`localhost` SQL SECURITY DEFINER VIEW `v_user_notification_summary`  AS SELECT `u`.`id` AS `user_id`, `u`.`display_name` AS `display_name`, `u`.`email` AS `email`, count(`nl`.`id`) AS `total_notifications_received`, count((case when (`nl`.`sent_date` >= (now() - interval 30 day)) then 1 end)) AS `notifications_last_30_days`, max(`nl`.`sent_date`) AS `last_notification_date` FROM (`uc_users` `u` left join `notification_logs` `nl` on((`u`.`id` = `nl`.`user_id`))) WHERE (`u`.`active` = 1) GROUP BY `u`.`id`, `u`.`display_name`, `u`.`email` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_user_notification_summary`  AS SELECT `u`.`id` AS `user_id`, `u`.`display_name` AS `display_name`, `u`.`email` AS `email`, count(`nl`.`id`) AS `total_notifications_received`, count((case when (`nl`.`sent_date` >= (now() - interval 30 day)) then 1 end)) AS `notifications_last_30_days`, max(`nl`.`sent_date`) AS `last_notification_date` FROM (`uc_users` `u` left join `notification_logs` `nl` on((`u`.`id` = `nl`.`user_id`))) WHERE (`u`.`active` = 1) GROUP BY `u`.`id`, `u`.`display_name`, `u`.`email` ;
 
 --
 -- Indexes for dumped tables

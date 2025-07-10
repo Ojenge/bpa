@@ -1,5 +1,18 @@
 var kpiGlobalId, kpiGlobalName, kpiGlobalType, gaugeType, globalDate, mainMenuState ,selectedReport, kpiOwnerId, kpiUpdaterId, indNameId, initiativeStore, initiativeImpactId, tnAdd, reportListContent, objTooltipDialog, removeTooltip, updaterCheckbox = "False", selectedGauge, pdpEdit, pdpEditId, globalParent, ownerUpdaterStore;
 
+// Safety function to check if chart is available before operations
+function safeChartOperation(operation) {
+	if (typeof chart !== 'undefined' && chart !== null) {
+		try {
+			return operation();
+		} catch (e) {
+			console.warn('Chart operation failed:', e);
+			return false;
+		}
+	}
+	return false;
+}
+
 // Helper function to get the correct conversation div ID based on current module
 function getConversationDivId() {
 	if(mainMenuState == "Initiatives") {
@@ -7042,18 +7055,36 @@ updateChart = function() /*** #scorecardMap ***/
 							//categories[scoreCount] = orgData[scoreCount].date;
 							scoreCount++;
 						}
-						chart.yAxis[0].plotLinesAndBands[0].svgElem.show();
-						chart.yAxis[0].plotLinesAndBands[1].svgElem.show();
-						chart.yAxis[0].plotLinesAndBands[2].svgElem.show();
-						chart.xAxis[0].setCategories(categories, false);
-						chart.series[1].hide();
-						chart.series[2].hide();
-						chart.series[3].hide();
-						chart.series[4].hide();
-						chart.series[5].hide();
-						chart.yAxis[0].setExtremes(0,10);
-						chart.xAxis[0].setExtremes(0,valuesCount-1);
-						chart.series[0].setData(orgScore, true);
+						if (chart && chart.yAxis && chart.yAxis[0] && chart.yAxis[0].plotLinesAndBands) {
+							if (chart.yAxis[0].plotLinesAndBands[0] && chart.yAxis[0].plotLinesAndBands[0].svgElem) {
+								chart.yAxis[0].plotLinesAndBands[0].svgElem.show();
+							}
+							if (chart.yAxis[0].plotLinesAndBands[1] && chart.yAxis[0].plotLinesAndBands[1].svgElem) {
+								chart.yAxis[0].plotLinesAndBands[1].svgElem.show();
+							}
+							if (chart.yAxis[0].plotLinesAndBands[2] && chart.yAxis[0].plotLinesAndBands[2].svgElem) {
+								chart.yAxis[0].plotLinesAndBands[2].svgElem.show();
+							}
+						}
+						if (chart && chart.xAxis && chart.xAxis[0]) {
+							chart.xAxis[0].setCategories(categories, false);
+						}
+						if (chart && chart.series) {
+							if (chart.series[1]) chart.series[1].hide();
+							if (chart.series[2]) chart.series[2].hide();
+							if (chart.series[3]) chart.series[3].hide();
+							if (chart.series[4]) chart.series[4].hide();
+							if (chart.series[5]) chart.series[5].hide();
+						}
+						if (chart && chart.yAxis && chart.yAxis[0]) {
+							chart.yAxis[0].setExtremes(0,10);
+						}
+						if (chart && chart.xAxis && chart.xAxis[0]) {
+							chart.xAxis[0].setExtremes(0,valuesCount-1);
+						}
+						if (chart && chart.series && chart.series[0]) {
+							chart.series[0].setData(orgScore, true);
+						}
 
 					});
 					request.post("scorecards/get-org-gauge.php",
@@ -7158,18 +7189,36 @@ updateChart = function() /*** #scorecardMap ***/
 						{
 							domStyle.set(dom.byId("chartDiv"), "display", 'block');
 							domStyle.set(dom.byId("divChart"), "display", "block");
-							chart.yAxis[0].plotLinesAndBands[0].svgElem.show();
-							chart.yAxis[0].plotLinesAndBands[1].svgElem.show();
-							chart.yAxis[0].plotLinesAndBands[2].svgElem.show();
-							chart.xAxis[0].setCategories(categories, false);
-							chart.series[1].hide();
-							chart.series[2].hide();
-							chart.series[3].hide();
-							chart.series[4].hide();
-							chart.series[5].hide();
-							chart.yAxis[0].setExtremes(0,10);
-							chart.xAxis[0].setExtremes(0,valuesCount-1);
-							chart.series[0].setData(indScore, true);
+							if (chart && chart.yAxis && chart.yAxis[0] && chart.yAxis[0].plotLinesAndBands) {
+								if (chart.yAxis[0].plotLinesAndBands[0] && chart.yAxis[0].plotLinesAndBands[0].svgElem) {
+									chart.yAxis[0].plotLinesAndBands[0].svgElem.show();
+								}
+								if (chart.yAxis[0].plotLinesAndBands[1] && chart.yAxis[0].plotLinesAndBands[1].svgElem) {
+									chart.yAxis[0].plotLinesAndBands[1].svgElem.show();
+								}
+								if (chart.yAxis[0].plotLinesAndBands[2] && chart.yAxis[0].plotLinesAndBands[2].svgElem) {
+									chart.yAxis[0].plotLinesAndBands[2].svgElem.show();
+								}
+							}
+							if (chart && chart.xAxis && chart.xAxis[0]) {
+								chart.xAxis[0].setCategories(categories, false);
+							}
+							if (chart && chart.series) {
+								if (chart.series[1]) chart.series[1].hide();
+								if (chart.series[2]) chart.series[2].hide();
+								if (chart.series[3]) chart.series[3].hide();
+								if (chart.series[4]) chart.series[4].hide();
+								if (chart.series[5]) chart.series[5].hide();
+							}
+							if (chart && chart.yAxis && chart.yAxis[0]) {
+								chart.yAxis[0].setExtremes(0,10);
+							}
+							if (chart && chart.xAxis && chart.xAxis[0]) {
+								chart.xAxis[0].setExtremes(0,valuesCount-1);
+							}
+							if (chart && chart.series && chart.series[0]) {
+								chart.series[0].setData(indScore, true);
+							}
 						}
 					});//end of request.post get-ind-scores.php
 					request.post("scorecards/get-ind-gauge.php",
@@ -7269,21 +7318,25 @@ showPrevious = function() /*** #scorecardMap ***/
 				}
 				scoreCount++;
 			}//end of while
-			chart.addSeries({
-				name: "Previous Year",
-				data: previousScore,
-				color: 'black',
-				zIndex: 30
-			}, true);
+			if (chart && chart.addSeries) {
+				chart.addSeries({
+					name: "Previous Year",
+					data: previousScore,
+					color: 'black',
+					zIndex: 30
+				}, true);
+			}
 		})//end of request.post
 	}
 	else
 	{
-		var seriesLength = chart.series.length;
-		for(var i = seriesLength - 1; i > -1; i--) {
-			//if(chart.series[i].name.toLowerCase() == 'navigator') {
-			if(chart.series[i].name == 'Previous Year') {
-				chart.series[i].remove();
+		if (chart && chart.series) {
+			var seriesLength = chart.series.length;
+			for(var i = seriesLength - 1; i > -1; i--) {
+				//if(chart.series[i].name.toLowerCase() == 'navigator') {
+				if(chart.series[i].name == 'Previous Year') {
+					chart.series[i].remove();
+				}
 			}
 		}
 	}

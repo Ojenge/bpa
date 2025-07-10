@@ -1,18 +1,48 @@
 <?php
 include_once("../config/config_mysqli.php");
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Set response header
+header('Content-Type: application/json');
+
 // Check if required POST parameters exist
 if (!isset($_POST["kpiValuesArray"]) || !isset($_POST['objectId']) || !isset($_POST['updater'])) {
-    echo "Missing required parameters";
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing required parameters',
+        'required' => ['kpiValuesArray', 'objectId', 'updater'],
+        'received' => array_keys($_POST)
+    ]);
     exit;
 }
 
 $json = $_POST["kpiValuesArray"];
 $kpiId = $_POST['objectId'];
+$updater = $_POST['updater'];
+
+// Validate database connection
+if (!isset($connect) || !$connect) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection failed'
+    ]);
+    exit;
+}
+
 $tableQuery = mysqli_query($connect, "SELECT calendarType FROM measure WHERE id = '$kpiId'");
+if (!$tableQuery) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database query failed: ' . mysqli_error($connect)
+    ]);
+    exit;
+}
+
 $tableResult = mysqli_fetch_assoc($tableQuery);
 $calendarType = ($tableResult && isset($tableResult["calendarType"])) ? $tableResult["calendarType"] : null;
-$updater = $_POST['updater'];
 
 if($updater == "ind1") $updater = "Accent Import";
 
@@ -20,7 +50,12 @@ date_default_timezone_set('Africa/Nairobi');
 
 // Check if measure exists and has valid calendar type
 if (!$calendarType) {
-    echo "Invalid measure ID or missing calendar type";
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid measure ID or missing calendar type',
+        'kpiId' => $kpiId,
+        'calendarType' => $calendarType
+    ]);
     exit;
 }
 
@@ -73,7 +108,20 @@ $fiveScore = NULL;
 global $xmrArray;
 $results = json_decode($json,true);
 
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid JSON data',
+        'jsonError' => json_last_error_msg(),
+        'receivedData' => substr($json, 0, 200) . '...'
+    ]);
+    exit;
+}
+
 $results = array_reverse($results);
+
+// Debug: Log the number of records to process
+error_log("Processing " . count($results) . " KPI records for KPI ID: $kpiId");
 
 //$gaugeType = mysqli_query($connect, "SELECT gaugeType FROM measure WHERE id = '$kpiId'");
 //$gaugeType = mysqli_fetch_assoc($gaugeType);
@@ -141,6 +189,9 @@ foreach($results as $items)
 	}
 }
 $myCount=0;
+$successfulInserts = 0;
+$totalRecords = count($results);
+
 foreach ($results as $items)
 {
 	$actual = str_replace(',', '', $items["actual"]);
@@ -215,7 +266,25 @@ foreach ($results as $items)
 		$greenForDB = ($green == "NULL") ? "NULL" : "'".$green."'";
 		$darkGreenForDB = ($darkGreen == "NULL") ? "NULL" : "'".$darkGreen."'";
 
-		mysqli_query($connect, "INSERT INTO `$table` (`id`, `measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `updater`) VALUES ('$valueId', '$kpiId', '$date', ".$actualForDB.", ".$redForDB.", ".$blueForDB.", ".$greenForDB.", ".$darkGreenForDB.", ".$goalScoreDB.", ".$threeScoreDB.", ".$fourScoreDB.", ".$fiveScoreDB.", '".$updater."')") or file_put_contents("kpiSaveError.txt","\r\n Did not save ".$date." & ids: ".$valueId."->".$kpiId." actual=>".$actual. "; red=>" .$red. "; green=>" .$green. "; darkGreen=>" .$darkGreen. "; blue=>" .$blue." & Scores: goalScore=>$goalScore, threeScore=>$threeScore, fourScore=>$fourScore, fiveScore=>$fiveScore in table $table ".mysqli_error($connect), FILE_APPEND);
+		$insertQuery = "INSERT INTO `$table` (`id`, `measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `updater`) VALUES ('$valueId', '$kpiId', '$date', ".$actualForDB.", ".$redForDB.", ".$blueForDB.", ".$greenForDB.", ".$darkGreenForDB.", ".$goalScoreDB.", ".$threeScoreDB.", ".$fourScoreDB.", ".$fiveScoreDB.", '".$updater."')";
+		
+		$insertResult = mysqli_query($connect, $insertQuery);
+		if (!$insertResult) {
+			$error = mysqli_error($connect);
+			file_put_contents("kpiSaveError.txt", "\r\n Did not save ".$date." & ids: ".$valueId."->".$kpiId." actual=>".$actual. "; red=>" .$red. "; green=>" .$green. "; darkGreen=>" .$darkGreen. "; blue=>" .$blue." & Scores: goalScore=>$goalScore, threeScore=>$threeScore, fourScore=>$fourScore, fiveScore=>$fiveScore in table $table ".$error, FILE_APPEND);
+			
+			// Return error response
+			echo json_encode([
+				'success' => false,
+				'message' => 'Database insert failed',
+				'error' => $error,
+				'query' => $insertQuery,
+				'date' => $date,
+				'valueId' => $valueId,
+				'kpiId' => $kpiId
+			]);
+			exit;
+		}
 		$time = time();
 
 		// For audit, always log the action regardless of actual value
@@ -225,7 +294,16 @@ foreach ($results as $items)
 		$greenForAudit = ($green == "NULL") ? "NULL" : "'".$green."'";
 		$darkGreenForAudit = ($darkGreen == "NULL") ? "NULL" : "'".$darkGreen."'";
 
-		mysqli_query($connect, "INSERT INTO `kpi_audit` (`measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `updater`, `time`) VALUES ('$kpiId', '$date', ".$actualForAudit.", ".$redForAudit.", ".$blueForAudit.", ".$greenForAudit.", ".$darkGreenForAudit.", ".$goalScoreDB.", ".$threeScoreDB.", ".$fourScoreDB.", ".$fiveScoreDB.", '".$updater."', '".$time."')") or file_put_contents("kpiAuditError.txt","\nDid not execute measure save for ".$date." & ids: ".$valueId."->".$kpiId." Values: ".$actual. "; " .$red. "; " .$green. "; " .$darkGreen. "; " .$blue." and Scores: $goalScore, $threeScore, $fourScore, $fiveScore in table $table ".mysqli_error($connect), FILE_APPEND);
+		$auditQuery = "INSERT INTO `kpi_audit` (`measureId`, `date`, `actual`, `red`, `blue`, `green`, `darkgreen`, `2score`, `3score`, `4score`, `5score`, `updater`, `time`) VALUES ('$kpiId', '$date', ".$actualForAudit.", ".$redForAudit.", ".$blueForAudit.", ".$greenForAudit.", ".$darkGreenForAudit.", ".$goalScoreDB.", ".$threeScoreDB.", ".$fourScoreDB.", ".$fiveScoreDB.", '".$updater."', '".$time."')";
+		
+		$auditResult = mysqli_query($connect, $auditQuery);
+		if (!$auditResult) {
+			$error = mysqli_error($connect);
+			file_put_contents("kpiAuditError.txt", "\nDid not execute measure save for ".$date." & ids: ".$valueId."->".$kpiId." Values: ".$actual. "; " .$red. "; " .$green. "; " .$darkGreen. "; " .$blue." and Scores: $goalScore, $threeScore, $fourScore, $fiveScore in table $table ".$error, FILE_APPEND);
+			
+			// Log audit error but don't fail the entire operation
+			error_log("Audit insert failed for KPI $kpiId, date $date: " . $error);
+		}
 		
 		switch($gaugeType)// this ensures 3 score always has something so as to help with data retrieval for parent items.
 		{
@@ -256,10 +334,27 @@ foreach ($results as $items)
 		if($green == "NULL") mysqli_query($connect, "UPDATE `$table` SET `green` = NULL WHERE id = '$valueId'");
 		if($darkGreen == "NULL") mysqli_query($connect, "UPDATE `$table` SET `darkgreen` = NULL WHERE id = '$valueId'");
 		
+		$successfulInserts++;
 		$actual = NULL; $red = NULL; $green = NULL; $darkGreen = NULL; $blue = NULL;
 	}
 }
+
+// Debug: Log the results
+error_log("Successfully processed $successfulInserts out of $totalRecords records for KPI ID: $kpiId");
+
+// Call XmR function to update control limits
 XmR($table, $kpiId);
+
+// Return success response
+echo json_encode([
+    'success' => true,
+    'message' => 'KPI values updated successfully',
+    'kpiId' => $kpiId,
+    'table' => $table,
+    'totalRecords' => $totalRecords,
+    'successfulInserts' => $successfulInserts,
+    'timestamp' => date('Y-m-d H:i:s')
+]);
 
 function XmR($table, $kpiId)
 {

@@ -6,8 +6,8 @@
 //error_reporting(0);
 
 //update funcs.php line 433 as well for user permissions update...
-$username="accenta0_NGIwY";
-$password="bvM1369";
+$username="root";
+$password="Hermione#1989";
 $database="kdic_local";
 $server="localhost";
 

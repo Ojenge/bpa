@@ -1,0 +1,19 @@
+POST data received for measure edit:
+tree_id: kpi7
+weight: 100
+processed weight: 100
+Updating measure kpi7 with weight: 100
+Successfully updated measure kpi7 with weight: 100
+POST data received for measure edit:
+tree_id: kpi7
+weight: 100
+processed weight: 100
+Updating measure kpi7 with weight: 100
+Successfully updated measure kpi7 with weight: 100
+POST data received for measure edit:
+tree_id: kpi7
+raw weight: 100
+processed weight: 1.0000
+weight type: numeric
+Updating measure kpi7 with weight: 1.0000
+Successfully updated measure kpi7 with weight: 1.0000
