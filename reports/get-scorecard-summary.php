@@ -18,7 +18,7 @@ $table .= "</thead>";
 $table .= "<tbody>";
 for($i = 0; $i < $perspCount; $i++)
 {
-    $perspScore = orgPerspObjKpiScore($perspectives[$i]["id"]);
+    $perspScore = perspObjKpiScore($perspectives[$i]["id"]);
     $perspColor = getColor($perspScore);
     if($perspColor == "bg-success")
         $table .= "<tr class='table-primary'><td class='border-bottom-0'><div class='float-start green3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
@@ -61,7 +61,7 @@ for($i = 0; $i < $perspCount; $i++)
                 //$objectiveTable .= '<tr><td rowspan='.$rowSpan.'>'.$objectives[$j]["name"]." (".$kpiCount.")</td></tr>";
                 $objectiveTable .= '<tr><td rowspan='.$rowSpan.'>'.$objectives[$j]["name"]."</td>";
                 
-                $objectiveScore = orgObjKpiScore($objectives[$j]["id"]);
+                $objectiveScore = getObjScore($objectives[$j]["id"]);
                 $objectiveColor = getColor($objectiveScore);
                 if($objectiveColor == "bg-success")//bg-success bg-warning bg-danger table-secondary
                 $objectiveTable .= "<td rowspan=".$rowSpan."><div class='green3d'></div></td></tr>";
