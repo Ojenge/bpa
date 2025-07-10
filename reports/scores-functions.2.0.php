@@ -61,6 +61,7 @@ function getScore($kpiArray)
 				break;	
 			}
 		}//end switch
+		
 		$kpi = mysqli_query($connect, "SELECT actual, red, green, darkGreen FROM $table WHERE measureId = '$kpiId' ORDER BY date DESC LIMIT 1");
 		$kpiCount = mysqli_num_rows($kpi);
 		$kpi = mysqli_fetch_assoc($kpi);
@@ -208,11 +209,12 @@ function getPerspectives($orgId)
 	global $connect;
 	$arrayPosition = 0;
 	$ids = array();
-	$result = mysqli_query($connect, "SELECT id, name FROM perspective WHERE parentId = '$orgId'");
+	$result = mysqli_query($connect, "SELECT id, name, icon FROM perspective WHERE parentId = '$orgId'");
 	while($row = mysqli_fetch_array($result))
 	{
 		$ids[$arrayPosition]["id"] = $row["id"];
 		$ids[$arrayPosition]["name"] = $row["name"];
+		$ids[$arrayPosition]["icon"] = $row["icon"];
 		$arrayPosition++;	
 	}
 	mysqli_free_result($result);
@@ -326,7 +328,7 @@ function getInitiativeColor($percent, $dueDate, $globalDate, $status)
 function getInitiatives($objId, $globalDate)
 {
 	global $connect;
-	$initiatives = "<table>";
+	$initiatives = "<table style='width:100%'>";
 	$initiativeCount = 1;
 	$result = mysqli_query($connect, "SELECT initiative.id AS id, initiative.name AS name, initiative.dueDate AS dueDate 
 	FROM initiative, initiativeimpact 
@@ -358,7 +360,9 @@ function getInitiatives($objId, $globalDate)
 		$colorInitiative = getInitiativeColor($percent, $dueDate, $globalDate, $status);
 		if($percent != "") $percent = $percent."%";
 		
-		$initiatives = $initiatives."<tr><td valign='top'>".$initiativeCount.'</td><td id="init'.$id.'" style="cursor: pointer; text-decoration: underline; color: blue;" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()">'.$row["name"]."</td><td valign='top'>".$percent.'</td><td valign="top"><div class="rounded-circle trafficLightBootstrap '.$colorInitiative.'"></div></td></tr>';
+		//$initiatives = $initiatives."<tr><td valign='top'><ul><li>".$initiativeCount.'</li></ul></td><td id="init'.$id.'" style="cursor: pointer; text-decoration: underline; color: blue;" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()">'.$row["name"]."</td><td valign='top' class='text-right'>".$percent.'</td><td valign="top" class="float-end"><div class="rounded-circle trafficLightBootstrap '.$colorInitiative.'"></div></td></tr>';
+		//replacing the numbering as above with bullet points - they look neater. LTK 10Jul2025 1213hrs
+		$initiatives = $initiatives.'<tr><td id="init'.$id.'" style="cursor: pointer;" class="link-primary" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()"><ul><li>'.$row["name"]."</td><td valign='top' class='text-right'>".$percent.'</td><td valign="top" class="float-end"><div class="green3d"></div></li></ul></td></tr>';
 		$initiativeCount++;
 	}
 	$initiatives = $initiatives."</table>";

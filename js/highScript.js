@@ -575,14 +575,14 @@ departmentStaffScores = function()
 	cp = new ContentPane({
 		region: "center",
 		"class": "bpaPrint",
-	href:"reports/departmentsStaffReport.php"
+	//href:"reports/departmentsStaffReport.php" //old structure that was too buggy
+	href:"reports/scorecard-summary.php"
 	});
 	cp.placeAt("appLayout");
 	
 	domConstruct.destroy('idParkingLot');
-	domConstruct.destroy('dropdownMenuButton1');
 	domConstruct.destroy('departmentList');
-	domConstruct.destroy('displayReport');
+	domConstruct.destroy('scorecardSummary');
 }
 cascadeReportTwo = function () 
 {
