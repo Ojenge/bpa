@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Function Test (In Context)</title>
+    <style>
+        .test-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #d1ecf1; }
+        .warning { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Dashboard Function Test (In Context)</h1>
+        <p>This test should be loaded within the main application context to access the departmentDashboard function.</p>
+        
+        <div class="test-card info">
+            <h3>Function Availability Test</h3>
+            <div id="function-test">Testing...</div>
+        </div>
+        
+        <div class="test-card">
+            <h3>Dashboard Function Test</h3>
+            <button class="btn btn-primary" onclick="testDepartmentDashboard()">Test departmentDashboard()</button>
+            <button class="btn btn-success" onclick="testSafeContentPaneTransition()">Test safeContentPaneTransition()</button>
+            <div id="test-result"></div>
+        </div>
+        
+        <div class="test-card">
+            <h3>Navigation Test</h3>
+            <button class="btn btn-warning" onclick="testNavigation()">Test Navigation to Dashboard</button>
+            <div id="navigation-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test function availability
+        function checkFunctions() {
+            const testDiv = document.getElementById('function-test');
+            let results = [];
+            
+            // Check for required functions
+            const functions = [
+                'departmentDashboard',
+                'safeContentPaneTransition',
+                'ContentPane',
+                'fetch'
+            ];
+            
+            functions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    results.push(`✓ ${funcName} function available`);
+                } else {
+                    results.push(`✗ ${funcName} function not available`);
+                }
+            });
+            
+            testDiv.innerHTML = results.map(result => '<div>' + result + '</div>').join('');
+        }
+        
+        // Test departmentDashboard function
+        function testDepartmentDashboard() {
+            const resultDiv = document.getElementById('test-result');
+            
+            if (typeof departmentDashboard === 'function') {
+                try {
+                    console.log('Testing departmentDashboard function...');
+                    // Don't actually call it to avoid navigation, just test if it exists
+                    resultDiv.innerHTML = '<div class="success">✓ departmentDashboard function is available and callable</div>';
+                } catch (error) {
+                    resultDiv.innerHTML = '<div class="error">✗ departmentDashboard function error: ' + error.message + '</div>';
+                }
+            } else {
+                resultDiv.innerHTML = '<div class="error">✗ departmentDashboard function not found</div>';
+            }
+        }
+        
+        // Test safeContentPaneTransition function
+        function testSafeContentPaneTransition() {
+            const resultDiv = document.getElementById('test-result');
+            
+            if (typeof safeContentPaneTransition === 'function') {
+                try {
+                    console.log('Testing safeContentPaneTransition function...');
+                    resultDiv.innerHTML = '<div class="success">✓ safeContentPaneTransition function is available and callable</div>';
+                } catch (error) {
+                    resultDiv.innerHTML = '<div class="error">✗ safeContentPaneTransition function error: ' + error.message + '</div>';
+                }
+            } else {
+                resultDiv.innerHTML = '<div class="error">✗ safeContentPaneTransition function not found</div>';
+            }
+        }
+        
+        // Test navigation
+        function testNavigation() {
+            const resultDiv = document.getElementById('navigation-result');
+            
+            if (typeof departmentDashboard === 'function') {
+                try {
+                    console.log('Testing navigation to department dashboard...');
+                    // Call the function with a test department ID
+                    departmentDashboard('org1');
+                    resultDiv.innerHTML = '<div class="success">✓ Navigation initiated successfully</div>';
+                } catch (error) {
+                    resultDiv.innerHTML = '<div class="error">✗ Navigation failed: ' + error.message + '</div>';
+                }
+            } else {
+                resultDiv.innerHTML = '<div class="error">✗ Cannot test navigation - departmentDashboard function not available</div>';
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFunctions();
+        });
+    </script>
+</body>
+</html> 

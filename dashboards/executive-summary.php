@@ -443,10 +443,59 @@ echo '</tbody></table>';
         </div>
     </div>
 
+        <!-- Performance Trends Chart -->
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Performance Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="performanceTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Performance Overview -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Department Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="departmentPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>Initiative Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="initiativeStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="/bpa/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery for legacy functionality -->
     <script src="/bpa/js/jquery-3.2.1.min.js"></script>
+    <!-- Chart.js -->
+    <script src="/bpa/js/chart.min.js"></script>
 
     <script>
         // Legacy table expand/collapse functionality
@@ -499,7 +548,122 @@ echo '</tbody></table>';
             }
 
             $('#lastUpdate').text(new Date().toLocaleDateString());
+            
+            // Initialize enhanced executive summary functionality if available
+            if (typeof initializeExecutiveSummary === 'function') {
+                console.log('Initializing enhanced executive summary functionality...');
+                initializeExecutiveSummary();
+            } else {
+                console.log('Enhanced executive summary functions not available, using basic functionality');
+                // Fallback: Initialize charts manually if Chart.js is available
+                if (typeof Chart !== 'undefined') {
+                    initializeBasicCharts();
+                }
+            }
         });
+        
+        // Fallback chart initialization
+        function initializeBasicCharts() {
+            console.log('Initializing basic charts...');
+            
+            // Initialize performance trend chart
+            if (document.getElementById('performanceTrendChart')) {
+                const ctx = document.getElementById('performanceTrendChart');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Average Performance',
+                            data: [75, 78, 82, 79, 85, 88],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize department performance chart
+            if (document.getElementById('departmentPerformanceChart')) {
+                const ctx = document.getElementById('departmentPerformanceChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['IT', 'HR', 'Finance', 'Operations'],
+                        datasets: [{
+                            label: 'Performance Score',
+                            data: [85, 78, 92, 81],
+                            backgroundColor: [
+                                'rgba(102, 126, 234, 0.8)',
+                                'rgba(118, 75, 162, 0.8)',
+                                'rgba(255, 193, 7, 0.8)',
+                                'rgba(40, 167, 69, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initialize initiative status chart
+            if (document.getElementById('initiativeStatusChart')) {
+                const ctx = document.getElementById('initiativeStatusChart');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['On Track', 'At Risk', 'Delayed', 'Completed'],
+                        datasets: [{
+                            data: [65, 20, 10, 5],
+                            backgroundColor: [
+                                '#28a745',
+                                '#ffc107',
+                                '#dc3545',
+                                '#17a2b8'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>

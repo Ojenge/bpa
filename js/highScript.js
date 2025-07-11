@@ -1519,6 +1519,8 @@ indDashboard = function()
 	// Helper function for safe ContentPane transitions
 	safeContentPaneTransition = function(href, menuState) {
 		try {
+			console.log('safeContentPaneTransition called with href:', href, 'menuState:', menuState);
+			
 			// Cancel any pending requests
 			if (cp && typeof cp.cancel === 'function') {
 				cp.cancel();
@@ -1532,19 +1534,44 @@ indDashboard = function()
 			// Set the menu state
 			mainMenuState = menuState;
 
-			// Create new ContentPane
+			// Create new ContentPane with enhanced functionality
 			cp = new ContentPane({
 				region: "center",
 				"class": "bpaPrint",
 				href: href,
+				onLoad: function() {
+					console.log('ContentPane loaded successfully:', href);
+					
+					// Add a small delay to ensure DOM is fully ready
+					setTimeout(function() {
+						console.log('ContentPane DOM ready, checking for initialization functions...');
+						
+						// Check if the loaded page has any initialization functions
+						if (typeof window.loadDepartmentOptions === 'function') {
+							console.log('Found loadDepartmentOptions function, calling it...');
+							window.loadDepartmentOptions();
+						}
+						
+						if (typeof window.loadPortfolioData === 'function') {
+							console.log('Found loadPortfolioData function, calling it...');
+							window.loadPortfolioData();
+						}
+						
+						if (typeof window.initializeCharts === 'function') {
+							console.log('Found initializeCharts function, calling it...');
+							window.initializeCharts();
+						}
+					}, 500);
+				},
 				onError: function(error) {
 					console.error('ContentPane error:', error);
-					this.set('content', '<div class="alert alert-danger">Error loading dashboard. Please try again.</div>');
+					this.set('content', '<div class="alert alert-danger">Error loading dashboard. Please try again. Error: ' + error + '</div>');
 				}
 			});
 
 			// Place the new ContentPane
 			cp.placeAt("appLayout");
+			console.log('ContentPane placed at appLayout');
 
 		} catch (error) {
 			console.error('Error in safeContentPaneTransition:', error);
@@ -1564,8 +1591,49 @@ indDashboard = function()
 			departmentId = (typeof loggedInUser !== 'undefined' && loggedInUser.department) ? loggedInUser.department : 'org1';
 		}
 
+		console.log('Loading department dashboard for department:', departmentId);
+
 		var url = "dashboards/department-performance-dashboard.php?departmentId=" + encodeURIComponent(departmentId);
-		safeContentPaneTransition(url, "Department Dashboard");
+		
+		// Enhanced ContentPane with better error handling and callback
+		try {
+			// Cancel any pending requests
+			if (cp && typeof cp.cancel === 'function') {
+				cp.cancel();
+			}
+
+			// Destroy existing ContentPane if it exists
+			if (cp && typeof cp.destroyRecursive === 'function') {
+				cp.destroyRecursive();
+			}
+
+			// Set the menu state
+			mainMenuState = "Department Dashboard";
+
+			// Create new ContentPane with enhanced error handling
+			cp = new ContentPane({
+				region: "center",
+				"class": "bpaPrint",
+				href: url,
+				onLoad: function() {
+					console.log('Department dashboard loaded successfully');
+					// Ensure dashboard functions are available in the loaded context
+					this.set('content', this.get('content') + '<script>console.log("Dashboard content loaded");</script>');
+				},
+				onError: function(error) {
+					console.error('ContentPane error:', error);
+					this.set('content', '<div class="alert alert-danger">Error loading dashboard. Please try again. Error: ' + error + '</div>');
+				}
+			});
+
+			// Place the new ContentPane
+			cp.placeAt("appLayout");
+
+		} catch (error) {
+			console.error('Error in departmentDashboard:', error);
+			// Fallback: try to load directly
+			window.location.href = url;
+		}
 	}
 
 	// Enhanced department dashboard with department selection
@@ -1588,7 +1656,699 @@ indDashboard = function()
 
 	executiveSummary = function()
 	{
-		safeContentPaneTransition("dashboards/executive-summary.php", "Executive Summary");
+		// Load the executive summary dashboard with enhanced functionality
+		try {
+			// Cancel any pending requests
+			if (cp && typeof cp.cancel === 'function') {
+				cp.cancel();
+			}
+
+			// Destroy existing ContentPane if it exists
+			if (cp && typeof cp.destroyRecursive === 'function') {
+				cp.destroyRecursive();
+			}
+
+			// Set the menu state
+			mainMenuState = "Executive Summary";
+
+			// Create new ContentPane with enhanced functionality
+			cp = new ContentPane({
+				region: "center",
+				"class": "bpaPrint",
+				href: "dashboards/executive-summary.php",
+				onLoad: function() {
+					console.log('Executive summary dashboard loaded successfully');
+					// Initialize executive summary functionality after load
+					initializeExecutiveSummary();
+				},
+				onError: function(error) {
+					console.error('ContentPane error:', error);
+					this.set('content', '<div class="alert alert-danger">Error loading executive summary. Please try again.</div>');
+				}
+			});
+
+			// Place the new ContentPane
+			cp.placeAt("appLayout");
+
+		} catch (error) {
+			console.error('Error in executiveSummary:', error);
+			// Fallback: try to load directly
+			window.location.href = "dashboards/executive-summary.php";
+		}
+	}
+
+	// Initialize executive summary dashboard functionality
+	initializeExecutiveSummary = function() {
+		console.log('initializeExecutiveSummary called');
+		
+		// Wait for DOM to be ready
+		setTimeout(function() {
+			console.log('DOM ready, initializing executive summary...');
+			triggerExecutiveSummaryDataLoad();
+		}, 200);
+	}
+
+	// Trigger executive summary data loading
+	triggerExecutiveSummaryDataLoad = function() {
+		console.log('Triggering executive summary data load...');
+		
+		// Check if the dashboard is loaded and has the required elements
+		const totalStaffElement = document.getElementById('totalStaff');
+		if (!totalStaffElement) {
+			console.log('Executive summary elements not found, dashboard may not be fully loaded');
+			return;
+		}
+		
+		// Check if data is already loaded
+		if (totalStaffElement.textContent && totalStaffElement.textContent !== '--' && !totalStaffElement.textContent.includes('spinner')) {
+			console.log('Executive summary data already loaded');
+			return;
+		}
+		
+		console.log('Loading executive summary data...');
+		loadExecutiveSummaryData();
+		initializeExecutiveCharts();
+		setupExecutiveEventHandlers();
+	}
+
+	// Load executive summary data
+	loadExecutiveSummaryData = function() {
+		console.log('Loading executive summary data...');
+		
+		// Load key metrics
+		console.log('Loading executive metrics...');
+		loadExecutiveMetrics();
+		
+		// Load team performance data
+		console.log('Loading team performance data...');
+		loadTeamPerformanceData();
+		
+		// Load performance trends
+		console.log('Loading performance trends...');
+		loadPerformanceTrends();
+		
+		// Load department overview
+		console.log('Loading department overview...');
+		loadDepartmentOverview();
+	}
+
+	// Load executive metrics
+	loadExecutiveMetrics = function() {
+		// Get current date and period
+		const objectDate = new Date().toISOString().slice(0, 7); // YYYY-MM format
+		const objectPeriod = 'months';
+		
+		console.log('Loading executive metrics with params:', { objectId: 'ind3', objectPeriod, objectDate });
+		
+		// Show loading state for metrics
+		showMetricsLoadingState();
+		
+		const requestBody = `objectId=ind3&objectPeriod=${objectPeriod}&objectDate=${objectDate}`;
+		console.log('Request body:', requestBody);
+		
+		fetch('/bpa/dashboards/get-exec-summary-details.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: requestBody
+		})
+		.then(response => {
+			console.log('Response status:', response.status);
+			console.log('Response headers:', response.headers);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response.text(); // Get response as text first for debugging
+		})
+		.then(text => {
+			console.log('Raw response:', text);
+			try {
+				const data = JSON.parse(text);
+				console.log('Executive metrics loaded:', data);
+				updateExecutiveMetrics(data);
+				hideMetricsLoadingState();
+			} catch (parseError) {
+				console.error('Error parsing JSON:', parseError);
+				console.error('Raw response was:', text);
+				throw new Error('Invalid JSON response from server');
+			}
+		})
+		.catch(error => {
+			console.error('Error loading executive metrics:', error);
+			showMetricsErrorState(error);
+			hideMetricsLoadingState();
+		});
+	}
+
+	// Show loading state for metrics
+	showMetricsLoadingState = function() {
+		const metricCards = ['totalStaff', 'activeInitiatives', 'avgPerformance', 'lastUpdate'];
+		metricCards.forEach(id => {
+			const element = document.getElementById(id);
+			if (element) {
+				element.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+			}
+		});
+	}
+
+	// Hide loading state for metrics
+	hideMetricsLoadingState = function() {
+		// Loading state will be replaced by actual data
+	}
+
+	// Show error state for metrics
+	showMetricsErrorState = function(error) {
+		const metricCards = ['totalStaff', 'activeInitiatives', 'avgPerformance', 'lastUpdate'];
+		metricCards.forEach(id => {
+			const element = document.getElementById(id);
+			if (element) {
+				element.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i>';
+				element.title = 'Error loading data: ' + error.message;
+			}
+		});
+	}
+
+	// Update executive metrics display
+	updateExecutiveMetrics = function(data) {
+		console.log('Updating executive metrics with data:', data);
+		
+		if (!data || data.length === 0) {
+			console.log('No data to display');
+			return;
+		}
+		
+		// Calculate totals
+		let totalInitiatives = 0;
+		let totalPerformance = 0;
+		let performanceCount = 0;
+		let activeStaff = 0;
+		
+		data.forEach(staff => {
+			console.log('Processing staff member:', staff);
+			
+			if (staff.taskCount) {
+				totalInitiatives += parseInt(staff.taskCount);
+			}
+			
+			// Handle performance score - the API returns it as "XX.XX% " (with space and trend icon)
+			if (staff.indScore && staff.indScore.trim() !== ' ') {
+				// Extract just the percentage part before the space
+				const scorePart = staff.indScore.split(' ')[0];
+				const perfValue = parseFloat(scorePart.replace('%', ''));
+				if (!isNaN(perfValue)) {
+					totalPerformance += perfValue;
+					performanceCount++;
+					console.log('Added performance score:', perfValue);
+				}
+			}
+			
+			// Check if staff has signed in (not "Never")
+			if (staff.lastSignIn && !staff.lastSignIn.includes('Never')) {
+				activeStaff++;
+			}
+		});
+		
+		console.log('Calculated totals:', {
+			totalInitiatives,
+			totalPerformance,
+			performanceCount,
+			activeStaff,
+			totalStaff: data.length
+		});
+		
+		// Update metric cards
+		const totalStaffElement = document.getElementById('totalStaff');
+		const activeInitiativesElement = document.getElementById('activeInitiatives');
+		const avgPerformanceElement = document.getElementById('avgPerformance');
+		const lastUpdateElement = document.getElementById('lastUpdate');
+		
+		if (totalStaffElement) {
+			totalStaffElement.textContent = data.length;
+			console.log('Updated total staff:', data.length);
+		}
+		
+		if (activeInitiativesElement) {
+			activeInitiativesElement.textContent = totalInitiatives;
+			console.log('Updated active initiatives:', totalInitiatives);
+		}
+		
+		if (avgPerformanceElement) {
+			if (performanceCount > 0) {
+				const avgPerf = (totalPerformance / performanceCount).toFixed(1);
+				avgPerformanceElement.textContent = avgPerf + '%';
+				console.log('Updated average performance:', avgPerf + '%');
+			} else {
+				avgPerformanceElement.textContent = 'N/A';
+				console.log('No performance data available');
+			}
+		}
+		
+		if (lastUpdateElement) {
+			lastUpdateElement.textContent = new Date().toLocaleDateString();
+			console.log('Updated last update date');
+		}
+		
+		// Update team performance table if it exists
+		updateTeamPerformanceTable(data);
+	}
+
+	// Update team performance table
+	updateTeamPerformanceTable = function(data) {
+		const tableBody = document.querySelector('.table-executive tbody');
+		if (!tableBody) return;
+		
+		// Clear existing rows
+		tableBody.innerHTML = '';
+		
+		data.forEach(staff => {
+			const row = document.createElement('tr');
+			row.className = 'header expand';
+			
+			row.innerHTML = `
+				<td>${staff.display_name}</td>
+				<td>${staff.title}</td>
+				<td>${staff.name || ''}</td>
+				<td style="text-align:center">${staff.taskCount || 0}</td>
+				<td style="text-align:center">${staff.updateCount || 0}</td>
+				<td style="text-align:center">${staff.indScorePrevious || ''}</td>
+				<td style="text-align:center" class="border-end-0">${staff.indScore || ''}</td>
+				<td style="text-align:center" class="border-start-0">${staff.indScoreTrend || ''}</td>
+				<td>${staff.lastSignIn || ''}</td>
+			`;
+			
+			tableBody.appendChild(row);
+		});
+		
+		// Reinitialize table expand/collapse functionality
+		setupTableExpandCollapse();
+	}
+
+	// Load team performance data
+	loadTeamPerformanceData = function() {
+		// This function can be expanded to load additional team performance data
+		console.log('Loading team performance data...');
+	}
+
+	// Load performance trends
+	loadPerformanceTrends = function() {
+		console.log('Loading performance trends...');
+		loadChartData('performance_trends');
+	}
+
+	// Load department overview
+	loadDepartmentOverview = function() {
+		console.log('Loading department overview...');
+		loadChartData('department_performance');
+		loadChartData('initiative_status');
+	}
+
+	// Load chart data from server
+	loadChartData = function(chartType) {
+		const objectDate = new Date().toISOString().slice(0, 7); // YYYY-MM format
+		const objectPeriod = 'months';
+		
+		console.log(`Loading chart data for ${chartType} with params:`, { chartType, objectPeriod, objectDate });
+		
+		// Show loading state for chart
+		showChartLoadingState(chartType);
+		
+		const requestBody = `chartType=${chartType}&objectPeriod=${objectPeriod}&objectDate=${objectDate}`;
+		console.log(`Request body for ${chartType}:`, requestBody);
+		
+		fetch('/bpa/dashboards/get-executive-chart-data.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: requestBody
+		})
+		.then(response => {
+			console.log(`Response status for ${chartType}:`, response.status);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response.text(); // Get response as text first for debugging
+		})
+		.then(text => {
+			console.log(`Raw response for ${chartType}:`, text);
+			try {
+				const data = JSON.parse(text);
+				console.log(`Chart data loaded for ${chartType}:`, data);
+				if (data.error) {
+					throw new Error(data.error);
+				}
+				updateChart(chartType, data);
+				hideChartLoadingState(chartType);
+			} catch (parseError) {
+				console.error(`Error parsing JSON for ${chartType}:`, parseError);
+				console.error(`Raw response was:`, text);
+				throw new Error('Invalid JSON response from server');
+			}
+		})
+		.catch(error => {
+			console.error(`Error loading chart data for ${chartType}:`, error);
+			showChartErrorState(chartType, error);
+			hideChartLoadingState(chartType);
+		});
+	}
+
+	// Show loading state for chart
+	showChartLoadingState = function(chartType) {
+		const chartId = getChartId(chartType);
+		const canvas = document.getElementById(chartId);
+		if (canvas) {
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#f8f9fa';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#6c757d';
+			ctx.font = '14px Arial';
+			ctx.textAlign = 'center';
+			ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+		}
+	}
+
+	// Hide loading state for chart
+	hideChartLoadingState = function(chartType) {
+		// Loading state will be replaced by chart data
+	}
+
+	// Show error state for chart
+	showChartErrorState = function(chartType, error) {
+		const chartId = getChartId(chartType);
+		const canvas = document.getElementById(chartId);
+		if (canvas) {
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#f8f9fa';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#dc3545';
+			ctx.font = '12px Arial';
+			ctx.textAlign = 'center';
+			ctx.fillText('Error loading data', canvas.width / 2, canvas.height / 2 - 10);
+			ctx.fillText(error.message.substring(0, 30) + '...', canvas.width / 2, canvas.height / 2 + 10);
+		}
+	}
+
+	// Get chart ID from chart type
+	getChartId = function(chartType) {
+		switch(chartType) {
+			case 'performance_trends':
+				return 'performanceTrendChart';
+			case 'department_performance':
+				return 'departmentPerformanceChart';
+			case 'initiative_status':
+				return 'initiativeStatusChart';
+			default:
+				return '';
+		}
+	}
+
+	// Update chart with new data
+	updateChart = function(chartType, data) {
+		switch(chartType) {
+			case 'performance_trends':
+				updatePerformanceTrendChart(data);
+				break;
+			case 'department_performance':
+				updateDepartmentPerformanceChart(data);
+				break;
+			case 'initiative_status':
+				updateInitiativeStatusChart(data);
+				break;
+		}
+	}
+
+	// Initialize executive charts
+	initializeExecutiveCharts = function() {
+		console.log('Initializing executive charts...');
+		
+		// Check if Chart.js is available
+		if (typeof Chart === 'undefined') {
+			console.warn('Chart.js not available. Charts will not be initialized.');
+			return;
+		}
+		
+		// Initialize performance trend chart if container exists
+		if (document.getElementById('performanceTrendChart')) {
+			initPerformanceTrendChart();
+		}
+		
+		// Initialize department performance chart if container exists
+		if (document.getElementById('departmentPerformanceChart')) {
+			initDepartmentPerformanceChart();
+		}
+		
+		// Initialize initiative status chart if container exists
+		if (document.getElementById('initiativeStatusChart')) {
+			initInitiativeStatusChart();
+		}
+	}
+
+	// Initialize performance trend chart
+	initPerformanceTrendChart = function() {
+		const ctx = document.getElementById('performanceTrendChart');
+		if (!ctx) return;
+		
+		// Initialize with empty data - will be populated by loadChartData
+		const chartData = {
+			labels: [],
+			datasets: [{
+				label: 'Average Performance',
+				data: [],
+				borderColor: '#667eea',
+				backgroundColor: 'rgba(102, 126, 234, 0.1)',
+				tension: 0.4
+			}]
+		};
+		
+		window.performanceTrendChart = new Chart(ctx, {
+			type: 'line',
+			data: chartData,
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false
+					}
+				},
+				scales: {
+					y: {
+						beginAtZero: true,
+						max: 100
+					}
+				}
+			}
+		});
+	}
+
+	// Initialize department performance chart
+	initDepartmentPerformanceChart = function() {
+		const ctx = document.getElementById('departmentPerformanceChart');
+		if (!ctx) return;
+		
+		// Initialize with empty data - will be populated by loadChartData
+		const chartData = {
+			labels: [],
+			datasets: [{
+				label: 'Performance Score',
+				data: [],
+				backgroundColor: []
+			}]
+		};
+		
+		window.departmentPerformanceChart = new Chart(ctx, {
+			type: 'bar',
+			data: chartData,
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false
+					}
+				},
+				scales: {
+					y: {
+						beginAtZero: true,
+						max: 100
+					}
+				}
+			}
+		});
+	}
+
+	// Initialize initiative status chart
+	initInitiativeStatusChart = function() {
+		const ctx = document.getElementById('initiativeStatusChart');
+		if (!ctx) return;
+		
+		// Initialize with empty data - will be populated by loadChartData
+		const chartData = {
+			labels: [],
+			datasets: [{
+				data: [],
+				backgroundColor: []
+			}]
+		};
+		
+		window.initiativeStatusChart = new Chart(ctx, {
+			type: 'doughnut',
+			data: chartData,
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						position: 'bottom'
+					}
+				}
+			}
+		});
+	}
+
+	// Update performance trend chart
+	updatePerformanceTrendChart = function(data) {
+		if (window.performanceTrendChart && data && data.labels) {
+			window.performanceTrendChart.data.labels = data.labels;
+			window.performanceTrendChart.data.datasets[0].data = data.datasets[0].data;
+			window.performanceTrendChart.update();
+		}
+	}
+
+	// Update department performance chart
+	updateDepartmentPerformanceChart = function(data) {
+		if (window.departmentPerformanceChart && data && data.labels) {
+			window.departmentPerformanceChart.data.labels = data.labels;
+			window.departmentPerformanceChart.data.datasets[0].data = data.datasets[0].data;
+			window.departmentPerformanceChart.data.datasets[0].backgroundColor = data.datasets[0].backgroundColor;
+			window.departmentPerformanceChart.update();
+		}
+	}
+
+	// Update initiative status chart
+	updateInitiativeStatusChart = function(data) {
+		if (window.initiativeStatusChart && data && data.labels) {
+			window.initiativeStatusChart.data.labels = data.labels;
+			window.initiativeStatusChart.data.datasets[0].data = data.datasets[0].data;
+			window.initiativeStatusChart.data.datasets[0].backgroundColor = data.datasets[0].backgroundColor;
+			window.initiativeStatusChart.update();
+		}
+	}
+
+	// Setup executive event handlers
+	setupExecutiveEventHandlers = function() {
+		// Setup table expand/collapse functionality
+		setupTableExpandCollapse();
+		
+		// Setup refresh button
+		const refreshBtn = document.querySelector('button[onclick="refreshDashboard()"]');
+		if (refreshBtn) {
+			refreshBtn.onclick = function() {
+				loadExecutiveSummaryData();
+			};
+		}
+		
+		// Setup export button
+		const exportBtn = document.querySelector('button[onclick="exportReport()"]');
+		if (exportBtn) {
+			exportBtn.onclick = function() {
+				window.print();
+			};
+		}
+
+		// Setup time period selector if it exists
+		const timePeriodSelect = document.getElementById('timePeriodSelect');
+		if (timePeriodSelect) {
+			timePeriodSelect.onchange = function() {
+				loadExecutiveSummaryData();
+			};
+		}
+
+		// Setup date range selector if it exists
+		const dateRangeSelect = document.getElementById('dateRangeSelect');
+		if (dateRangeSelect) {
+			dateRangeSelect.onchange = function() {
+				loadExecutiveSummaryData();
+			};
+		}
+	}
+
+	// Enhanced refresh function for executive summary
+	refreshExecutiveDashboard = function() {
+		console.log('Refreshing executive dashboard...');
+		
+		// Show loading indicator
+		showLoadingIndicator();
+		
+		// Reload all data
+		loadExecutiveSummaryData();
+		
+		// Hide loading indicator after a delay
+		setTimeout(hideLoadingIndicator, 2000);
+	}
+
+	// Show loading indicator
+	showLoadingIndicator = function() {
+		const loadingDiv = document.createElement('div');
+		loadingDiv.id = 'executiveLoadingIndicator';
+		loadingDiv.innerHTML = `
+			<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+						background: rgba(0,0,0,0.8); color: white; padding: 20px; 
+						border-radius: 10px; z-index: 9999;">
+				<i class="fas fa-spinner fa-spin me-2"></i>
+				Loading Executive Summary Data...
+			</div>
+		`;
+		document.body.appendChild(loadingDiv);
+	}
+
+	// Hide loading indicator
+	hideLoadingIndicator = function() {
+		const loadingDiv = document.getElementById('executiveLoadingIndicator');
+		if (loadingDiv) {
+			loadingDiv.remove();
+		}
+	}
+
+	// Test function for debugging - can be called from browser console
+	testExecutiveSummary = function() {
+		console.log('Testing executive summary functionality...');
+		console.log('Chart.js available:', typeof Chart !== 'undefined');
+		console.log('jQuery available:', typeof $ !== 'undefined');
+		console.log('initializeExecutiveSummary function available:', typeof initializeExecutiveSummary === 'function');
+		
+		// Test if we can access the DOM elements
+		console.log('Performance trend chart element:', document.getElementById('performanceTrendChart'));
+		console.log('Department performance chart element:', document.getElementById('departmentPerformanceChart'));
+		console.log('Initiative status chart element:', document.getElementById('initiativeStatusChart'));
+		
+		// Test if we can access the metric elements
+		console.log('Total staff element:', document.getElementById('totalStaff'));
+		console.log('Active initiatives element:', document.getElementById('activeInitiatives'));
+		console.log('Average performance element:', document.getElementById('avgPerformance'));
+		console.log('Last update element:', document.getElementById('lastUpdate'));
+		
+		// Try to initialize if function is available
+		if (typeof initializeExecutiveSummary === 'function') {
+			console.log('Calling initializeExecutiveSummary...');
+			initializeExecutiveSummary();
+		} else {
+			console.log('initializeExecutiveSummary function not available');
+		}
+	}
+
+	// Setup table expand/collapse functionality
+	setupTableExpandCollapse = function() {
+		// Remove existing event listeners
+		$(document).off('click', 'tr.header');
+		
+		// Add new event listeners
+		$(document).on('click', 'tr.header', function() {
+			$(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100);
+		});
 	}
 
 	teamProductivityDashboard = function()
@@ -1603,7 +2363,571 @@ indDashboard = function()
 
 	performanceHeatMaps = function()
 	{
+		console.log('Loading Performance Heat Maps dashboard...');
 		safeContentPaneTransition("dashboards/performance-heat-maps.php", "Performance Heat Maps");
+		
+		// Wait for the page to load, then trigger data loading
+		setTimeout(function() {
+			console.log('Performance heat maps dashboard loaded, triggering data load...');
+			// The dashboard has its own initialization, but we can trigger it manually if needed
+			triggerHeatMapDataLoad();
+		}, 2000); // Increased timeout to ensure dashboard is fully loaded
+	}
+
+	// Trigger heat map data loading
+	triggerHeatMapDataLoad = function() {
+		console.log('Triggering heat map data load...');
+		
+		// Check if the dashboard is loaded and has the required elements
+		const mainHeatMap = document.getElementById('mainHeatMap');
+		const departmentSelect = document.getElementById('departmentSelect');
+		
+		if (!mainHeatMap) {
+			console.log('Heat map container not found, dashboard may not be fully loaded');
+			// Try again after a delay
+			setTimeout(function() {
+				triggerHeatMapDataLoad();
+			}, 1000);
+			return;
+		}
+		
+		console.log('Dashboard elements found, checking department options...');
+		
+		// Check if department options are loaded
+		if (!departmentSelect || departmentSelect.options.length <= 1) {
+			console.log('Department options not loaded, loading them now...');
+			loadDepartmentOptions();
+			
+			// Wait for departments to load before loading data
+			setTimeout(function() {
+				loadHeatMapData();
+			}, 1000);
+		} else {
+			console.log('Department options already loaded, loading heat map data...');
+			loadHeatMapData();
+		}
+	}
+
+	// Load department options for performance heat maps
+	loadDepartmentOptions = function() {
+		console.log('Loading department options...');
+		
+		const departmentSelect = document.getElementById('departmentSelect');
+		if (!departmentSelect) {
+			console.log('Department select not found - element may not exist yet');
+			// Try again after a short delay
+			setTimeout(function() {
+				loadDepartmentOptions();
+			}, 500);
+			return;
+		}
+		
+		console.log('Department select found, current options:', departmentSelect.options.length);
+		
+		// Check if options are already loaded
+		if (departmentSelect.options.length > 1) {
+			console.log('Department options already loaded');
+			return;
+		}
+		
+		fetch('/bpa/dashboards/get-department-list.php')
+			.then(response => {
+				console.log('Department API response status:', response.status);
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log('Department data received:', data);
+				
+				// Clear existing options
+				departmentSelect.innerHTML = '';
+				
+				// Add department options
+				if (data.departments && data.departments.length > 0) {
+					data.departments.forEach(dept => {
+						const option = document.createElement('option');
+						option.value = dept.id;
+						option.textContent = dept.name;
+						departmentSelect.appendChild(option);
+					});
+					
+					// Set default selection to first department
+					if (data.departments.length > 0) {
+						departmentSelect.value = data.departments[0].id;
+						console.log('Set default department to:', data.departments[0].name);
+					}
+					
+					console.log('Department options loaded successfully, total options:', departmentSelect.options.length);
+				} else {
+					console.log('No departments found in response');
+					// Add a default option if no departments
+					const defaultOption = document.createElement('option');
+					defaultOption.value = '';
+					defaultOption.textContent = 'No departments available';
+					departmentSelect.appendChild(defaultOption);
+				}
+			})
+			.catch(error => {
+				console.error('Error loading department options:', error);
+				// Add error option
+				const errorOption = document.createElement('option');
+				errorOption.value = '';
+				errorOption.textContent = 'Error loading departments';
+				departmentSelect.appendChild(errorOption);
+			});
+	}
+
+	// Initialize basic heat map charts when enhanced functions are not available
+	initializeBasicHeatMapCharts = function() {
+		console.log('Initializing basic heat map charts...');
+		
+		// Load heat map data
+		loadHeatMapData();
+		
+		// Initialize basic charts if Chart.js is available
+		if (typeof Chart !== 'undefined') {
+			// Initialize basic charts here if needed
+			console.log('Chart.js available for basic heat map charts');
+		}
+	}
+
+	// Load heat map data
+	loadHeatMapData = function() {
+		console.log('Loading heat map data...');
+		
+		// Get current parameters
+		const departmentSelect = document.getElementById('departmentSelect');
+		const departmentId = departmentSelect ? departmentSelect.value : 'org1';
+		let heatMapType = document.getElementById('heatMapTypeSelect')?.value || 'performance';
+		const metric = document.getElementById('metricSelect')?.value || 'overall';
+		const period = document.getElementById('periodSelect')?.value || 'months';
+		const date = new Date().toISOString().slice(0, 7); // YYYY-MM format
+		
+		// Map heat map type values to API expected values
+		const heatMapTypeMap = {
+			'performance': 'overview',
+			'team': 'team',
+			'departments': 'departments',
+			'matrix': 'matrix'
+		};
+		
+		heatMapType = heatMapTypeMap[heatMapType] || 'overview';
+		
+		console.log('Department select found:', !!departmentSelect);
+		console.log('Selected department ID:', departmentId);
+		console.log('Original heat map type:', document.getElementById('heatMapTypeSelect')?.value);
+		console.log('Mapped heat map type:', heatMapType);
+		
+		console.log('Loading heat map data with params:', { departmentId, heatMapType, metric, period, date });
+		
+		// Show loading state
+		showHeatMapLoadingState();
+		
+		// Use URL-encoded form data instead of FormData for better compatibility
+		const formData = `departmentId=${encodeURIComponent(departmentId)}&type=${encodeURIComponent(heatMapType)}&metric=${encodeURIComponent(metric)}&period=${encodeURIComponent(period)}&date=${encodeURIComponent(date)}`;
+		
+		fetch('/bpa/dashboards/get-heatmap-data.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: formData
+		})
+		.then(response => {
+			console.log('Heat map response status:', response.status);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log('Heat map data loaded:', data);
+			updateHeatMapDisplay(data);
+			hideHeatMapLoadingState();
+		})
+		.catch(error => {
+			console.error('Error loading heat map data:', error);
+			showHeatMapErrorState(error);
+			hideHeatMapLoadingState();
+		});
+	}
+
+	// Show loading state for heat maps
+	showHeatMapLoadingState = function() {
+		const containers = ['mainHeatMap', 'distributionChart', 'teamTrendsChart'];
+		containers.forEach(id => {
+			const element = document.getElementById(id);
+			if (element) {
+				element.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i><br><small>Loading heat map data...</small></div>';
+			}
+		});
+	}
+
+	// Hide loading state for heat maps
+	hideHeatMapLoadingState = function() {
+		// Loading state will be replaced by actual data
+	}
+
+	// Show error state for heat maps
+	showHeatMapErrorState = function(error) {
+		const containers = ['mainHeatMap', 'distributionChart', 'teamTrendsChart'];
+		containers.forEach(id => {
+			const element = document.getElementById(id);
+			if (element) {
+				element.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Error loading heat map data: ' + error.message + '</div>';
+			}
+		});
+	}
+
+	// Update heat map display
+	updateHeatMapDisplay = function(data) {
+		if (!data || data.error) {
+			console.error('Heat map data error:', data?.error);
+			return;
+		}
+		
+		// Update heat map container
+		const heatMapContainer = document.getElementById('mainHeatMap');
+		if (heatMapContainer && data.heatMapData) {
+			renderHeatMap(heatMapContainer, data.heatMapData);
+		}
+		
+		// Update distribution chart
+		if (data.distribution && typeof Chart !== 'undefined') {
+			updateDistributionChart(data.distribution);
+		}
+		
+		// Update trends chart
+		if (data.trends && typeof Chart !== 'undefined') {
+			updateTeamTrendsChart(data.trends);
+		}
+		
+		// Update summary
+		if (data.summary) {
+			updateHeatMapSummary(data.summary);
+		}
+		
+		// Update hot spots
+		if (data.hotSpots) {
+			updateHotSpots(data.hotSpots);
+		}
+	}
+
+	// Render heat map
+	renderHeatMap = function(container, heatMapData) {
+		if (!container || !heatMapData || heatMapData.length === 0) {
+			container.innerHTML = '<p class="text-muted">No heat map data available.</p>';
+			return;
+		}
+		
+		let html = '<div class="heatmap-grid">';
+		heatMapData.forEach(item => {
+			const score = parseFloat(item.score);
+			let colorClass = 'heat-critical';
+			if (score >= 90) colorClass = 'heat-excellent';
+			else if (score >= 75) colorClass = 'heat-good';
+			else if (score >= 60) colorClass = 'heat-average';
+			else if (score >= 40) colorClass = 'heat-poor';
+			
+			html += `
+				<div class="heat-cell ${colorClass}" 
+					 onclick="showDetailModal(${JSON.stringify(item).replace(/"/g, '&quot;')})"
+					 title="${item.name}: ${score}%">
+					<div class="heat-cell-content">
+						<div class="heat-cell-name">${item.name}</div>
+						<div class="heat-cell-score">${score}%</div>
+					</div>
+				</div>
+			`;
+		});
+		html += '</div>';
+		
+		container.innerHTML = html;
+	}
+
+	// Update distribution chart
+	updateDistributionChart = function(distribution) {
+		const ctx = document.getElementById('distributionChart');
+		if (!ctx) return;
+		
+		const chart = new Chart(ctx, {
+			type: 'doughnut',
+			data: {
+				labels: ['Excellent (90%+)', 'Good (75-89%)', 'Average (60-74%)', 'Poor (40-59%)', 'Critical (<40%)'],
+				datasets: [{
+					data: [
+						distribution.excellent || 0,
+						distribution.good || 0,
+						distribution.average || 0,
+						distribution.poor || 0,
+						distribution.critical || 0
+					],
+					backgroundColor: [
+						'#28a745',
+						'#20c997',
+						'#ffc107',
+						'#fd7e14',
+						'#dc3545'
+					]
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						position: 'bottom'
+					}
+				}
+			}
+		});
+	}
+
+	// Update trends chart
+	updateTeamTrendsChart = function(trends) {
+		const ctx = document.getElementById('teamTrendsChart');
+		if (!ctx) return;
+		
+		const chart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: trends.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+				datasets: [{
+					label: 'Performance Trend',
+					data: trends.data || [75, 78, 82, 79, 85, 88],
+					borderColor: '#667eea',
+					backgroundColor: 'rgba(102, 126, 234, 0.1)',
+					tension: 0.4
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false
+					}
+				},
+				scales: {
+					y: {
+						beginAtZero: true,
+						max: 100
+					}
+				}
+			}
+		});
+	}
+
+	// Update heat map summary
+	updateHeatMapSummary = function(summary) {
+		const summaryContainer = document.getElementById('performanceSummary');
+		if (summaryContainer && summary) {
+			summaryContainer.innerHTML = `
+				<div class="row text-center">
+					<div class="col-6 mb-3">
+						<h6 class="text-primary">${summary.avgScore || 0}%</h6>
+						<small class="text-muted">Average Score</small>
+					</div>
+					<div class="col-6 mb-3">
+						<h6 class="text-success">${summary.topPerformers || 0}</h6>
+						<small class="text-muted">Top Performers</small>
+					</div>
+					<div class="col-6">
+						<h6 class="text-warning">${summary.needsImprovement || 0}</h6>
+						<small class="text-muted">Needs Improvement</small>
+					</div>
+					<div class="col-6">
+						<h6 class="text-info">${summary.scoreRange || 0}%</h6>
+						<small class="text-muted">Score Range</small>
+					</div>
+				</div>
+			`;
+		}
+	}
+
+	// Update hot spots
+	updateHotSpots = function(hotSpots) {
+		const hotSpotsContainer = document.getElementById('hotSpotsAnalysis');
+		if (hotSpotsContainer && hotSpots) {
+			if (hotSpots.length === 0) {
+				hotSpotsContainer.innerHTML = '<p class="text-muted">No hot spots identified.</p>';
+				return;
+			}
+			
+			let html = '';
+			hotSpots.forEach(spot => {
+				const typeClass = spot.type === 'high' ? 'text-success' : 'text-danger';
+				const icon = spot.type === 'high' ? 'fa-fire' : 'fa-exclamation-triangle';
+				
+				html += `
+					<div class="d-flex align-items-center mb-2">
+						<i class="fas ${icon} ${typeClass} me-2"></i>
+						<div>
+							<strong>${spot.area}</strong><br>
+							<small class="text-muted">${spot.description}</small>
+						</div>
+					</div>
+				`;
+			});
+			
+			hotSpotsContainer.innerHTML = html;
+		}
+	}
+
+	// Test function to verify dashboard functionality
+	testDashboardFunctions = function() {
+		console.log('Testing dashboard functions...');
+		
+		// Test executive summary function
+		console.log('Testing executiveSummary function...');
+		if (typeof executiveSummary === 'function') {
+			console.log('✓ executiveSummary function exists');
+		} else {
+			console.log('✗ executiveSummary function missing');
+		}
+		
+		// Test performance heat maps function
+		console.log('Testing performanceHeatMaps function...');
+		if (typeof performanceHeatMaps === 'function') {
+			console.log('✓ performanceHeatMaps function exists');
+		} else {
+			console.log('✗ performanceHeatMaps function missing');
+		}
+		
+		// Test data loading functions
+		console.log('Testing data loading functions...');
+		if (typeof loadExecutiveSummaryData === 'function') {
+			console.log('✓ loadExecutiveSummaryData function exists');
+		} else {
+			console.log('✗ loadExecutiveSummaryData function missing');
+		}
+		
+		if (typeof loadHeatMapData === 'function') {
+			console.log('✓ loadHeatMapData function exists');
+		} else {
+			console.log('✗ loadHeatMapData function missing');
+		}
+		
+		if (typeof loadDepartmentOptions === 'function') {
+			console.log('✓ loadDepartmentOptions function exists');
+		} else {
+			console.log('✗ loadDepartmentOptions function missing');
+		}
+		
+		// Test API endpoints
+		console.log('Testing API endpoints...');
+		fetch('/bpa/dashboards/get-exec-summary-details.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: 'objectId=ind7&objectPeriod=months&objectDate=' + new Date().toISOString().slice(0, 7)
+		})
+		.then(response => {
+			console.log('✓ Executive summary API endpoint accessible (status:', response.status, ')');
+		})
+		.catch(error => {
+			console.log('✗ Executive summary API endpoint error:', error.message);
+		});
+		
+		const formData = new FormData();
+		formData.append('departmentId', 'org1');
+		formData.append('type', 'overview');
+		formData.append('metric', 'overall');
+		formData.append('period', 'months');
+		formData.append('date', new Date().toISOString().slice(0, 7));
+		
+		fetch('/bpa/dashboards/get-heatmap-data.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: `departmentId=org1&type=overview&metric=overall&period=months&date=${new Date().toISOString().slice(0, 7)}`
+		})
+		.then(response => {
+			console.log('✓ Heat map API endpoint accessible (status:', response.status, ')');
+		})
+		.catch(error => {
+			console.log('✗ Heat map API endpoint error:', error.message);
+		});
+	}
+
+	// Manual trigger functions for testing
+	manualLoadExecutiveSummary = function() {
+		console.log('Manually triggering executive summary data load...');
+		if (typeof triggerExecutiveSummaryDataLoad === 'function') {
+			triggerExecutiveSummaryDataLoad();
+		} else {
+			console.log('triggerExecutiveSummaryDataLoad function not available');
+			// Fallback to direct data loading
+			if (typeof loadExecutiveSummaryData === 'function') {
+				loadExecutiveSummaryData();
+			}
+		}
+	}
+
+	manualLoadHeatMaps = function() {
+		console.log('Manually triggering heat map data load...');
+		if (typeof triggerHeatMapDataLoad === 'function') {
+			triggerHeatMapDataLoad();
+		} else {
+			console.log('triggerHeatMapDataLoad function not available');
+			// Fallback to direct data loading
+			if (typeof loadHeatMapData === 'function') {
+				loadHeatMapData();
+			}
+		}
+	}
+
+	manualLoadDepartments = function() {
+		console.log('Manually loading department options...');
+		if (typeof loadDepartmentOptions === 'function') {
+			loadDepartmentOptions();
+		} else {
+			console.log('loadDepartmentOptions function not available');
+		}
+	}
+
+	checkDashboardElements = function() {
+		console.log('Checking dashboard elements...');
+		
+		const elements = [
+			'departmentSelect',
+			'mainHeatMap',
+			'distributionChart',
+			'teamTrendsChart',
+			'performanceSummary',
+			'hotSpotsAnalysis'
+		];
+		
+		elements.forEach(id => {
+			const element = document.getElementById(id);
+			console.log(`${id}: ${element ? 'Found' : 'Not found'}`);
+			if (element && element.tagName === 'SELECT') {
+				console.log(`  - Options: ${element.options.length}`);
+				console.log(`  - Value: ${element.value}`);
+				if (element.options.length > 0) {
+					console.log(`  - First option: ${element.options[0].text}`);
+				}
+			}
+		});
+	}
+
+	forceReloadDepartments = function() {
+		console.log('Force reloading departments...');
+		const departmentSelect = document.getElementById('departmentSelect');
+		if (departmentSelect) {
+			// Clear existing options
+			departmentSelect.innerHTML = '';
+			console.log('Cleared existing department options');
+			
+			// Reload departments
+			loadDepartmentOptions();
+		} else {
+			console.log('Department select not found');
+		}
 	}
 
 	staffManagementDashboard = function()
@@ -1636,11 +2960,22 @@ indDashboard = function()
 	}
 
 	changeDepartment = function() {
-		// Similar stub for department changes
-		if (typeof window.staffManagementDashboard !== 'undefined' && window.staffManagementDashboard.changeDepartment) {
-			window.staffManagementDashboard.changeDepartment();
+		console.log('changeDepartment called from global context');
+		
+		// Check if we're in the performance heat maps dashboard
+		const departmentSelect = document.getElementById('departmentSelect');
+		if (departmentSelect) {
+			console.log('Found department select in performance heat maps dashboard');
+			
+			// Get the selected department
+			const selectedDepartmentId = departmentSelect.value;
+			console.log('Selected department ID:', selectedDepartmentId);
+			
+			// Update the current department ID and reload data
+			// Since the dashboard functions are in an IIFE, we need to trigger the data reload manually
+			triggerHeatMapDataLoad();
 		} else {
-			console.log('changeDepartment called from global context');
+			console.log('Department select not found, may not be in performance heat maps dashboard');
 		}
 	}
 
@@ -6481,7 +7816,7 @@ updateChart = function() /*** #scorecardMap ***/
 										}
 										else if(Math.max.apply(Math, kpiScoreLimit) > Math.max.apply(null, upperLimit))
 										{
-											chart.yAxis[0].setExtremes(Math.min.apply(Math, lowerLimit), Math.max.apply(null, kpiScoreLimit));
+											chart.yAxis[0].setExtremes(Math.min.apply(null, lowerLimit), Math.max.apply(null, kpiScoreLimit));
 											var size = kpiRed.length;
 											for(var i = 0; i < size; i++)
 											{
@@ -7380,11 +8715,11 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			//gauge.startup();
 			togglerOwner.hide();
 			//togglerMeasures.show();
-			scorecardItemTitle.set("title", "Organization Name");
-			descriptionTitle.set("title", "Mission, Vision & Values");
-			cascadedTitle.set("title", "Cascading");
-			measureTitle.set("title", "Perspectives");
-			initiativeTitle.set("title", "Initiatives");
+			if (dijit.byId("scorecardItemTitle")) dijit.byId("scorecardItemTitle").set("title", "Organization Name");
+			if (dijit.byId("descriptionTitle")) dijit.byId("descriptionTitle").set("title", "Mission, Vision & Values");
+			if (dijit.byId("cascadedTitle")) dijit.byId("cascadedTitle").set("title", "Cascading");
+			if (dijit.byId("measureTitle")) dijit.byId("measureTitle").set("title", "Perspectives");
+			if (dijit.byId("initiativeTitle")) dijit.byId("initiativeTitle").set("title", "Initiatives");
 
 			domStyle.set(dom.byId("divIntro"), "display", "none");
 			domStyle.set(dom.byId("divChart"), "display", "block");
@@ -7510,9 +8845,9 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			updateChart();
 			togglerOwner.hide();
 			//togglerMeasures.show();
-			scorecardItemTitle.set("title", "Perspective Name");
-			measureTitle.set("title", "Objectives");
-			initiativeTitle.set("title", "Initiatives");
+			if (dijit.byId("scorecardItemTitle")) dijit.byId("scorecardItemTitle").set("title", "Perspective Name");
+			if (dijit.byId("measureTitle")) dijit.byId("measureTitle").set("title", "Objectives");
+			if (dijit.byId("initiativeTitle")) dijit.byId("initiativeTitle").set("title", "Initiatives");
 
 			domStyle.set(dom.byId("divIntro"), "display", "none");
 			domStyle.set(dom.byId("divChart"), "display", "block");
@@ -7617,12 +8952,12 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divPhoto"), "display", "none");
 			domStyle.set(dom.byId("divObjectiveDescription"), "display", "block");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "none");
-			descriptionTitle.set("title", "Description & Outcome");
-			scorecardItemTitle.set("title", "Objective Name");
-			ownerTitle.set("title", "Other Details");
-			measureTitle.set("title", "Measures");
-			initiativeTitle.set("title", "Initiatives");
-			cascadedTitle.set("title", "Cascading");
+			if (dijit.byId("descriptionTitle")) dijit.byId("descriptionTitle").set("title", "Description & Outcome");
+			if (dijit.byId("scorecardItemTitle")) dijit.byId("scorecardItemTitle").set("title", "Objective Name");
+			if (dijit.byId("ownerTitle")) dijit.byId("ownerTitle").set("title", "Other Details");
+			if (dijit.byId("measureTitle")) dijit.byId("measureTitle").set("title", "Measures");
+			if (dijit.byId("initiativeTitle")) dijit.byId("initiativeTitle").set("title", "Initiatives");
+			if (dijit.byId("cascadedTitle")) dijit.byId("cascadedTitle").set("title", "Cascading");
 			if(data["interpretation"] == null) dijit.byId("interpretation").set("value", '');
 			else dijit.byId("interpretation").set("value", data["interpretation"]);
 			if (data["wayForward"] == null) dijit.byId("wayForward").set("value", '');
@@ -7793,12 +9128,12 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId('trPrevious'), 'display', 'block');
 			else domStyle.set(dom.byId('trPrevious'), 'display', 'none')
 
-			descriptionTitle.set("title", "Description");
-			ownerTitle.set("title", "Other Measure Details");
+			if (dijit.byId("descriptionTitle")) dijit.byId("descriptionTitle").set("title", "Description");
+			if (dijit.byId("ownerTitle")) dijit.byId("ownerTitle").set("title", "Other Measure Details");
 			domStyle.set(dom.byId("objectiveTeam"), "display", "none");
-			scorecardItemTitle.set("title", "Measure Name");
-			initiativeTitle.set("title", "Initiatives");
-			cascadedTitle.set("title", "Linked Measures");
+			if (dijit.byId("scorecardItemTitle")) dijit.byId("scorecardItemTitle").set("title", "Measure Name");
+			if (dijit.byId("initiativeTitle")) dijit.byId("initiativeTitle").set("title", "Initiatives");
+			if (dijit.byId("cascadedTitle")) dijit.byId("cascadedTitle").set("title", "Linked Measures");
 			dojo.byId("objectiveName").innerHTML = data["name"];
 
 			if(data["interpretation"] == null) dijit.byId("interpretation").set("value", '');
@@ -7933,11 +9268,11 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divGauge"), "display", "block");
 			domStyle.set(dom.byId("divOwner"), "display", "none");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "block");
-			descriptionTitle.set("title", "Individual Details");
-			scorecardItemTitle.set("title", "Name");
-			measureTitle.set("title", "Assigned Tasks");
-			//initiativeTitle.set("title", "Impacts");
-			cascadedTitle.set("title", "Cascaded From");
+			if (dijit.byId("descriptionTitle")) dijit.byId("descriptionTitle").set("title", "Individual Details");
+			if (dijit.byId("scorecardItemTitle")) dijit.byId("scorecardItemTitle").set("title", "Name");
+			if (dijit.byId("measureTitle")) dijit.byId("measureTitle").set("title", "Assigned Tasks");
+			//if (dijit.byId("initiativeTitle")) dijit.byId("initiativeTitle").set("title", "Impacts");
+			if (dijit.byId("cascadedTitle")) dijit.byId("cascadedTitle").set("title", "Cascaded From");
 			if(data["interpretation"] == null) dijit.byId("interpretation").set("value", '');
 			else dijit.byId("interpretation").set("value", data["interpretation"]);
 			if (data["wayForward"] == null) dijit.byId("wayForward").set("value", '');

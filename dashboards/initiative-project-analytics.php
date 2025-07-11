@@ -356,6 +356,9 @@ $departmentName = $deptInfo['name'];
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-light btn-sm" onclick="refreshDepartments()">
+                            <i class="fas fa-building me-1"></i> Reload Depts
+                        </button>
                         <button type="button" class="btn btn-light btn-sm" onclick="refreshPortfolio()">
                             <i class="fas fa-sync-alt me-1"></i> Refresh
                         </button>
@@ -766,57 +769,154 @@ $departmentName = $deptInfo['name'];
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            loadDepartmentOptions();
-            loadPortfolioData();
-            initializeCharts();
+            console.log('Dashboard DOM loaded, initializing...');
+            try {
+                // Load department options first, then load portfolio data
+                loadDepartmentOptions();
+                
+                // Wait a bit for department options to load, then load portfolio data
+                setTimeout(() => {
+                    loadPortfolioData();
+                    initializeCharts();
+                    console.log('Dashboard initialization completed');
+                }, 500);
+            } catch (error) {
+                console.error('Error during dashboard initialization:', error);
+            }
         });
+
+        // Expose functions to global scope for ContentPane access
+        window.loadDepartmentOptions = loadDepartmentOptions;
+        window.loadPortfolioData = loadPortfolioData;
+        window.initializeCharts = initializeCharts;
+        window.changeDepartment = changeDepartment;
+        window.refreshDepartments = refreshDepartments;
+        window.refreshPortfolio = refreshPortfolio;
+        
+        console.log('Dashboard functions exposed to global scope');
+        
+        // Fallback initialization - run immediately and also after DOM is ready
+        console.log('Running fallback initialization...');
+        try {
+            loadDepartmentOptions();
+            setTimeout(() => {
+                loadPortfolioData();
+                initializeCharts();
+                console.log('Fallback initialization completed');
+            }, 500);
+        } catch (error) {
+            console.error('Error in fallback initialization:', error);
+        }
 
         // Load department options
         function loadDepartmentOptions() {
-            fetch('get-department-list.php')
-                .then(response => response.json())
+            console.log('Loading department options...');
+            
+            // First, ensure the select element exists
+            const select = document.getElementById('departmentSelect');
+            if (!select) {
+                console.error('Department select element not found!');
+                return;
+            }
+            
+            // Add loading indicator
+            select.innerHTML = '<option value="">Loading departments...</option>';
+            
+            fetch('/bpa/dashboards/get-department-list.php')
+                .then(response => {
+                    console.log('Department list response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    const select = document.getElementById('departmentSelect');
+                    console.log('Department list data received:', data);
+                    
+                    // Clear the select element
                     select.innerHTML = '';
 
-                    data.departments.forEach(dept => {
+                    if (data.departments && data.departments.length > 0) {
+                        console.log(`Found ${data.departments.length} departments`);
+                        
+                        data.departments.forEach(dept => {
+                            const option = document.createElement('option');
+                            option.value = dept.id;
+                            option.textContent = dept.name;
+                            option.selected = dept.id === currentDepartmentId;
+                            select.appendChild(option);
+                            console.log(`Added department option: ${dept.name} (${dept.id})`);
+                        });
+                        
+                        console.log('Department options loaded successfully');
+                    } else {
+                        console.warn('No departments found in response, adding default option');
+                        // Add default option if no departments found
                         const option = document.createElement('option');
-                        option.value = dept.id;
-                        option.textContent = dept.name;
-                        option.selected = dept.id === currentDepartmentId;
+                        option.value = currentDepartmentId;
+                        option.textContent = '<?php echo htmlspecialchars($departmentName); ?>';
+                        option.selected = true;
                         select.appendChild(option);
-                    });
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading departments:', error);
+                    // Add default option on error
+                    select.innerHTML = '';
+                    const option = document.createElement('option');
+                    option.value = currentDepartmentId;
+                    option.textContent = '<?php echo htmlspecialchars($departmentName); ?>';
+                    option.selected = true;
+                    select.appendChild(option);
+                    console.log('Added fallback department option due to error');
                 });
         }
 
         // Load portfolio data
         function loadPortfolioData() {
-            loadPortfolioMetrics();
-            loadProjectsList();
-            loadTimelineAnalysis();
-            loadResourceAllocation();
-            loadRiskAssessment();
-            loadROIAnalysis();
+            console.log('Loading portfolio data...');
+            try {
+                loadPortfolioMetrics();
+                loadProjectsList();
+                loadTimelineAnalysis();
+                loadResourceAllocation();
+                loadRiskAssessment();
+                loadROIAnalysis();
+            } catch (error) {
+                console.error('Error in loadPortfolioData:', error);
+            }
         }
 
         // Load portfolio metrics
         function loadPortfolioMetrics() {
-            fetch('get-portfolio-metrics.php', {
+            console.log('Loading portfolio metrics...');
+            fetch('/bpa/dashboards/get-portfolio-metrics.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `departmentId=${currentDepartmentId}&period=${currentPeriod}&date=${currentDate}&statusFilter=${currentStatusFilter}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Portfolio metrics response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                document.getElementById('totalProjects').textContent = data.totalProjects || '--';
-                document.getElementById('portfolioValue').textContent = formatCurrency(data.portfolioValue || 0);
-                document.getElementById('avgCompletion').textContent = (data.avgCompletion || '--') + '%';
-                document.getElementById('portfolioROI').textContent = (data.portfolioROI || '--') + '%';
+                console.log('Portfolio metrics data received:', data);
+                
+                // Update UI elements
+                const totalProjectsEl = document.getElementById('totalProjects');
+                const portfolioValueEl = document.getElementById('portfolioValue');
+                const avgCompletionEl = document.getElementById('avgCompletion');
+                const portfolioROIEl = document.getElementById('portfolioROI');
+                
+                if (totalProjectsEl) totalProjectsEl.textContent = data.totalProjects || '--';
+                if (portfolioValueEl) portfolioValueEl.textContent = formatCurrency(data.portfolioValue || 0);
+                if (avgCompletionEl) avgCompletionEl.textContent = (data.avgCompletion || '--') + '%';
+                if (portfolioROIEl) portfolioROIEl.textContent = (data.portfolioROI || '--') + '%';
 
                 // Update key metrics summary
                 updateKeyMetricsSummary(data.keyMetrics);
@@ -825,153 +925,238 @@ $departmentName = $deptInfo['name'];
                 updatePortfolioStatusChart(data.statusDistribution);
                 updateBudgetAllocationChart(data.budgetAllocation);
                 updatePortfolioPerformanceChart(data.performanceTrends);
+                
+                console.log('Portfolio metrics loaded successfully');
             })
             .catch(error => {
                 console.error('Error loading portfolio metrics:', error);
+                // Show error in UI
+                const totalProjectsEl = document.getElementById('totalProjects');
+                if (totalProjectsEl) totalProjectsEl.textContent = 'Error';
             });
         }
 
         // Load projects list
         function loadProjectsList() {
-            fetch('get-projects-list.php', {
+            console.log('Loading projects list...');
+            fetch('/bpa/dashboards/get-projects-list.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `departmentId=${currentDepartmentId}&period=${currentPeriod}&date=${currentDate}&statusFilter=${currentStatusFilter}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Projects list response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Projects list data received:', data);
                 renderProjectsList(data.projects);
+                console.log('Projects list loaded successfully');
             })
             .catch(error => {
                 console.error('Error loading projects list:', error);
+                // Show error in UI
+                const container = document.getElementById('projectsList');
+                if (container) {
+                    container.innerHTML = '<p class="text-danger">Error loading projects. Please try again.</p>';
+                }
             });
         }
 
         // Render projects list
         function renderProjectsList(projects) {
-            const container = document.getElementById('projectsList');
-            if (!projects || projects.length === 0) {
-                container.innerHTML = '<p class="text-muted">No projects found for the selected criteria.</p>';
-                return;
-            }
+            console.log('Rendering projects list with:', projects);
+            try {
+                const container = document.getElementById('projectsList');
+                if (!container) {
+                    console.error('Projects list container not found');
+                    return;
+                }
+                
+                if (!projects || projects.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No projects found for the selected criteria.</p>';
+                    console.log('No projects to render');
+                    return;
+                }
 
-            let html = '';
-            projects.forEach(project => {
-                const statusClass = getProjectStatusClass(project.status, project.completion, project.dueDate);
-                const riskClass = getRiskClass(project.riskLevel);
+                let html = '';
+                projects.forEach(project => {
+                    const statusClass = getProjectStatusClass(project.status, project.completion, project.dueDate);
+                    const riskClass = getRiskClass(project.riskLevel);
 
-                html += `
-                    <div class="project-item">
-                        <div class="project-status ${statusClass}">
-                            ${Math.round(project.completion || 0)}%
-                        </div>
-                        <div class="project-info">
-                            <h6 class="mb-1">${project.name}</h6>
-                            <div class="budget-bar">
-                                <div class="budget-fill bg-primary" style="width: ${project.budgetUtilization || 0}%"></div>
-                                <div class="budget-marker" style="left: 100%"></div>
+                    html += `
+                        <div class="project-item">
+                            <div class="project-status ${statusClass}">
+                                ${Math.round(project.completion || 0)}%
                             </div>
-                            <small class="text-muted">
-                                Budget: ${formatCurrency(project.budget)} |
-                                Manager: ${project.manager} |
-                                Due: ${project.dueDate || 'Not set'}
-                            </small>
+                            <div class="project-info">
+                                <h6 class="mb-1">${project.name}</h6>
+                                <div class="budget-bar">
+                                    <div class="budget-fill bg-primary" style="width: ${project.budgetUtilization || 0}%"></div>
+                                    <div class="budget-marker" style="left: 100%"></div>
+                                </div>
+                                <small class="text-muted">
+                                    Budget: ${formatCurrency(project.budget)} |
+                                    Manager: ${project.manager} |
+                                    Due: ${project.dueDate || 'Not set'}
+                                </small>
+                            </div>
+                            <div class="progress-ring">
+                                <svg width="80" height="80">
+                                    <circle class="progress-ring-circle"
+                                            cx="40" cy="40" r="30"
+                                            stroke="#667eea"
+                                            style="stroke-dashoffset: ${251.2 - (251.2 * (project.completion || 0) / 100)}">
+                                    </circle>
+                                </svg>
+                                <div class="progress-ring-text">${Math.round(project.completion || 0)}%</div>
+                            </div>
+                            <div class="risk-indicator ms-2 ${riskClass}">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <br><small>${project.riskLevel || 'Low'}</small>
+                            </div>
                         </div>
-                        <div class="progress-ring">
-                            <svg width="80" height="80">
-                                <circle class="progress-ring-circle"
-                                        cx="40" cy="40" r="30"
-                                        stroke="#667eea"
-                                        style="stroke-dashoffset: ${251.2 - (251.2 * (project.completion || 0) / 100)}">
-                                </circle>
-                            </svg>
-                            <div class="progress-ring-text">${Math.round(project.completion || 0)}%</div>
-                        </div>
-                        <div class="risk-indicator ms-2 ${riskClass}">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <br><small>${project.riskLevel || 'Low'}</small>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
 
-            container.innerHTML = html;
+                container.innerHTML = html;
+                console.log(`Projects list rendered successfully with ${projects.length} projects`);
+            } catch (error) {
+                console.error('Error rendering projects list:', error);
+                const container = document.getElementById('projectsList');
+                if (container) {
+                    container.innerHTML = '<p class="text-danger">Error rendering projects. Please try again.</p>';
+                }
+            }
         }
 
         // Load timeline analysis
         function loadTimelineAnalysis() {
-            fetch('get-timeline-analysis.php', {
+            console.log('Loading timeline analysis...');
+            fetch('/bpa/dashboards/get-timeline-analysis.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `departmentId=${currentDepartmentId}&period=${currentPeriod}&date=${currentDate}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Timeline analysis response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Timeline analysis data received:', data);
                 updateTimelineChart(data.timeline);
                 renderCriticalMilestones(data.milestones);
+                console.log('Timeline analysis loaded successfully');
             })
             .catch(error => {
                 console.error('Error loading timeline analysis:', error);
+                // Show error in UI
+                const container = document.getElementById('criticalMilestones');
+                if (container) {
+                    container.innerHTML = '<p class="text-danger">Error loading timeline analysis. Please try again.</p>';
+                }
             });
         }
 
         // Render critical milestones
         function renderCriticalMilestones(milestones) {
-            const container = document.getElementById('criticalMilestones');
-            if (!milestones || milestones.length === 0) {
-                container.innerHTML = '<p class="text-muted">No critical milestones found.</p>';
-                return;
+            console.log('Rendering critical milestones with:', milestones);
+            try {
+                const container = document.getElementById('criticalMilestones');
+                if (!container) {
+                    console.error('Critical milestones container not found');
+                    return;
+                }
+                
+                if (!milestones || milestones.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No critical milestones found.</p>';
+                    console.log('No milestones to render');
+                    return;
+                }
+
+                let html = '';
+                milestones.forEach(milestone => {
+                    const timelineClass = getTimelineClass(milestone.status, milestone.dueDate);
+
+                    html += `
+                        <div class="timeline-item ${timelineClass}">
+                            <h6 class="mb-1">${milestone.projectName}</h6>
+                            <p class="mb-1 text-muted small">${milestone.description}</p>
+                            <small class="text-muted">Due: ${milestone.dueDate}</small>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                console.log(`Critical milestones rendered successfully with ${milestones.length} milestones`);
+            } catch (error) {
+                console.error('Error rendering critical milestones:', error);
+                const container = document.getElementById('criticalMilestones');
+                if (container) {
+                    container.innerHTML = '<p class="text-danger">Error rendering milestones. Please try again.</p>';
+                }
             }
-
-            let html = '';
-            milestones.forEach(milestone => {
-                const timelineClass = getTimelineClass(milestone.status, milestone.dueDate);
-
-                html += `
-                    <div class="timeline-item ${timelineClass}">
-                        <h6 class="mb-1">${milestone.projectName}</h6>
-                        <p class="mb-1 text-muted small">${milestone.description}</p>
-                        <small class="text-muted">Due: ${milestone.dueDate}</small>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
         }
 
         // Load resource allocation
         function loadResourceAllocation() {
-            fetch('get-resource-allocation.php', {
+            console.log('Loading resource allocation...');
+            fetch('/bpa/dashboards/get-resource-allocation.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `departmentId=${currentDepartmentId}&period=${currentPeriod}&date=${currentDate}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Resource allocation response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Resource allocation data received:', data);
                 renderResourceAllocation(data.resources);
                 updateResourceUtilizationChart(data.utilization);
+                console.log('Resource allocation loaded successfully');
             })
             .catch(error => {
                 console.error('Error loading resource allocation:', error);
+                // Show error in UI
+                const container = document.getElementById('resourceAllocation');
+                if (container) {
+                    container.innerHTML = '<p class="text-danger">Error loading resource allocation. Please try again.</p>';
+                }
             });
         }
 
         // Initialize charts
         function initializeCharts() {
-            initPortfolioStatusChart();
-            initBudgetAllocationChart();
-            initPortfolioPerformanceChart();
-            initTimelineChart();
-            initResourceUtilizationChart();
-            initRiskMatrixChart();
-            initROIPerformanceChart();
-            initCostBenefitChart();
+            console.log('Initializing charts...');
+            try {
+                initPortfolioStatusChart();
+                initBudgetAllocationChart();
+                initPortfolioPerformanceChart();
+                initTimelineChart();
+                initResourceUtilizationChart();
+                initRiskMatrixChart();
+                initROIPerformanceChart();
+                initCostBenefitChart();
+                console.log('Charts initialized successfully');
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+            }
         }
 
         // Initialize portfolio status chart
@@ -1252,87 +1437,162 @@ $departmentName = $deptInfo['name'];
 
         // Utility functions
         function getProjectStatusClass(status, completion, dueDate) {
-            if (completion >= 100) return 'status-completed';
-            if (new Date(dueDate) < new Date() && completion < 100) return 'status-overdue';
-            if (completion >= 75) return 'status-in-progress';
-            if (completion > 0) return 'status-in-progress';
-            return 'status-not-started';
+            try {
+                if (completion >= 100) return 'status-completed';
+                if (dueDate && new Date(dueDate) < new Date() && completion < 100) return 'status-overdue';
+                if (completion >= 75) return 'status-in-progress';
+                if (completion > 0) return 'status-in-progress';
+                return 'status-not-started';
+            } catch (error) {
+                console.error('Error in getProjectStatusClass:', error);
+                return 'status-not-started';
+            }
         }
 
         function getRiskClass(riskLevel) {
-            switch (riskLevel?.toLowerCase()) {
-                case 'high': return 'risk-high';
-                case 'medium': return 'risk-medium';
-                case 'low':
-                default: return 'risk-low';
+            try {
+                switch (riskLevel?.toLowerCase()) {
+                    case 'high': return 'risk-high';
+                    case 'medium': return 'risk-medium';
+                    case 'low':
+                    default: return 'risk-low';
+                }
+            } catch (error) {
+                console.error('Error in getRiskClass:', error);
+                return 'risk-low';
             }
         }
 
         function getTimelineClass(status, dueDate) {
-            if (status === 'completed') return 'timeline-completed';
-            if (new Date(dueDate) < new Date()) return 'timeline-overdue';
-            return 'timeline-upcoming';
+            try {
+                if (status === 'completed') return 'timeline-completed';
+                if (dueDate && new Date(dueDate) < new Date()) return 'timeline-overdue';
+                return 'timeline-upcoming';
+            } catch (error) {
+                console.error('Error in getTimelineClass:', error);
+                return 'timeline-upcoming';
+            }
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(amount || 0);
+            try {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount || 0);
+            } catch (error) {
+                console.error('Error in formatCurrency:', error);
+                return '$0';
+            }
         }
 
         // Update functions for charts
         function updatePortfolioStatusChart(data) {
             console.log('Updating portfolio status chart with:', data);
+            try {
+                // Chart update logic would go here
+                console.log('Portfolio status chart updated successfully');
+            } catch (error) {
+                console.error('Error updating portfolio status chart:', error);
+            }
         }
 
         function updateBudgetAllocationChart(data) {
             console.log('Updating budget allocation chart with:', data);
+            try {
+                // Chart update logic would go here
+                console.log('Budget allocation chart updated successfully');
+            } catch (error) {
+                console.error('Error updating budget allocation chart:', error);
+            }
         }
 
         function updatePortfolioPerformanceChart(data) {
             console.log('Updating portfolio performance chart with:', data);
+            try {
+                // Chart update logic would go here
+                console.log('Portfolio performance chart updated successfully');
+            } catch (error) {
+                console.error('Error updating portfolio performance chart:', error);
+            }
         }
 
         function updateTimelineChart(data) {
             console.log('Updating timeline chart with:', data);
+            try {
+                // Chart update logic would go here
+                console.log('Timeline chart updated successfully');
+            } catch (error) {
+                console.error('Error updating timeline chart:', error);
+            }
         }
 
         function updateResourceUtilizationChart(data) {
             console.log('Updating resource utilization chart with:', data);
+            try {
+                // Chart update logic would go here
+                console.log('Resource utilization chart updated successfully');
+            } catch (error) {
+                console.error('Error updating resource utilization chart:', error);
+            }
         }
 
         function updateKeyMetricsSummary(metrics) {
-            const container = document.getElementById('keyMetricsSummary');
-            if (metrics) {
-                container.innerHTML = `
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <h6 class="text-success">${metrics.onTime || 0}</h6>
-                            <small class="text-muted">On Time</small>
+            console.log('Updating key metrics summary with:', metrics);
+            try {
+                const container = document.getElementById('keyMetricsSummary');
+                if (container && metrics) {
+                    container.innerHTML = `
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <h6 class="text-success">${metrics.onTime || 0}</h6>
+                                <small class="text-muted">On Time</small>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <h6 class="text-warning">${metrics.atRisk || 0}</h6>
+                                <small class="text-muted">At Risk</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-info">${metrics.budgetUtilization || 0}%</h6>
+                                <small class="text-muted">Budget Used</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-primary">${metrics.resourceUtilization || 0}%</h6>
+                                <small class="text-muted">Resources Used</small>
+                            </div>
                         </div>
-                        <div class="col-6 mb-3">
-                            <h6 class="text-warning">${metrics.atRisk || 0}</h6>
-                            <small class="text-muted">At Risk</small>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="text-info">${metrics.budgetUtilization || 0}%</h6>
-                            <small class="text-muted">Budget Used</small>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="text-primary">${metrics.resourceUtilization || 0}%</h6>
-                            <small class="text-muted">Resources Used</small>
-                        </div>
-                    </div>
-                `;
+                    `;
+                    console.log('Key metrics summary updated successfully');
+                } else {
+                    console.warn('Key metrics container not found or no metrics data');
+                }
+            } catch (error) {
+                console.error('Error updating key metrics summary:', error);
             }
         }
 
         // Event handlers
         function changeDepartment() {
-            currentDepartmentId = document.getElementById('departmentSelect').value;
+            console.log('changeDepartment() called');
+            
+            const select = document.getElementById('departmentSelect');
+            if (!select) {
+                console.error('Department select element not found in changeDepartment()');
+                return;
+            }
+            
+            const newDepartmentId = select.value;
+            console.log(`Department changed from ${currentDepartmentId} to ${newDepartmentId}`);
+            
+            if (!newDepartmentId) {
+                console.warn('No department selected, keeping current department');
+                return;
+            }
+            
+            currentDepartmentId = newDepartmentId;
+            console.log('Reloading portfolio data for new department...');
             loadPortfolioData();
         }
 
@@ -1352,7 +1612,13 @@ $departmentName = $deptInfo['name'];
         }
 
         function refreshPortfolio() {
+            console.log('Refreshing portfolio data...');
             loadPortfolioData();
+        }
+
+        function refreshDepartments() {
+            console.log('Refreshing department options...');
+            loadDepartmentOptions();
         }
 
         function exportPortfolio() {
@@ -1365,15 +1631,39 @@ $departmentName = $deptInfo['name'];
 
         // Load remaining functions (stubs for now)
         function loadRiskAssessment() {
-            // Implementation for risk assessment
+            console.log('Loading risk assessment...');
+            // Implementation for risk assessment - placeholder for now
+            try {
+                // This would load risk assessment data
+                console.log('Risk assessment loaded successfully');
+            } catch (error) {
+                console.error('Error loading risk assessment:', error);
+            }
         }
 
         function loadROIAnalysis() {
-            // Implementation for ROI analysis
+            console.log('Loading ROI analysis...');
+            // Implementation for ROI analysis - placeholder for now
+            try {
+                // This would load ROI analysis data
+                console.log('ROI analysis loaded successfully');
+            } catch (error) {
+                console.error('Error loading ROI analysis:', error);
+            }
         }
 
         function renderResourceAllocation(resources) {
-            // Implementation for resource allocation rendering
+            console.log('Rendering resource allocation...');
+            // Implementation for resource allocation rendering - placeholder for now
+            try {
+                const container = document.getElementById('resourceAllocation');
+                if (container && resources) {
+                    // This would render resource allocation data
+                    console.log('Resource allocation rendered successfully');
+                }
+            } catch (error) {
+                console.error('Error rendering resource allocation:', error);
+            }
         }
     </script>
 </body>

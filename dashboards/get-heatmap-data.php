@@ -67,11 +67,11 @@ function getOverviewHeatMap($departmentId, $metric, $period, $date, $connect) {
             END as target
         FROM measure m
         LEFT JOIN measuremonths mm ON m.id = mm.measureId AND m.calendarType = 'Monthly'
-            AND mm.date = '$date'
+            AND DATE_FORMAT(mm.date, '%Y-%m') = '" . date('Y-m', strtotime($date)) . "'
         LEFT JOIN measurequarters mq ON m.id = mq.measureId AND m.calendarType = 'Quarterly'
-            AND mq.date = '$date'
+            AND QUARTER(mq.date) = " . ceil(date('n', strtotime($date)) / 3) . " AND YEAR(mq.date) = " . date('Y', strtotime($date)) . "
         LEFT JOIN measureyears my ON m.id = my.measureId AND m.calendarType = 'Yearly'
-            AND my.date = '$date'
+            AND YEAR(my.date) = " . date('Y', strtotime($date)) . "
         WHERE m.linkedObject = '$departmentId'
         AND (
             (m.calendarType = 'Monthly' AND mm.3score IS NOT NULL)
@@ -154,18 +154,16 @@ function getTeamHeatMap($departmentId, $metric, $period, $date, $connect) {
         SELECT 
             u.user_id,
             u.display_name,
-            u.role,
-            u.date_added,
+            COALESCE(u.role, 'General') as role,
             COUNT(DISTINCT i.id) as projectCount,
             AVG(ist.percentageCompletion) as avgCompletion,
-            MAX(ist.updatedOn) as lastUpdate,
-            DATEDIFF(NOW(), u.date_added) / 365 as experience
+            MAX(ist.updatedOn) as lastUpdate
         FROM uc_users u
         LEFT JOIN initiative i ON u.user_id = i.projectManager
         LEFT JOIN initiative_status ist ON i.id = ist.initiativeId
         WHERE u.department = '$departmentId'
         AND u.active = 1
-        GROUP BY u.user_id, u.display_name, u.role, u.date_added
+        GROUP BY u.user_id, u.display_name, u.role
         ORDER BY u.display_name
     ";
     
@@ -177,7 +175,6 @@ function getTeamHeatMap($departmentId, $metric, $period, $date, $connect) {
     while ($staff = mysqli_fetch_assoc($staffResult)) {
         $projectCount = intval($staff['projectCount']);
         $avgCompletion = floatval($staff['avgCompletion']);
-        $experience = floatval($staff['experience']);
         
         // Calculate performance score
         $score = 50; // Base score
@@ -185,12 +182,9 @@ function getTeamHeatMap($departmentId, $metric, $period, $date, $connect) {
             $score = $avgCompletion;
         }
         
-        // Adjust based on project load and experience
+        // Adjust based on project load
         if ($projectCount > 3) {
             $score += 10; // Bonus for handling multiple projects
-        }
-        if ($experience > 2) {
-            $score += 5; // Experience bonus
         }
         
         $score = max(0, min(100, $score));
@@ -201,11 +195,11 @@ function getTeamHeatMap($departmentId, $metric, $period, $date, $connect) {
             'role' => $staff['role'] ?? 'General',
             'score' => $score,
             'projectCount' => $projectCount,
-            'experience' => round($experience, 1),
+            'experience' => 1.0, // Default experience since we can't calculate it
             'lastUpdate' => $staff['lastUpdate']
         );
         
-        $totalExperience += $experience;
+        $totalExperience += 1.0; // Default experience
         $totalProjectLoad += min(100, $projectCount * 25); // Assume 25% per project
         $staffCount++;
     }
@@ -262,11 +256,11 @@ function getDepartmentHeatMap($departmentId, $metric, $period, $date, $connect) 
                 COUNT(DISTINCT u.user_id) as staffCount
             FROM measure m
             LEFT JOIN measuremonths mm ON m.id = mm.measureId AND m.calendarType = 'Monthly'
-                AND mm.date = '$date'
+                AND DATE_FORMAT(mm.date, '%Y-%m') = '" . date('Y-m', strtotime($date)) . "'
             LEFT JOIN measurequarters mq ON m.id = mq.measureId AND m.calendarType = 'Quarterly'
-                AND mq.date = '$date'
+                AND QUARTER(mq.date) = " . ceil(date('n', strtotime($date)) / 3) . " AND YEAR(mq.date) = " . date('Y', strtotime($date)) . "
             LEFT JOIN measureyears my ON m.id = my.measureId AND m.calendarType = 'Yearly'
-                AND my.date = '$date'
+                AND YEAR(my.date) = " . date('Y', strtotime($date)) . "
             LEFT JOIN uc_users u ON u.department = m.linkedObject AND u.active = 1
             WHERE m.linkedObject = '$deptId'
             AND (

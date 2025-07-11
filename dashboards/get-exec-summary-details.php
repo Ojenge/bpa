@@ -64,7 +64,7 @@ function previousPeriodQuery($objectPeriod, $objectDate, $userId)
 
 $staffQuery = mysqli_query($connect, "SELECT uc_users.user_id, uc_users.user_name, uc_users.display_name, uc_users.reportsTo, uc_users.photo, uc_users.title, uc_users.last_sign_in_stamp, organization.name  
 FROM uc_users, organization
-WHERE reportsTo = '$objectId '
+WHERE reportsTo = '$objectId'
 AND title <> 'Executive Assistant'
 AND uc_users.department = organization.id
 ORDER by reportsTo") or file_put_contents("error.txt", "Error=> ".mysqli_error($connect));

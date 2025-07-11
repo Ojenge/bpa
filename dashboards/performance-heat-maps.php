@@ -837,7 +837,7 @@ $departmentName = $deptInfo['name'];
 
         // Load department options
         function loadDepartmentOptions() {
-            fetch('get-department-list.php')
+            fetch('/bpa/dashboards/get-department-list.php')
                 .then(response => response.json())
                 .then(data => {
                     const select = document.getElementById('departmentSelect');
@@ -869,7 +869,7 @@ $departmentName = $deptInfo['name'];
 
         // Load heat map metrics
         function loadHeatMapMetrics() {
-            fetch('get-heatmap-metrics.php', {
+            fetch('/bpa/dashboards/get-heatmap-metrics.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -893,7 +893,7 @@ $departmentName = $deptInfo['name'];
 
         // Load performance overview
         function loadPerformanceOverview() {
-            fetch('get-heatmap-data.php', {
+            fetch('/bpa/dashboards/get-heatmap-data.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -985,7 +985,7 @@ $departmentName = $deptInfo['name'];
 
         // Load team heat map
         function loadTeamHeatMap() {
-            fetch('get-heatmap-data.php', {
+            fetch('/bpa/dashboards/get-heatmap-data.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -1029,7 +1029,7 @@ $departmentName = $deptInfo['name'];
 
         // Load department comparison
         function loadDepartmentComparison() {
-            fetch('get-heatmap-data.php', {
+            fetch('/bpa/dashboards/get-heatmap-data.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

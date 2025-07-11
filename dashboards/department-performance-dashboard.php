@@ -510,17 +510,48 @@ $departmentName = $deptInfo['name'];
             const departmentId = '<?php echo $departmentId; ?>';
             const objectPeriod = '<?php echo $objectPeriod; ?>';
             const objectDate = '<?php echo $objectDate; ?>';
+            
+            // Add global fallback functions for dashboard navigation
+            window.refreshDashboard = function() {
+                console.log('Refreshing dashboard...');
+                location.reload();
+            };
+            
+            window.exportReport = function() {
+                console.log('Exporting report...');
+                window.print();
+            };
+            
+            // Ensure these functions are available globally
+            window.departmentDashboard = function(deptId) {
+                if (typeof parent !== 'undefined' && parent.departmentDashboard) {
+                    parent.departmentDashboard(deptId);
+                } else {
+                    console.log('Parent departmentDashboard not available');
+                }
+            };
 
-            // Initialize dashboard
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('Dashboard initializing with:', {
-                    departmentId: departmentId,
-                    objectPeriod: objectPeriod,
-                    objectDate: objectDate
-                });
+                    // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initializing with:', {
+                departmentId: departmentId,
+                objectPeriod: objectPeriod,
+                objectDate: objectDate
+            });
+            
+            // Add error handling for missing elements
+            try {
                 loadDashboardData();
                 initializeCharts();
-            });
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                // Show error message to user
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.innerHTML = '<strong>Dashboard Error:</strong> ' + error.message;
+                document.body.insertBefore(errorDiv, document.body.firstChild);
+            }
+        });
 
         // Load dashboard data
         function loadDashboardData() {
@@ -534,6 +565,24 @@ $departmentName = $deptInfo['name'];
         // Load overview metrics
         function loadOverviewMetrics() {
             console.log('Loading overview metrics...');
+            
+            // Check if elements exist before trying to update them
+            const elements = {
+                'overallScore': document.getElementById('overallScore'),
+                'teamSize': document.getElementById('teamSize'),
+                'activeInitiatives': document.getElementById('activeInitiatives'),
+                'completionRate': document.getElementById('completionRate'),
+                'avgPerformance': document.getElementById('avgPerformance'),
+                'topPerformers': document.getElementById('topPerformers'),
+                'needsAttention': document.getElementById('needsAttention')
+            };
+            
+            // Check for missing elements
+            const missingElements = Object.keys(elements).filter(key => !elements[key]);
+            if (missingElements.length > 0) {
+                console.error('Missing elements:', missingElements);
+            }
+            
             fetch('get-department-metrics.php', {
                 method: 'POST',
                 headers: {
@@ -550,26 +599,36 @@ $departmentName = $deptInfo['name'];
             })
             .then(data => {
                 console.log('Overview metrics data:', data);
-                document.getElementById('overallScore').textContent = data.overallScore || '--';
-                document.getElementById('teamSize').textContent = data.teamSize || '--';
-                document.getElementById('activeInitiatives').textContent = data.activeInitiatives || '--';
-                document.getElementById('completionRate').textContent = (data.completionRate || '--') + '%';
+                
+                // Safely update elements that exist
+                if (elements.overallScore) elements.overallScore.textContent = data.overallScore || '--';
+                if (elements.teamSize) elements.teamSize.textContent = data.teamSize || '--';
+                if (elements.activeInitiatives) elements.activeInitiatives.textContent = data.activeInitiatives || '--';
+                if (elements.completionRate) elements.completionRate.textContent = (data.completionRate || '--') + '%';
+                if (elements.avgPerformance) elements.avgPerformance.textContent = data.avgPerformance || '--';
+                if (elements.topPerformers) elements.topPerformers.textContent = data.topPerformers || '--';
+                if (elements.needsAttention) elements.needsAttention.textContent = data.needsAttention || '--';
 
-                // Update quick stats
-                document.getElementById('avgPerformance').textContent = data.avgPerformance || '--';
-                document.getElementById('topPerformers').textContent = data.topPerformers || '--';
-                document.getElementById('needsAttention').textContent = data.needsAttention || '--';
-
-                // Update trends
-                updateTrendIndicators(data.trends);
+                // Update trends if function exists
+                if (typeof updateTrendIndicators === 'function' && data.trends) {
+                    updateTrendIndicators(data.trends);
+                }
             })
             .catch(error => {
                 console.error('Error loading overview metrics:', error);
                 // Show error message to user
-                document.getElementById('overallScore').textContent = 'Error';
-                document.getElementById('teamSize').textContent = 'Error';
-                document.getElementById('activeInitiatives').textContent = 'Error';
-                document.getElementById('completionRate').textContent = 'Error';
+                Object.values(elements).forEach(element => {
+                    if (element) element.textContent = 'Error';
+                });
+                
+                // Show error notification
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+                errorDiv.innerHTML = `
+                    <strong>Data Loading Error:</strong> Unable to load dashboard data. 
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.insertBefore(errorDiv, document.body.firstChild);
             });
         }
 
