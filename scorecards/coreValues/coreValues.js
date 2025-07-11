@@ -1,8 +1,3 @@
-<?php
-include("../../lab/header.html");
-?>
-
-<script type="text/javascript">
 require([
     "dojo/dom",
     "dojo/request",
@@ -14,13 +9,6 @@ require([
     var editState = "";
     var editStateAttribute = "";
     var editStateAttributeScore = "";
-
-    request.post("getCoreValues.php",{
-        data: {}
-    }).then(function(savedCoreValue)
-    {
-        dom.byId("coreValueContent").innerHTML = savedCoreValue;
-    });
     
     var content = '<div class="mb-3">';
     content += '<label for="coreValue" class="form-label">Core Value</label>';
@@ -108,7 +96,7 @@ require([
         }
         else if (editState === "delete") 
         {
-            request.post("deleteCoreValue.php", {
+            request.post("scorecards/coreValues/deleteCoreValue.php", {
                 data: { id: dom.byId("coreValueId").innerHTML }
             }).then(function(returnedData) 
             {
@@ -122,7 +110,7 @@ require([
         else 
         {
             coreValueDialog.hide();
-            request.post("saveCoreValue.php",{
+            request.post("scorecards/coreValues/saveCoreValue.php",{
             data: {
                 coreValue: coreValue,
                 coreValueDescription: coreValueDescription,
@@ -152,7 +140,7 @@ require([
         }
         else if (editStateAttribute === "delete") 
         {
-            request.post("deleteAttribute.php", {
+            request.post("scorecards/coreValues/deleteAttribute.php", {
                 data: { id: dom.byId("attributeId").innerHTML }
             }).then(function(returnedData) 
             {
@@ -166,7 +154,7 @@ require([
         else 
         {
             attributeDialog.hide();
-            request.post("saveAttribute.php",{
+            request.post("scorecards/coreValues/saveAttribute.php",{
             data: {
                 attribute: attribute,
                 attributeDescription: attributeDescription,
@@ -197,7 +185,7 @@ require([
         }
         else if (editStateAttributeScore === "delete") 
         {
-            request.post("deleteAttributeScore.php", {
+            request.post("scorecards/coreValues/deleteAttributeScore.php", {
                 data: { id: dom.byId("attributeScoreId").innerHTML }
             }).then(function(returnedData) 
             {
@@ -216,7 +204,7 @@ require([
                        ", Attribute ID: " + dom.byId("attributeId").innerHTML + 
                        ", Attribute Score ID: " + dom.byId("attributeScoreId").innerHTML);*/
             attributeScoreDialog.hide();
-            request.post("saveAttributeScore.php",{
+            request.post("scorecards/coreValues/saveAttributeScore.php",{
             data: {
                 attributeScore: attributeScore,
                 attributeScoreDate: attributeScoreDate,
@@ -253,15 +241,16 @@ require([
     editCoreValue = function(id) 
     {
         editState = "edit";
-        dom.byId("coreValueId").innerHTML = id;
-        request.post("getCoreValue.php", {
+        //dom.byId("coreValueId").innerHTML = id;
+        coreValueId = id;
+        request.post("scorecards/coreValues/getCoreValue.php", {
             data: { id: id },
             handleAs: "json"
         }).then(function(coreValueData) 
         {
+            coreValueDialog.show();
             dom.byId("coreValue").value = coreValueData.value;
             dom.byId("coreValueDescription").value = coreValueData.description;
-            coreValueDialog.show();
         });
     }
 
@@ -269,22 +258,23 @@ require([
     {
         editStateAttribute = "edit";
         dom.byId("attributeId").innerHTML = id;
-        request.post("getAttribute.php", {
+        request.post("scorecards/coreValues/getAttribute.php", {
             data: { id: id },
             handleAs: "json"
         }).then(function(attributeData) 
         {
+            attributeDialog.show();
             dom.byId("attribute").value = attributeData.attribute;
             dom.byId("attributeDescription").value = attributeData.description;
-            attributeDialog.show();
+            
         });
     }
 
     addAttributeScore = function(id) 
     {
         editStateAttributeScore = "new";
-        dom.byId("attributeId").innerHTML = id;
-        request.post("getAttributeScore.php", {
+        
+        request.post("scorecards/coreValues/getAttributeScore.php", {
             data: { attributeId: id },
             handleAs: "json"
         }).then(function(attributeScoreData) 
@@ -292,21 +282,22 @@ require([
             dom.byId("attributeScore").value = attributeScoreData.score;
             dom.byId("attributeScoreDate").value = attributeScoreData.date;
 
-            request.post("getAttributeScoreList.php", {
+            request.post("scorecards/coreValues/getAttributeScoreList.php", {
                 data: { attributeId: id }
             }).then(function(attributeScoreListData) 
             {
-                dom.byId("attributeScoreList").innerHTML = attributeScoreListData;
                 attributeScoreDialog.show();
+                dom.byId("attributeScoreList").innerHTML = attributeScoreListData;
+                
             });
-
+            dom.byId("attributeId").innerHTML = id;
             //attributeScoreDialog.show();
         });
     }
 
     editThisScore = function(id)
     {
-        request.post("getSpecificScore.php", {
+        request.post("scorecards/coreValues/getSpecificScore.php", {
             data: { id: id },
             handleAs: "json"
         }).then(function(thisScoreData) 
@@ -320,11 +311,11 @@ require([
 
     deleteThisScore = function(id)
     {
-        request.post("deleteThisScore.php", {
+        request.post("scorecards/coreValues/deleteThisScore.php", {
             data: { id: id }
         }).then(function() 
         {
-            request.post("getAttributeScoreList.php", {
+            request.post("gscorecards/coreValues/etAttributeScoreList.php", {
                 data: { attributeId: dom.byId("attributeId").innerHTML }
             }).then(function(attributeScoreListData) 
             {
@@ -337,15 +328,16 @@ require([
     {
         editState = "delete";
         dom.byId("coreValueId").innerHTML = id;
-        request.post("getCoreValue.php", {
+        request.post("scorecards/coreValues/getCoreValue.php", {
             data: { id: id },
             handleAs: "json"
         }).then(function(coreValueData) 
         {
+            coreValueDialog.show();
             dom.byId("coreValue").value = coreValueData.value;
             dom.byId("coreValueDescription").value = coreValueData.description;
             dom.byId("errorMsgCoreValue").innerHTML = '<div class="alert alert-danger" role="alert">Are you sure you want to delete this Core Value?</div>';
-            coreValueDialog.show();
+            
         });
     };
 
@@ -353,20 +345,17 @@ require([
     {
         editStateAttribute = "delete";
         dom.byId("attributeId").innerHTML = id;
-        request.post("getAttribute.php", {
+        request.post("scorecards/coreValues/getAttribute.php", {
             data: { id: id },
             handleAs: "json"
         }).then(function(attributeData) 
         {
+            attributeDialog.show();
             dom.byId("attribute").value = attributeData.attribute;
             dom.byId("attributeDescription").value = attributeData.description;
             dom.byId("errorMsgAttribute").innerHTML = '<div class="alert alert-danger" role="alert">Are you sure you want to delete this Attribute?</div>';
-            attributeDialog.show();
+            
         });
     };
     
 });
-</script>
-<?php
-include("../../lab/footer.html");
-?>

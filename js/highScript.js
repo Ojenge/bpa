@@ -1,4 +1,4 @@
-var kpiGlobalId, kpiGlobalName, kpiGlobalType, gaugeType, globalDate, mainMenuState ,selectedReport, kpiOwnerId, kpiUpdaterId, indNameId, initiativeStore, initiativeImpactId, tnAdd, reportListContent, objTooltipDialog, removeTooltip, updaterCheckbox = "False", selectedGauge, pdpEdit, pdpEditId, globalParent, ownerUpdaterStore;
+var kpiGlobalId, kpiGlobalName, kpiGlobalType, gaugeType, globalDate, mainMenuState ,selectedReport, kpiOwnerId, kpiUpdaterId, indNameId, initiativeStore, initiativeImpactId, tnAdd, reportListContent, objTooltipDialog, removeTooltip, updaterCheckbox = "False", selectedGauge, pdpEdit, pdpEditId, globalParent, ownerUpdaterStore, coreValueId;
 
 // Helper function to get the correct conversation div ID based on current module
 function getConversationDivId() {
@@ -12,7 +12,7 @@ function getConversationDivId() {
 }
 var gauge3, gauge4, chart, indicators, gaugeValue, cp, pdpId, view = "True", setFormula, valuesCount = 12, dataType, currency, valueIndicator3 = null, gridUpdateType, kpiListId, kpiName, csvImportVar = 'false';
 var upperLimit=[], lowerLimit=[], redLimit=0, greenLimit=0;//limits for line chart thresholds
-var tree, mainScorecardStore; //this is to allow the definition tables to update the tree
+var tree, governmentStore; //this is to allow the definition tables to update the tree
 var period = "months";
 var chartType = "9Steps";
 var tdDomNode; //2D array variable used by cba_balanceSheet.php to hold chart dom ids. Putting this here so as to be able to destroy as appropriate
@@ -103,7 +103,7 @@ require([
 	"dijit/form/CheckBox"
 
 	//"dojo/domReady!"
-], function(registry, ready, aspect, json, on, domConstruct, domAttr, domStyle, style, dom, date, locale, ContentPane, ExpandoPane,TitlePane, Editor, FilteringSelect,Tootltip, TooltipDialog, popup, query, parser, array, Memory, Observable, StoreSeries, GanttChart, GanttProjectItem, GanttTaskItem, MonthlyCalendar, Tooltip, Magnify, Tree, ObjectStoreModel, dndSource, scorecardData, pcData, ItemFileReadStore, ItemFileWriteStore, gfx, request, baseFx, Toggler, coreFx, Menu, MenuItem, MenuSeparator, MenuBarItem, PopupMenuItem, ComboButton, CheckBox){
+], function(registry, ready, aspect, json, on, domConstruct, domAttr, domStyle, style, dom, date, locale, ContentPane, ExpandoPane,TitlePane, Editor, FilteringSelect,Tootltip, TooltipDialog, popup, query, parser, array, Memory, Observable, StoreSeries, GanttChart, GanttProjectItem, GanttTaskItem, MonthlyCalendar, Tooltip, Magnify, Tree, ObjectStoreModel, dndSource, bscData, pcData, ItemFileReadStore, ItemFileWriteStore, gfx, request, baseFx, Toggler, coreFx, Menu, MenuItem, MenuSeparator, MenuBarItem, PopupMenuItem, ComboButton, CheckBox){
 
 //Global Variables Go Here...
 var saveGoal, saveRed, thresholdType, indName, kpiDescription, kpiOutcome, kraListId, kraName, collectionFrequency, kpiType, aggregationType, kpiOwner, kpiUpdater, darkGreen, green, blue, red, darkGreenType, greenType, blueType, redType, kpiMission, kpiVision, kpiValues, weight, formula, kpiCascade;
@@ -807,6 +807,7 @@ indDashboard = function()
 		});
 		cp.placeAt("appLayout");
 		domStyle.set(dom.byId("userSettings"), "display", "none");
+		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
@@ -824,6 +825,7 @@ indDashboard = function()
 		});
 		cp.placeAt("appLayout");
 		domStyle.set(dom.byId("userSettings"), "display", "none");
+		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
@@ -1332,37 +1334,28 @@ if(dojo.byId('viewRights').innerHTML == 'Viewer') pduDbHome();
 else pduDbHome();
 },2000)
 //goHome();
-	if(mainMenuState == "performanceContract")
-	{
-		console.log("in PC");
-		mainScorecardStore = new Memory({
-			data: json.parse(pcData),
-			getChildren: function(object)
-			{
-				return this.query({parent: object.id});
-			}
-		});
-	}
-	else
-	{
-		mainScorecardStore = new Memory({
-			data: json.parse(scorecardData),
-			getChildren: function(object)
-			{
-				return this.query({parent: object.id});
-			}
-		});
-	}
+
+/************************************************************************* 
+ Start of governmentStore
+ ************************************************************************/
+
+ governmentStore = new Memory({
+		data: json.parse(bscData),
+		getChildren: function(object)
+		{
+			return this.query({parent: object.id});
+		}
+	});	
 
 	//alert("Tree: "+ data.length);
-	if(scorecardData.length <= 2) window.location.href = "logout.php";
+	if(bscData.length <= 2) window.location.href = "logout.php";
 
 	// To support dynamic data changes, including DnD,
 	// the store must support put(child, {parent: parent}).
 	// But dojo/store/Memory doesn't, so we have to implement it.
 	// Since our store is relational, that just amounts to setting child.parent
 	// to the parent's id.
-	aspect.around(mainScorecardStore, "put", function(originalPut){
+	aspect.around(governmentStore, "put", function(originalPut){
 		return function(obj, options){
 			if(options && options.parent){
 				obj.parent = options.parent.id;
@@ -1373,16 +1366,16 @@ else pduDbHome();
 						}
 					})
 			}
-			return originalPut.call(mainScorecardStore, obj, options);
+			return originalPut.call(governmentStore, obj, options);
 		}
 	});
 
 	// give store Observable interface so Tree can track updates
-	mainScorecardStore = new Observable(mainScorecardStore);
+	governmentStore = new Observable(governmentStore);
 
 	// create model to interface Tree to store
 	var model = new ObjectStoreModel({
-		store: mainScorecardStore,
+		store: governmentStore,
 
 		// query to get root node
 		query: {id: "root"},
@@ -1478,15 +1471,7 @@ else pduDbHome();
 		}, "tree");
 		tree.startup();
 	}
-	collapseTree = function()
-	{
-		tree.collapseAll();
-	}
-	expandTree = function()
-	{
-		tree.expandAll();
-		//alert(dom.byId("tree").innerHTML);
-	}
+	
 	tree.on("click",function(object)
 	{
 		switch(mainMenuState)
@@ -1606,6 +1591,19 @@ else pduDbHome();
 			}
 		}
 	});
+
+/************************************************************************* 
+ End of governmentStore
+ ************************************************************************/
+ collapseTree = function()
+ {
+	 tree.collapseAll();
+ }
+ expandTree = function()
+ {
+	 tree.expandAll();
+	 //alert(dom.byId("tree").innerHTML);
+ }
 	//************************************************************
 	//handler for clicks on task context menu items
 	//************************************************************
@@ -1722,7 +1720,7 @@ else pduDbHome();
 					type: tnEditType,
 					overwrite: true
 				};
-				mainScorecardStore.put(childItem);
+				governmentStore.put(childItem);
 				tree.startup();
 		});
 	}
@@ -2295,7 +2293,7 @@ else pduDbHome();
 				{
 					//rename tree item
 					tnEditHolder.item.name = kpiName;
-					mainScorecardStore.put(tnEditHolder.item);
+					governmentStore.put(tnEditHolder.item);
 					tree.startup();
 				}
 				else
@@ -2308,7 +2306,7 @@ else pduDbHome();
 						type: tnEditType,
 						overwrite: true
 					};
-					mainScorecardStore.put(childItem);
+					governmentStore.put(childItem);
 					//tree.startup();
 					//tree.startup();//tree not refreshing - added 2nd startup and it seems to work!
 					//alert("item added: Name:"+ kpiName + ", Id: "+ treeId + ", Parent: "+tnAdd + ", Edit Type: "+tnEditType);
@@ -2484,7 +2482,7 @@ else pduDbHome();
 					type: "measure",
 					overwrite: true
 				};
-				mainScorecardStore.put(childItem);
+				governmentStore.put(childItem);
 				//tree.startup();
 				//tree.startup();//tree not refreshing - added 2nd startup and it seems to work!
 				//alert("item added: Name:"+ kpiName + ", Id: "+ treeId + ", Parent: "+tnAdd + ", Edit Type: "+tnEditType);
@@ -2584,7 +2582,7 @@ else pduDbHome();
 		else
 			showMeasureAddDialog();
 		//tnEdit.item.name = prompt("Enter a new name for the object");
-		//mainScorecardStore.put(tnRename.item);
+		//governmentStore.put(tnRename.item);
 	}
 	function onTreeItemDelete()
 	{
@@ -2597,7 +2595,7 @@ else pduDbHome();
 				tree_type: tnDelete.item.type
 			}
 			}).then(function(){
-				mainScorecardStore.remove(tnDelete.item.id);
+				governmentStore.remove(tnDelete.item.id);
 			});
 	}
 	function onTreeItemInitiative()
@@ -3592,6 +3590,8 @@ else
 	//do nothing. don't show menu for viewers.
 }
 },2000)
+
+
 	toEmail = function()
 	{
 		//alert("To Email");
@@ -3953,169 +3953,7 @@ else
 		globalDate = newDateLabel;
 		onCalendarChange();
 	}
-	kpiDef = function()
-	{
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"ddtKpi.php"
-			});
-			cp.placeAt("appLayout");
-			domConstruct.destroy("kpiNo");
-			domConstruct.destroy("kpiName");
-			domConstruct.destroy("kpiQuantitative");
-			if (dijit.byId("dateCreated"))
-			{
-				dijit.byId("dateCreated").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			if (dijit.byId("defStatus"))
-			{
-				dijit.byId("defStatus").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			if (dijit.byId("dateModified"))
-			{
-				dijit.byId("dateModified").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			if (dijit.byId("reportStatus"))
-			{
-				dijit.byId("reportStatus").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("dateCreated");
-			//domConstruct.destroy("defStatus");
-			//domConstruct.destroy("dateModified");
-			//domConstruct.destroy("reportStatus");
-			if (dijit.byId("lifePriority"))
-			{
-				dijit.byId("lifePriority").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			if (dijit.byId("kpiLevel"))
-			{
-				dijit.byId("kpiLevel").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			domConstruct.destroy("abbreviation");
-			//domConstruct.destroy("lifePriority");
-			domConstruct.destroy("kpiIntegrity");
-			//domConstruct.destroy("kpiLevel");
-			if (dijit.byId("kpiGoal"))
-			{
-				dijit.byId("kpiGoal").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiGoal");
-			if (dijit.byId("kpiUnit"))
-			{
-				dijit.byId("kpiUnit").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiUnit");
-			domConstruct.destroy("kpiDescr");
-			domConstruct.destroy("kpiIntent");
-			if (dijit.byId("kpiProcess"))
-			{
-				dijit.byId("kpiProcess").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiProcess");
-			if (dijit.byId("kpiStakeholder"))
-			{
-				dijit.byId("kpiStakeholder").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiStakeholder");
-			if (dijit.byId("kpiRelationship"))
-			{
-				dijit.byId("kpiRelationship").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiRelationship");
-			domConstruct.destroy("kpiFormula");
-			if (dijit.byId("kpiFrequency"))
-			{
-				dijit.byId("kpiFrequency").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			if (dijit.byId("kpiDataItems"))
-			{
-				dijit.byId("kpiDataItems").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiFrequency");
-			domConstruct.destroy("kpiDrill");
-			if (dijit.byId("kpiComparison"))
-			{
-				dijit.byId("kpiComparison").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiComparison");
-			if (dijit.byId("kpiMethod"))
-			{
-				dijit.byId("kpiMethod").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiMethod");
-			domConstruct.destroy("kpiPresentNotes");
-			if (dijit.byId("kpiFrequency2"))
-			{
-				dijit.byId("kpiFrequency2").destroy(true);
-				//alert("nimeharibiwa");
-			}
-			//domConstruct.destroy("kpiFrequency2");
-			domConstruct.destroy("kpiResponse");
-			domConstruct.destroy("kpiOwnerDefinition");
-			domConstruct.destroy("kpiOwnerPerformance");
-			domConstruct.destroy("kpiNotes");
-			domConstruct.destroy("kpiOwnerReporting");
-	}
-	objComm = function()
-	{
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"ddtObj.php"
-			});
-			cp.placeAt("appLayout");
-
-			domConstruct.destroy("orgName");
-			//dijit.byId("orgName").destroy(true);
-			if(dijit.byId("objPersp")) dijit.byId("objPersp").destroyRecursive();
-			if(dijit.byId("newPerspDialog")) dijit.byId("newPerspDialog").destroyRecursive();
-			//dijit.byId("perspName").destroy(true);
-			domConstruct.destroy("perspName");
-			domConstruct.destroy("objName");
-			domConstruct.destroy("objNo");
-			domConstruct.destroy("objOwner");
-			domConstruct.destroy("objTeam");
-			domConstruct.destroy("objDescr");
-			domConstruct.destroy("objOutcome");
-			domConstruct.destroy("objFrom");
-			domConstruct.destroy("objTo");
-			domConstruct.destroy("objKpi");
-			domConstruct.destroy("objTarget");
-			domConstruct.destroy("objInitiative");
-	}
-	kpiDesign = function()
-	{
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"ddtKpiDesign.php"
-			});
-			cp.placeAt("appLayout");
-			domConstruct.destroy("objNameD");
-			domConstruct.destroy("sensory");
-			domConstruct.destroy("potential");
-			domConstruct.destroy("picture");
-			domConstruct.destroy("kpiName");
-			//dojo.byId("kpiLinkedTo").value = firstObject.kpiLinkedTo;
-			domConstruct.destroy("kpiNo");
-	}
-
+	
 	//var menuItem = this.get("label");
 	var menuItemId = this.get("id");
 	if(menuItemId == "home")
@@ -4124,6 +3962,7 @@ else
 		if(dojo.byId('viewRights').innerHTML == 'Viewer') pduDbProjects();
 		else pduDbHome();
 		domStyle.set(dom.byId("userSettings"), "display", "none");
+		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
@@ -4149,6 +3988,7 @@ else
 			cp.placeAt("appLayout");
 		}
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "block");
@@ -4190,7 +4030,9 @@ else
 	}
 	else if(menuItemId == "bsc" || menuItemId == "performanceContract")
 	{
-		tree.collapseAll();//starting the tree on collapse mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
+
+		tree.collapseAll();//starting the tree on expand mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
+		
 		request.post("reports/get-report-elements.php",{
 		handleAs: "json"
 		}).then(function(data)
@@ -4231,6 +4073,7 @@ else
 			});
 			cp.placeAt("appLayout");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "block");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
@@ -4258,6 +4101,7 @@ else
 			domConstruct.destroy('divInitiatives');
 			domConstruct.destroy('divCascadedTo');
 			domConstruct.destroy('divDevelopmentPlan');
+			domConstruct.destroy('divCoreValues');
 			domConstruct.destroy('divNotes');
 			domConstruct.destroy('divNotes2');
 			domConstruct.destroy('divMeasureNotes');//19th January 2017. Incorporating a module to handle PC notes.
@@ -4270,6 +4114,7 @@ else
 			domConstruct.destroy('bodyContent');
 			domConstruct.destroy('cascadedContent');
 			domConstruct.destroy('pdp');
+			domConstruct.destroy('coreValuesScorecardPage');
 			domConstruct.destroy('interpretation');
 			domConstruct.destroy('wayForward');
 			if(dijit.byId("divConversation")) dijit.byId("divConversation").destroyRecursive();
@@ -4378,6 +4223,7 @@ else
 			//dijit.byId('initiativeStatusGauge').destroyRecursive();
 			//domConstruct.destroy("newInitiativeDialog");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "block");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
@@ -4528,6 +4374,7 @@ else
 		});
 		cp.placeAt("appLayout");
 		domStyle.set(dom.byId("userSettings"), "display", "none");
+		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
@@ -4545,6 +4392,7 @@ else
 			});
 		cp.placeAt("appLayout");
 		domStyle.set(dom.byId("userSettings"), "display", "none");
+		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "block");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "none");
@@ -4656,6 +4504,7 @@ else
 			});
 			cp.placeAt("appLayout");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "true");
 			//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
@@ -4673,6 +4522,7 @@ else
 			});
 			cp.placeAt("appLayout");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "block");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
@@ -4706,6 +4556,7 @@ else
 			//bc.addChild(cp);
 			//bc.startup();
 			domStyle.set(dom.byId("userSettings"), "display", "block");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "none");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
@@ -4713,14 +4564,43 @@ else
 			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 			dojo.byId("dynamicMenu").innerHTML = "";
 			domConstruct.destroy("main");
-			/*if(dojo.byId("password") != null)
-			dijit.byId("password").destroyRecursive();
-			if(dojo.byId("passwordc") != null)
-			dijit.byId("passwordc").destroyRecursive();
-			if(dojo.byId("passwordcheck") != null)
-			dijit.byId("passwordcheck").destroyRecursive();
-			if(dojo.byId("email") != null)
-			dijit.byId("email").destroyRecursive();*/
+		
+	}
+	else if(menuItemId == "coreValuesMenu")
+	{
+		mainMenuState = "coreValuesMenu";
+		cp = new ContentPane({
+		region: "center",
+		"class": "bpaPrint",
+			href:"scorecards/coreValues/getCoreValues.php?mainMenuState=coreValuesMenu"
+			});
+			cp.placeAt("appLayout");
+			domStyle.set(dom.byId("coreValues"), "display", "block");
+			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("tree"), "display", "none");
+			domStyle.set(dom.byId("definitionTables"), "display", "none");
+			domStyle.set(dom.byId("homeLinks"), "display", "none");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+			//dojo.byId("dynamicMenu").innerHTML = "";
+			
+			//domConstruct.destroy("coreValueId");
+			//domConstruct.destroy("attributeId");
+			//domConstruct.destroy("attributeScoreId");
+			
+			domConstruct.destroy("coreValue");
+			domConstruct.destroy("coreValueDescription");
+			domConstruct.destroy("errorMsgCoreValue");
+			domConstruct.destroy("attribute");
+			domConstruct.destroy("attributeDescription");
+			domConstruct.destroy("errorMsgAttribute");
+			domConstruct.destroy("errorMsgCoreValue");
+			domConstruct.destroy("attributeScore");
+			domConstruct.destroy("attributeScoreDate");
+			domConstruct.destroy("attributeScoreList");
+			domConstruct.destroy("errorMsgAttributeScore");
+			domConstruct.destroy("attributeScoreDialog");
+			domConstruct.destroy("coreValueDialog");
 	}
 	else if (menuItemId == "logOut")
 	{
@@ -4754,44 +4634,6 @@ else
 	registry.byClass("dijit.MenuItem").forEach(setClickHandler);
 	registry.byClass("dijit.MenuBarItem").forEach(setClickHandler);
 
-//Functions
-/*
-userSettings = function()
-{
-	domStyle.set(dom.byId("pwdMain"), "display", "block");
-	domStyle.set(dom.byId("adminConfig"), "display", "none");
-	domStyle.set(dom.byId("adminUsers"), "display", "none");
-	domStyle.set(dom.byId("adminPerm"), "display", "none");
-	domStyle.set(dom.byId("adminPage"), "display", "none");}
-adminConfiguration = function()
-{
-	domStyle.set(dom.byId("adminConfig"), "display", "block");
-	domStyle.set(dom.byId("pwdMain"), "display", "none");
-	domStyle.set(dom.byId("adminUsers"), "display", "none");
-	domStyle.set(dom.byId("adminPerm"), "display", "none");
-	domStyle.set(dom.byId("adminPage"), "display", "none");}
-adminUsers = function()
-{
-	domStyle.set(dom.byId("adminUsers"), "display", "block");
-	domStyle.set(dom.byId("pwdMain"), "display", "none");
-	domStyle.set(dom.byId("adminConfig"), "display", "none");
-	domStyle.set(dom.byId("adminPerm"), "display", "none");
-	domStyle.set(dom.byId("adminPage"), "display", "none");}
-adminPemissions = function()
-{
-	domStyle.set(dom.byId("adminPerm"), "display", "block");
-	domStyle.set(dom.byId("pwdMain"), "display", "none");
-	domStyle.set(dom.byId("adminConfig"), "display", "none");
-	domStyle.set(dom.byId("adminUsers"), "display", "none");
-	domStyle.set(dom.byId("adminPage"), "display", "none");}
-adminPages = function()
-{
-	domStyle.set(dom.byId("adminPage"), "display", "block");
-	domStyle.set(dom.byId("pwdMain"), "display", "none");
-	domStyle.set(dom.byId("adminConfig"), "display", "none");
-	domStyle.set(dom.byId("adminUsers"), "display", "none");
-	domStyle.set(dom.byId("adminPerm"), "display", "none");}
-*/
 savePdp = function(edit, id)
 {
 	if(edit == "Delete" || pdpEdit == 'Edit')
@@ -6710,6 +6552,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divMeasures"), "width", "33%");
 			domStyle.set(dom.byId("divOwner"), "display", "none");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "none");
+			domStyle.set(dom.byId("divCoreValues"), "display", "none");
 
 			if(data["interpretation"] == null) dijit.byId("interpretation").set("value", '');
 			else dijit.byId("interpretation").set("value", data["interpretation"]);
@@ -6735,10 +6578,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				displayPerspScore = data[perspectiveScore];
 				if(displayPerspScore == "grey") displayPerspScore = "&nbsp; - &nbsp;";
 
-				if(data[perspectiveScore]<3.3 && data[perspectiveScore] > 0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[perspectiveScore]>=3.3 && data[perspectiveScore] < 6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if(data[perspectiveScore] >= 6.7 && data[perspectiveScore]<=10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[perspectiveScore]<3.3 && data[perspectiveScore] > 0){bgColor = "red3d"} 
+				else if (data[perspectiveScore]>=3.3 && data[perspectiveScore] < 6.7){bgColor = "yellow3d"} 
+				else if(data[perspectiveScore] >= 6.7 && data[perspectiveScore]<=10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 
 				combinedData = combinedData + "<tr><td>"+data[perspectiveNumber]+"</td><td class='border-end-0'>"+displayPerspScore+"</td><td class='border-start-0'><div class='"+bgColor+"'></div></td><td>"+perspectiveWeight+"%</td></tr>";
 				perspectiveCount++;
@@ -6773,10 +6616,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				displayScore = data[cascadedScore];
 				if(displayScore == "grey") displayScore = "&nbsp; - &nbsp;";
 
-				if(data[cascadedScore]<3.3 && data[cascadedScore] >= 0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[cascadedScore]<3.3 && data[cascadedScore] >= 0){bgColor = "red3d"} 
+				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "yellow3d"} 
+				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 				combinedData = combinedData + "<tr><td>"+data[cascadedNumber]+"</td><td class='border-end-0'>"+displayScore+"</td><td  class='border-start-0'><div class='"+bgColor+"'></div></td></tr>";
 				cascadedCount++;
 			}
@@ -6790,10 +6633,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				displayScore = data[cascadedScore];
 				if(displayScore == "grey") displayScore = "&nbsp; - &nbsp;";
 
-				if(data[cascadedScore]<3.3 && data[cascadedScore] >= 0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[cascadedScore]<3.3 && data[cascadedScore] >= 0){bgColor = "red3d"} 
+				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "yellow3d"} 
+				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 				combinedData = combinedData + "<tr><td>"+data[cascadedNumber]+"</td><td class='border-end-0'>"+displayScore+"</td><td  class='border-start-0'><div class='"+bgColor+"'></div></td></tr>";
 				cascadedCount++;
 			}
@@ -6838,6 +6681,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			//alert(data["name"]);
 			domStyle.set(dom.byId("divOwner"), "display", "none");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "none");
+			domStyle.set(dom.byId("divCoreValues"), "display", "none");
 			domStyle.set(dom.byId("divMeasures"), "display", "block");
 			domStyle.set(dom.byId("divInitiatives"), "display", "block");
 
@@ -6860,10 +6704,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				objectiveWeight  = data[objectiveWeight]*100;
 				displayObjScore = data[objectiveScore];
 				if(displayObjScore == "grey") displayObjScore = "&nbsp; - &nbsp;";
-				if(data[objectiveScore]<3.3 && data[objectiveScore]>0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[objectiveScore]>=3.3 && data[objectiveScore]<6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if (data[objectiveScore]>=6.7 && data[objectiveScore]<=10) {bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap";}//#D0D0D0 = light grey color
+				if(data[objectiveScore]<3.3 && data[objectiveScore]>0){bgColor = "red3d"} 
+				else if (data[objectiveScore]>=3.3 && data[objectiveScore]<6.7){bgColor = "yellow3d"} 
+				else if (data[objectiveScore]>=6.7 && data[objectiveScore]<=10) {bgColor = "green3d"} 
+				else{bgColor = "grey3d";}//#D0D0D0 = light grey color
 				combinedData = combinedData + "<tr><td>"+data[objectiveNumber]+"</td><td class='border-end-0'>"+displayObjScore+"</td><td class='border-start-0'><div class='"+bgColor+"'></div></td><td>"+objectiveWeight+"%</td></tr>";
 				objectiveCount++;
 			}
@@ -6918,6 +6762,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divPhoto"), "display", "none");
 			domStyle.set(dom.byId("divObjectiveDescription"), "display", "block");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "none");
+			domStyle.set(dom.byId("divCoreValues"), "display", "none");
 			descriptionTitle.set("title", "Description & Outcome");
 			scorecardItemTitle.set("title", "Objective Name");
 			ownerTitle.set("title", "Other Details");
@@ -6979,11 +6824,11 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				measureWeight = measureWeight.toFixed(2);
 				displayKpiScore = data[measureScore];
 				if(displayKpiScore == "grey") displayKpiScore = "&nbsp; - &nbsp;";
-				if(data[measureScore]=='No Score') bgColor = "rounded-circle table-light trafficLightBootstrap"; 
-				else if(data[measureScore]<3.3 && data[measureScore]>=0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[measureScore]>=3.3 && data[measureScore]<6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if (data[measureScore]>=6.7 && data[measureScore]<=10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[measureScore]=='No Score') bgColor = "grey3d"; 
+				else if(data[measureScore]<3.3 && data[measureScore]>=0){bgColor = "red3d"} 
+				else if (data[measureScore]>=3.3 && data[measureScore]<6.7){bgColor = "yellow3d"} 
+				else if (data[measureScore]>=6.7 && data[measureScore]<=10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 				combinedData = combinedData + "<tr><td>"+data[measureNumber]+"</td><td class='border-end-0'>"+displayKpiScore+"</td><td class='border-start-0'><div class='"+bgColor+"'></div></td><td>"+measureWeight+"%</td></tr>";
 				measureCount++;
 			}
@@ -7019,10 +6864,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				displayScore = data[cascadedScore];
 				if(displayScore == "grey") displayScore = "&nbsp; - &nbsp;";
 
-				if(data[cascadedScore]<3.3 && data[cascadedScore] > 0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[cascadedScore]<3.3 && data[cascadedScore] > 0){bgColor = "red3d"} 
+				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "yellow3d"} 
+				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 				combinedData = combinedData + "<tr><td>"+data[cascadedNumber]+"</td><td class='border-end-0'>"+displayScore+"</td><td  class='border-start-0'><div class='"+bgColor+"'></div></td></tr>";
 				cascadedCount++;
 			}
@@ -7036,10 +6881,10 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				displayScore = data[cascadedScore];
 				if(displayScore == "grey") displayScore = "&nbsp; - &nbsp;";
 
-				if(data[cascadedScore]<3.3 && data[cascadedScore] > 0){bgColor = "rounded-circle bg-danger trafficLightBootstrap"} 
-				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "rounded-circle bg-warning trafficLightBootstrap"} 
-				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "rounded-circle bg-success trafficLightBootstrap"} 
-				else{bgColor = "rounded-circle table-light trafficLightBootstrap"}
+				if(data[cascadedScore]<3.3 && data[cascadedScore] > 0){bgColor = "red3d"} 
+				else if (data[cascadedScore]>=3.3 && data[cascadedScore] <= 6.7){bgColor = "yellow3d"} 
+				else if(data[cascadedScore] > 6.7 &&  data[cascadedScore] <= 10){bgColor = "green3d"} 
+				else{bgColor = "grey3d"}
 				combinedData = combinedData + "<tr><td>"+data[cascadedNumber]+"</td><td class='border-end-0'>"+displayScore+"</td><td  class='border-start-0'><div class='"+bgColor+"'></div></td></tr>";
 				cascadedCount++;
 			}
@@ -7088,6 +6933,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divPhoto"), "display", "none");
 			domStyle.set(dom.byId("divMeasures"), "display", "none");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "none");
+			domStyle.set(dom.byId("divCoreValues"), "display", "none");
 			domStyle.set(dom.byId("divObjectiveDescription"), "display", "block");
 
 			if(data['calendarType'] == 'Daily' || data['calendarType'] == 'Weekly' || data['calendarType'] == 'Monthly')
@@ -7234,6 +7080,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			domStyle.set(dom.byId("divGauge"), "display", "block");
 			domStyle.set(dom.byId("divOwner"), "display", "none");
 			domStyle.set(dom.byId("divDevelopmentPlan"), "display", "block");
+			domStyle.set(dom.byId("divCoreValues"), "display", "block");
 			descriptionTitle.set("title", "Individual Details");
 			scorecardItemTitle.set("title", "Name");
 			measureTitle.set("title", "Assigned Tasks");
@@ -7339,6 +7186,21 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			{
 				getInitContent(id);
 			}
+
+			request.post("scorecards/coreValues/getCoreValues.php?mainMenuState=Scorecard",{
+				data: {}
+			}).then(function(savedCoreValue)
+			{
+				dom.byId("coreValuesScorecardPage").innerHTML = savedCoreValue;
+			});
+
+			/*request.post("scorecards/coreValues/coreValues.php",{
+				data: {objectId:objectId}
+			}).then(function(coreValuesData)
+			{
+				console.log("Returning " + coreValuesData);
+				dom.byId("coreValuesScorecardPage").innerHTML = coreValuesData;
+			});*/
 			
 			break;
 		}

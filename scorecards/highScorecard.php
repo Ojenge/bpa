@@ -1296,8 +1296,14 @@ Initiatives
 
 <div id="divDevelopmentPlan" style="display:none">
     <div data-dojo-id="developmentPlanTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Personal Development Plan'">
-    <div id="pdp"></div>
+    	<div id="pdp"></div>
+	</div>
 </div>
+
+<div id="divCoreValues" style="display:none">
+    <div data-dojo-id="coreValuesTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Core Values'">
+    	<div id="coreValuesScorecardPage"></div>
+	</div>
 </div>
 
 <div style="clear:left"></div>

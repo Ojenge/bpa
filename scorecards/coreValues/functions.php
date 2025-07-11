@@ -18,14 +18,14 @@
     }
     return $returnValue;
 }
-function getCoreValues() 
+function getCoreValues($mainMenuState) 
 {
    global $connect;
-   $mainMenuState = "Scorecards";
     // Retrieve and display all the strategic results
     $result = mysqli_query($connect, "SELECT * FROM core_value ORDER BY id ASC");
     $output = '<table class="table table-striped table-bordered table-sm table-hover table-responsive">';
-    if($mainMenuState == "Scorecards")//Only show main edits when in Admin state
+    file_put_contents("coreValues.txt", "mainMenuState = ".$mainMenuState, FILE_APPEND);
+    if($mainMenuState == "Scorecard")//Only show main edits when in Admin state
     $output .= '<thead class="table-primary"><tr><th scope="col">ID</th><th scope="col">Core Value</th><th scope="col">Description</th><th scope="col">Core Value Attributes</th></tr></thead>';
     
     else $output .= '<thead class="table-primary"><tr><th scope="col">ID</th><th scope="col">Core Value</th><th scope="col">Description</th><th scope="col">Attributes</th><th scope="col">Edit</th></tr></thead>';
@@ -45,7 +45,7 @@ function getCoreValues()
         while ($attributeRow = mysqli_fetch_assoc($attributesQuery)) {
             $attributes .= '<tr>';
             $attributes .= '<td scope="col" class="col-1">';
-            if($mainMenuState == "Scorecards")
+            if($mainMenuState == "Scorecard")
             {
                 $attributes .= '<a href="javascript:void(0)" title="Edit Score" onclick="addAttributeScore(\'' . $attributeRow["id"] . '\')"><i class="bi bi-pencil-square"></i></a>';
             }
@@ -77,7 +77,7 @@ function getCoreValues()
         $attributes .= '</tr></table>';
 
         $output .= '<td>' . $attributes . '</td>';
-        if($mainMenuState == "Scorecards")//Only show main edits when in Admin state
+        if($mainMenuState == "Scorecard")//Only show main edits when in Admin state
         {}
         else
         {

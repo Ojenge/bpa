@@ -45,97 +45,10 @@ if(!empty($_GET))
 <head>
 	<meta charset="utf-8">
 	<title>Accent Analytics</title>
-    <link rel="shortcut icon" href="images/favicons/favicon.ico">
-	<link rel="stylesheet" href="css/style.css" media="all">
-    <link rel="stylesheet" href="css/trafficLights.css" media="all">
-	<link rel="stylesheet" href="https://accent-analytics.com/dijit/themes/soria/soria.css" media="all">
-    <link rel="stylesheet" href="https://accent-analytics.com/dojox/editor/plugins/resources/css/Save.css"  media="all"/>
-    <!--<link rel="stylesheet" href="css/dTuned.css">-->
-	<!--<link rel="stylesheet" href="css/navigableDnd.css" media="all">
-    <link rel="stylesheet" href="css/dashboardTables.css" media="all">
-    <link rel="stylesheet" href="css/mapDetails.css" type="text/css" media="all">-->
-    
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://accent-analytics.com/bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
-    <link rel="stylesheet" href="https://accent-analytics.com/bootstrap_table/1.18.3/bootstrap-table.min.css" media="all">
-    <link href="https://accent-analytics.com/bootstrap_fileinput/css/fileinput.min.css" media="screen" rel="stylesheet" type="text/css"/>
-    <link href="https://accent-analytics.com/font-awesome-5.15.3/css/all.css" media="all" rel="stylesheet" type="text/css"/>
 
-    <link rel="stylesheet" href="https://accent-analytics.com/virtualSelect/dist/virtual-select.min.css" />
-    
-</head>
-<style>
-@import "https://accent-analytics.com/dojox/form/resources/CheckedMultiSelect.css";
-@import "https://accent-analytics.com/dojox/widget/Calendar/Calendar.css";
-@import "https://accent-analytics.com/dojox/calendar/themes/soria/Calendar.css";
-@import "https://accent-analytics.com/dojox/calendar/themes/nihilo/Calendar.css";
-@import "https://accent-analytics.com/dojox/layout/resources/ExpandoPane.css";
-    /* colors the underlay black instead of white
-     * We're using '.claro .dijitDialogUnderlay' as our selector,
-     * to match the specificity in claro.css */
-    .soria .dijitDialogUnderlay { background:#000;
-	display:inline-table}
-.pdfIcon {
-  background-image: url(images/icons/pdfIcon16.png);
-  background-repeat: no-repeat;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-}
-.vMenu
-{
-	background:#d9d9d9;
-	padding:4px/*padding for top, bottom*/ 7px /*padding for left, right*/;
-	text-decoration:none;
-	border-bottom:1px solid #eeeeee;
-	border-top:1px solid #cccccc;
-	border-left:5px solid #333333;
-	color:#333333;
-}
-.vMenu:hover
-{
-	border-left-color:#0099FF;
-	color:#0066FF;
-	background:#c4c4c4;
-}
-.vMenuRed
-{
-	background:#d9d9d9;
-	padding:4px/*padding for top, bottom*/ 7px /*padding for left, right*/;
-	text-decoration:none;
-	border-bottom:1px solid #eeeeee;
-	border-top:1px solid #cccccc;
-	border-left:5px solid #333333;
-	color:#F00;
-}
-.vMenuRed:hover
-{
-	border-left-color:#0099FF;
-	color:#0066FF;
-	background:#c4c4c4;
-}
-.menuTable
-{
-	 margin-top:0px;
-	 font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;
-	 font-size:14px
-}
-@media print
-{
-	.bpaPrint
-	{
-		display:block !important; 
-		overflow: visible !important; 
-		height: auto !important;
-		clear:both !important;
-		overflow-y:visible !important;
-	}
-}
-.cpStyles
-{
-	background-color:#0CF;
-}
-</style>
+<?php
+include("header_local.php")
+?>
 <body class="bpaPrint soria">
 <!--
 Having a hard time tracking active scorecard or initiative items across the system. Use a div to hold the active id at any point in time here so that the different files can all access it otherwise, seems one has to keep creating divs for ids across the system LTK 04 Apr 2021 1205 hours
@@ -144,6 +57,13 @@ Global ID Holder
 ***************************************************-->
 <div id="selectedElement" style="display:none;"></div>
 <div id="editSaveDelete" style="display:none;"></div><!--Again, carrying variable around to state whether we are editing, saving or deleting makes it hard to keep tab. This should hopefully make it easier LTK 04 Apr 2021 2045 hours-->
+
+<!--
+Global ID Holder for Core Values, Attributes and Attribute Scores
+-->
+<div id="coreValueId" style="display:none;"></div>
+<div id="attributeId" style="display:none;"></div>
+<div id="attributeScoreId" style="display:none;"></div>
 
 <div id='viewRights' style='display:none;'><?php echo $view; ?></div>
     <!-- Start of content pane for top menu bar-->
@@ -178,6 +98,7 @@ Global ID Holder
                     <span>Settings</span>
                     <div id="adminMenu" data-dojo-type="dijit/Menu">
                         <div id="admin" data-dojo-type="dijit/MenuItem">Admin</div>
+                        <div id="coreValuesMenu" data-dojo-type="dijit/MenuItem">Core Values</div>
                       </div>
             	</div><!-- End of Admin sub menu cluster-->
             <div id="menuSeparator" data-dojo-type="dijit/MenuBarItem" data-dojo-props='disabled:true' style="display:none">|</div>
@@ -298,7 +219,11 @@ Global ID Holder
                 <a href="#" onClick="restoreScores();">Original Scoring</a><br>
                 <?php } ?>
             </div>
-
+            
+            <div id="coreValues" style="display:none;">
+                <a href="#" onClick="coreValues();">coreValues</a><br>
+            </div>
+            
             <div id="definitionTables" style="display:none;">
 			<?php if($view == "Administrator" || $view == "Application") {?>
             	<a href="#" onClick="objComm();">Objective Commentaries</a><br>
@@ -714,44 +639,9 @@ Global ID Holder
    </div>
 </div>
 
-<!--<script src="../../highCharts901/code/highcharts.js" type="text/javascript"></script>-->
-<script src="https://accent-analytics.com/highStock901/code/highstock.js" type="text/javascript"></script>
-<script>
-	var Highstock = Highcharts;
-    Highcharts = null;
-</script>
-<script src="https://accent-analytics.com/highChartsGantt901/code/highcharts-gantt.js" type="text/javascript"></script>
-<script src="https://accent-analytics.com/highStock901/code/highcharts-more.js"></script>
-
-<script src="https://accent-analytics.com/highStock901/code/modules/drilldown.js"></script>
-<script src="https://accent-analytics.com/highStock901/code/modules/no-data-to-display.js" type="text/javascript"></script>
-
-<!--<script src="../../highCharts901/code/modules/grouped-categories.js"></script>-->
-<!--<script src="../../highCharts404/js/regression.js"></script>-->
-
-<!--<script src="https://openlayers.org/en/v3.1.1/build/ol.js" type="text/javascript"></script>-->
-
-<script src="https://accent-analytics.com/jquery/3.6.0/jquery.min.js"></script>
-
-<script src="https://accent-analytics.com/popper/popper.min.js" type="text/javascript"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
-<script src="https://accent-analytics.com/bootstrap/5.0.0/dist/js/bootstrap.min.js"></script>
-<script src="https://accent-analytics.com/bootstrap_table/1.18.3/bootstrap-table.min.js"></script>
-<script src="https://accent-analytics.com/bootstrap_table/1.18.3/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-<script src="https://accent-analytics.com/bootstrap_fileinput/js/fileinput.min.js" type="text/javascript"></script>
-<script src="https://accent-analytics.com/bootstrap_fileinput/themes/fas/theme.min.js" type="text/javascript"></script>
-
-<script src="https://accent-analytics.com/virtualSelect/dist/virtual-select.min.js"></script>
-
-<link rel="stylesheet" href="css/trafficLights.css" media="all">
-
-<script type="text/javascript" src="https://accent-analytics.com/dojo/dojo.js"></script>
-<script type="text/javascript" src="js/measure.js"></script>
-<script type="text/javascript" src="js/initiative.js"></script>
-<script type="text/javascript" src="js/documents.js"></script>
-<script type="text/javascript" src="js/highScript.js"></script>
-<script type="text/javascript" src="js/navigableDnd.js"></script>
-
+<?php
+include_once ('footer_local.php');
+?>
   <!--<div style="display:none"><span id="lastSelected"></span></div>  -->
 </body>
 </html>
