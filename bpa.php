@@ -64,6 +64,7 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
 <div id="coreValueId" style="display:none;"></div>
 <div id="attributeId" style="display:none;"></div>
 <div id="attributeScoreId" style="display:none;"></div>
+<div id="coreValueStaffId" style="display:none;"></div>
 
 <div id='viewRights' style='display:none;'><?php echo $view; ?></div>
     <!-- Start of content pane for top menu bar-->

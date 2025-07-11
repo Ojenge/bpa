@@ -100,7 +100,7 @@ require([
                 data: { id: dom.byId("coreValueId").innerHTML }
             }).then(function(returnedData) 
             {
-                dom.byId("coreValueContent").innerHTML = returnedData;
+                //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             coreValueDialog.hide();
             dom.byId("coreValue").value = '';
@@ -121,7 +121,7 @@ require([
             {
                     dom.byId("coreValue").value = '';
                     dom.byId("coreValueDescription").value = '';
-                    dom.byId("coreValueContent").innerHTML = returnedData;
+                    //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             dom.byId("errorMsgCoreValue").innerHTML = '';
         }
@@ -144,7 +144,7 @@ require([
                 data: { id: dom.byId("attributeId").innerHTML }
             }).then(function(returnedData) 
             {
-                dom.byId("coreValueContent").innerHTML = returnedData;
+                //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             attributeDialog.hide();
             dom.byId("attribute").value = '';
@@ -166,7 +166,7 @@ require([
             {
                     dom.byId("attribute").value = '';
                     dom.byId("attributeDescription").value = '';
-                    dom.byId("coreValueContent").innerHTML = returnedData;
+                    //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             dom.byId("errorMsgAttribute").innerHTML = '';
         }
@@ -189,7 +189,7 @@ require([
                 data: { id: dom.byId("attributeScoreId").innerHTML }
             }).then(function(returnedData) 
             {
-                dom.byId("coreValueContent").innerHTML = returnedData;
+                //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             attributeScoreDialog.hide();
             dom.byId("attributeScore").value = '';
@@ -210,17 +210,23 @@ require([
                 attributeScoreDate: attributeScoreDate,
                 editStateAttributeScore: editStateAttributeScore,
                 attributeId: dom.byId("attributeId").innerHTML,
-                attributeScoreId: dom.byId("attributeScoreId").innerHTML
+                attributeScoreId: dom.byId("attributeScoreId").innerHTML,
+                staffId: dom.byId("coreValueStaffId").innerHTML
             }
             }).then(function(returnedData)
             {
                     dom.byId("attributeScore").value = '';
                     dom.byId("attributeScoreDate").value = '';
-                    dom.byId("coreValueContent").innerHTML = returnedData;
+                    //dom.byId("coreValueContent").innerHTML = returnedData;
             });
             dom.byId("errorMsgAttributeScore").innerHTML = '';
         }
     };
+
+    attributeScoreDialogHideNoSave = function()
+    {
+        attributeScoreDialog.hide();
+    }
 
     coreValueDialogHideNoSave = function() 
     {
@@ -241,8 +247,8 @@ require([
     editCoreValue = function(id) 
     {
         editState = "edit";
-        //dom.byId("coreValueId").innerHTML = id;
-        coreValueId = id;
+        dom.byId("coreValueId").innerHTML = id;
+        //coreValueId = id;
         request.post("scorecards/coreValues/getCoreValue.php", {
             data: { id: id },
             handleAs: "json"

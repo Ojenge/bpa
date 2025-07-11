@@ -5,7 +5,10 @@ include_once("functions.php");
 if(isset($_GET['mainMenuState']))
     $mainMenuState = $_GET['mainMenuState'];
 
-$output = getCoreValues($mainMenuState); // Call the function to get the list of KRAs
+if(isset($_GET['staff']))
+    $staff = $_GET['staff'];
+
+$output = getCoreValues($mainMenuState, $staff); // Call the function to get the list of KRAs
 
 echo $output;
 

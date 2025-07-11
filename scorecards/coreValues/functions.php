@@ -18,13 +18,13 @@
     }
     return $returnValue;
 }
-function getCoreValues($mainMenuState) 
+function getCoreValues($mainMenuState, $staff) 
 {
    global $connect;
     // Retrieve and display all the strategic results
     $result = mysqli_query($connect, "SELECT * FROM core_value ORDER BY id ASC");
     $output = '<table class="table table-striped table-bordered table-sm table-hover table-responsive">';
-    file_put_contents("coreValues.txt", "mainMenuState = ".$mainMenuState, FILE_APPEND);
+    
     if($mainMenuState == "Scorecard")//Only show main edits when in Admin state
     $output .= '<thead class="table-primary"><tr><th scope="col">ID</th><th scope="col">Core Value</th><th scope="col">Description</th><th scope="col">Core Value Attributes</th></tr></thead>';
     
@@ -60,7 +60,7 @@ function getCoreValues($mainMenuState)
             $attributes .= '<td scope="col" class="col-3">' . htmlspecialchars($attributeRow['attribute']) . '</td>';
             $attributes .= '<td scope="col" class="col-3">' . htmlspecialchars($attributeRow['description']) . '</td>';
 
-            $attributeScore = mysqli_query($connect, "SELECT * FROM core_value_attribute_score WHERE attribute_id = '" . $attributeRow['id'] . "' ORDER BY id DESC LIMIT 1");
+            $attributeScore = mysqli_query($connect, "SELECT * FROM core_value_attribute_score WHERE attribute_id = '" . $attributeRow['id'] . "' AND updater = '".$staff."' ORDER BY id DESC LIMIT 1");
             $scoreRow = mysqli_fetch_assoc($attributeScore);
             if (!$scoreRow) {
                 $scoreRow = ''; // Default value if no score is found

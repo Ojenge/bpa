@@ -1,4 +1,4 @@
-var kpiGlobalId, kpiGlobalName, kpiGlobalType, gaugeType, globalDate, mainMenuState ,selectedReport, kpiOwnerId, kpiUpdaterId, indNameId, initiativeStore, initiativeImpactId, tnAdd, reportListContent, objTooltipDialog, removeTooltip, updaterCheckbox = "False", selectedGauge, pdpEdit, pdpEditId, globalParent, ownerUpdaterStore, coreValueId;
+var kpiGlobalId, kpiGlobalName, kpiGlobalType, gaugeType, globalDate, mainMenuState ,selectedReport, kpiOwnerId, kpiUpdaterId, indNameId, initiativeStore, initiativeImpactId, tnAdd, reportListContent, objTooltipDialog, removeTooltip, updaterCheckbox = "False", selectedGauge, pdpEdit, pdpEditId, globalParent, ownerUpdaterStore;
 
 // Helper function to get the correct conversation div ID based on current module
 function getConversationDivId() {
@@ -4588,7 +4588,7 @@ else
 			//domConstruct.destroy("attributeId");
 			//domConstruct.destroy("attributeScoreId");
 			
-			domConstruct.destroy("coreValue");
+			/*domConstruct.destroy("coreValue");
 			domConstruct.destroy("coreValueDescription");
 			domConstruct.destroy("errorMsgCoreValue");
 			domConstruct.destroy("attribute");
@@ -4600,7 +4600,7 @@ else
 			domConstruct.destroy("attributeScoreList");
 			domConstruct.destroy("errorMsgAttributeScore");
 			domConstruct.destroy("attributeScoreDialog");
-			domConstruct.destroy("coreValueDialog");
+			domConstruct.destroy("coreValueDialog");*/
 	}
 	else if (menuItemId == "logOut")
 	{
@@ -7186,8 +7186,8 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			{
 				getInitContent(id);
 			}
-
-			request.post("scorecards/coreValues/getCoreValues.php?mainMenuState=Scorecard",{
+			dom.byId("coreValueStaffId").innerHTML = objectId;
+			request.post("scorecards/coreValues/getCoreValues.php?mainMenuState=Scorecard&staff="+objectId,{
 				data: {}
 			}).then(function(savedCoreValue)
 			{
