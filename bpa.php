@@ -155,6 +155,7 @@ Global ID Holder
                     <span>Scorecards</span>
                     <div id="bscMenu" data-dojo-type="dijit/Menu">
                         <div id="bsc" data-dojo-type="dijit/MenuItem">Balanced Scorecard</div>
+                        <div id="performanceContract" data-dojo-type="dijit/MenuItem">Performance Contract</div>
                        <!-- <div data-dojo-type="dijit/MenuItem">Advocacy Scorecard</div>
                         <div id="admin3" data-dojo-type="dijit/MenuItem">Admin 3</div>-->
                     </div>

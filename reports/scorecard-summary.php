@@ -1,3 +1,7 @@
+<?php
+//include("../lab/header.html");
+?>
+
 <div id="idParkingLot" style="display:none"></div>
 <button class="btn btn-primary btn-sm" onclick="moveLeft();" title="Previous Page">
   <span class="fa fa-arrow-left" style="height:18px !important;"></span>

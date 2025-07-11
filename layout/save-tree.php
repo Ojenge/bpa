@@ -177,6 +177,7 @@ $kpiOwner = isset($_POST['kpiOwner']) ? mysqli_real_escape_string($connect, $_PO
 $measureType = isset($_POST['measureType']) ? mysqli_real_escape_string($connect, $_POST['measureType']) : '';
 $dataType = isset($_POST['dataType']) ? mysqli_real_escape_string($connect, $_POST['dataType']) : '';
 $aggregationType = isset($_POST['aggregationType']) ? mysqli_real_escape_string($connect, $_POST['aggregationType']) : '';
+$kraListId = isset($_POST['kraListId']) ? mysqli_real_escape_string($connect, $_POST['kraListId']) : '';
 
 // Numeric fields with proper validation and sanitization
 $darkGreen = isset($_POST['darkGreen']) ? str_replace(',', '', mysqli_real_escape_string($connect, $_POST['darkGreen'])) : '0';
@@ -357,6 +358,23 @@ switch($objectType)
 				die("Error updating tree");
 			}
 
+			$update_kra_link = mysqli_query($connect, "UPDATE objective_kra_map SET kraId = '$kraListId' WHERE objectiveId='$tree_id'");
+			if(mysqli_affected_rows($connect) == 0) 
+			{
+				$insert_kra_link = mysqli_query($connect, "INSERT INTO objective_kra_map (id, objectiveId, kraId) VALUES (default, '$tree_id', '$kraListId')");
+				if (!$insert_kra_link) {
+					mysqli_rollback($connect);
+					file_put_contents("error.txt", "Error inserting KRA link: " . mysqli_error($connect));
+					die("Error inserting KRA link");
+				}
+			} 
+			elseif (!$update_kra_link) 
+			{
+				mysqli_rollback($connect);
+				file_put_contents("error.txt", "Error updating KRA link: " . mysqli_error($connect));
+				die("Error updating KRA link");
+			}
+
 			mysqli_commit($connect);
 			mysqli_autocommit($connect, TRUE);
 		}
@@ -401,6 +419,14 @@ switch($objectType)
 					die("Error updating objective weights");
 				}
 			}
+
+			//Link the new objective to a KRA
+			$insert_kra_link = mysqli_query($connect, "INSERT INTO objective_kra_map (id, objectiveId, kraId) VALUES (default, '$tree_id', '$kraListId')");
+				if (!$insert_kra_link) {
+					mysqli_rollback($connect);
+					file_put_contents("error.txt", "Error inserting KRA link: " . mysqli_error($connect));
+					die("Error inserting KRA link");
+				}
 
 			mysqli_commit($connect);
 			mysqli_autocommit($connect, TRUE);

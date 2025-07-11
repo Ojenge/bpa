@@ -1,40 +1,9 @@
 <link rel="stylesheet" href="css/shapes.css" media="all">
 <?php 
 //include("../lab/header.html");
+include("../reports/scores-functions.2.0.php");
 
-$strategyHouse = '<table class="">';
-$strategyHouse .= '<tr>'
-    .'<td class="text-center" colspan="4">'
-    .'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="bi bi-flag fs-1"></i>'
-    .'</td>'
-.'</tr>'
-.'<tr>'
-    .'<td class="" colspan="4">'
-    .'<div class="triangle-up text-left"><p>Vision: A reliable, effective, deposit insurer and resolution authority<br>Mission: To protect depositers and enhance public confidence in the financial system by promoting sound risk management and timely resolution.</p></div>'
-    .'</td>'
-.'</tr>'
-.'<tr>'
-.'<td class="float-start">'
-        .'<div class="rectangle text-center"><br><i class="bi bi-umbrella fs-4"></i><br><br>Deposit Insurance</div>'
-    .'</td>'
-    .'<td class="text-center">'
-        .'<div class="rectangle text-center"><br><i class="bi bi-sign-stop"></i><br><br>Risk Minimisation</div>'
-    .'</td>'
-    .'<td style="" class="text-center">'
-        .'<div class="rectangle text-center"><br><i class="bi bi-bank fs-4"></i><br><br>Resolution of Problem Banks</div>'
-    .'</td>'
-    .'<td class="float-end">'
-        .'<div class="rectangle text-center"><br><i class="bi bi-graph-up-arrow"></i><br><br>Insitutional Capacity Development</div>'
-    .'</td>'
-    .'</tr>'
-    .'<tr>'
-        .'<td colspan="4">'
-            .'<div class="rectangleFlat rounded-3 text-center">Core Values</div>'
-        .'</td>'
-    .'</tr>'
-.'</table>';
-
-$strategyHouseTwo = '<table class="">'
+$strategyHouse = '<table class="">'
 .'<tr><td colspan="9" class="text-center"><h3>KDIC Strategy House</h3></td></tr>'
 .'<tr>'
     .'<td rowspan="3" class="text-white">left span</td>'
@@ -42,44 +11,52 @@ $strategyHouseTwo = '<table class="">'
     .'<td rowspan="3" class="text-white">right span</td>'
 .'</tr>'
 .'<tr>'
-    .'<td class="housePillar">'
+    .'<td class="housePillar" onclick="pillarDetails(1)">'
         .'<table class="text-center table table-borderless">'
-            .'<tr>'
-                .'<td class="text-center"><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
-            .'</tr>'
+            .'<tr>';
+            $kraScore = kraScore("1");
+            $kraColor = getColor3d($kraScore);
+            $strategyHouse .= '<td class="text-center"><br><div style="margin:auto" class="'.$kraColor.'"></div></td>';
+            $strategyHouse .='</tr>'
             .'<tr>'
                 .'<td>Deposit<br>Insurance</td>'
             .'</tr>'
         .'</table>'
     .'</td>'
     .'<td>&nbsp;</td>'
-    .'<td class="housePillar">'
+    .'<td class="housePillar" onclick="pillarDetails(2)">'
         .'<table class="text-center table table-borderless">'
-            .'<tr>'
-                .'<td class="text-center"><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
-            .'</tr>'
+            .'<tr>';
+            $kraScore = kraScore("2");
+            $kraColor = getColor3d($kraScore);
+            $strategyHouse .= '<td class="text-center"><br><div style="margin:auto" class="'.$kraColor.'"></div></td>';
+            $strategyHouse .='</tr>'
             .'<tr>'
                 .'<td>Risk<br>Minimisation</td>'
             .'</tr>'
         .'</table>'
     .'</td>'
     .'<td>&nbsp;</td>'
-    .'<td class="housePillar">'
+    .'<td class="housePillar" onclick="pillarDetails(3)">'
         .'<table class="text-center table table-borderless">'
-            .'<tr>'
-                .'<td class="text-center"><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
-            .'</tr>'
+            .'<tr>';
+            $kraScore = kraScore("3");
+            $kraColor = getColor3d($kraScore);
+            $strategyHouse .= '<td class="text-center"><br><div style="margin:auto" class="'.$kraColor.'"></div></td>';
+            $strategyHouse .='</tr>'
             .'<tr>'
                 .'<td>Resolution of<br>Problem Banks</td>'
             .'</tr>'
         .'</table>'
     .'</td>'
     .'<td>&nbsp;</td>'
-    .'<td class="housePillar">'
+    .'<td class="housePillar" onclick="pillarDetails(4)">'
         .'<table class="text-center table table-borderless">'
-            .'<tr>'
-                .'<td class="text-center"><br><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
-            .'</tr>'
+            .'<tr>';
+            $kraScore = kraScore("4");
+            $kraColor = getColor3d($kraScore);
+            $strategyHouse .= '<td class="text-center"><br><div style="margin:auto" class="'.$kraColor.'"></div></td>';
+            $strategyHouse .='</tr>'
             .'<tr>'
                 .'<td>Insitutional<br>Capacity<br>Development</td>'
             .'</tr>'
@@ -93,19 +70,19 @@ $strategyHouseTwo = '<table class="">'
     .'<td colspan="9" class="houseFoundation">'
         .'<table class=" text-white m-0 p-0 w-75 float-end">'
         .'<tr>'
-            .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
+            .'<td><div style="margin:auto" class="grey3d"></div></td>'
             .'<td>Professionalism</td>'
-            .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
+            .'<td><div style="margin:auto" class="red3d"></div></td>'
             .'<td>Teamwork</td>'
-            .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
+            .'<td><div style="margin:auto" class="yellow3d"></div></td>'
             .'<td>Customer Focus</td>'
         .'</tr>'
         .'<tr>'
             .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
             .'<td>Integrity</td>'
-            .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
+            .'<td><div style="margin:auto" class="green3d"></div></td>'
             .'<td>Innovativeness</td>'
-            .'<td><div style="margin:auto" class="rounded-circle bg-secondary trafficLightBootstrap"></div></td>'
+            .'<td><div style="margin:auto" class="rounded-circle bg-warning trafficLightBootstrap"></div></td>'
             .'<td>Accountability</td>'
         .'</tr>'
         .'</table'
@@ -113,6 +90,41 @@ $strategyHouseTwo = '<table class="">'
 .'</tr>'
 .'</table>';
 
-echo $strategyHouseTwo;
-//echo $strategyHouse;
+echo $strategyHouse;
+//echo "<br><br><br><br><br><br>";
+echo '<div id="pillarDetails" class="position-absolute" style="top: 650px;"></div>';
 ?>
+
+<script>
+require([
+    "dojo/dom",
+    "dojo/request",
+    "dojo/domReady!"
+], function(dom, request) 
+{
+pillarDetails = function(pillarId) 
+{
+    request.post("reports/scores-functions.2.0.php", {
+        data: { pillarId: pillarId },
+        handleAs: "json"
+    }).then(
+        function(objData) 
+        {
+            var objCount = 0;
+            var objList = '<table class="table">';
+            var objList = objList + '<tr><th>Linked Objectives</th><th>Score</th></tr>';
+            var objScore = "";
+            var objId = "";
+            while(objCount < objData.length)
+            {
+                objId = objData[objCount].id;
+                objList = objList + "<tr><td>"+ objData[objCount].name + "</td><td>" + objData[objCount].score + "</td></tr>";
+                objCount++;
+            }
+            
+            dom.byId("pillarDetails").innerHTML = objList + "</table>";
+        }
+    );
+}
+});
+</script>

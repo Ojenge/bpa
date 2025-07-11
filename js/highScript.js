@@ -12,7 +12,7 @@ function getConversationDivId() {
 }
 var gauge3, gauge4, chart, indicators, gaugeValue, cp, pdpId, view = "True", setFormula, valuesCount = 12, dataType, currency, valueIndicator3 = null, gridUpdateType, kpiListId, kpiName, csvImportVar = 'false';
 var upperLimit=[], lowerLimit=[], redLimit=0, greenLimit=0;//limits for line chart thresholds
-var tree, governmentStore; //this is to allow the definition tables to update the tree
+var tree, mainScorecardStore; //this is to allow the definition tables to update the tree
 var period = "months";
 var chartType = "9Steps";
 var tdDomNode; //2D array variable used by cba_balanceSheet.php to hold chart dom ids. Putting this here so as to be able to destroy as appropriate
@@ -67,6 +67,7 @@ require([
 	"dijit/tree/dndSource",
 	//"dojo/text!http://localhost/analytics.local/layout/tree.php",
 	"dojo/text!/bpa/layout/tree.php",
+	"dojo/text!/bpa/layout/pc.json",
 	"dojo/data/ItemFileReadStore",
 	"dojo/data/ItemFileWriteStore",
 	"dojox/gfx",
@@ -102,7 +103,20 @@ require([
 	"dijit/form/CheckBox"
 
 	//"dojo/domReady!"
-], function(registry, ready, aspect, json, on, domConstruct, domAttr, domStyle, style, dom, date, locale, ContentPane, ExpandoPane,TitlePane, Editor, FilteringSelect,Tootltip, TooltipDialog, popup, query, parser, array, Memory, Observable, StoreSeries, GanttChart, GanttProjectItem, GanttTaskItem, MonthlyCalendar, Tooltip, Magnify, Tree, ObjectStoreModel, dndSource, data, ItemFileReadStore, ItemFileWriteStore, gfx, request, baseFx, Toggler, coreFx, Menu, MenuItem, MenuSeparator, MenuBarItem, PopupMenuItem, ComboButton, CheckBox){
+], function(registry, ready, aspect, json, on, domConstruct, domAttr, domStyle, style, dom, date, locale, ContentPane, ExpandoPane,TitlePane, Editor, FilteringSelect,Tootltip, TooltipDialog, popup, query, parser, array, Memory, Observable, StoreSeries, GanttChart, GanttProjectItem, GanttTaskItem, MonthlyCalendar, Tooltip, Magnify, Tree, ObjectStoreModel, dndSource, scorecardData, pcData, ItemFileReadStore, ItemFileWriteStore, gfx, request, baseFx, Toggler, coreFx, Menu, MenuItem, MenuSeparator, MenuBarItem, PopupMenuItem, ComboButton, CheckBox){
+
+//Global Variables Go Here...
+var saveGoal, saveRed, thresholdType, indName, kpiDescription, kpiOutcome, kraListId, kraName, collectionFrequency, kpiType, aggregationType, kpiOwner, kpiUpdater, darkGreen, green, blue, red, darkGreenType, greenType, blueType, redType, kpiMission, kpiVision, kpiValues, weight, formula, kpiCascade;
+
+// VirtualSelect state tracking
+var virtualSelectReady = false;
+var myOptionsAjax = [];
+
+//tree global variables
+var childItem, tnAddType, tnEdit, edit, tnEditType, tnEditHolder, tnName, tnWeight;
+
+//tree menu global variables
+var tnMenuItem;
 
 var tabTimeout = setTimeout(function(){
 domStyle.set(dijit.byId("myTab").controlButton.domNode, "visibility", "hidden");
@@ -365,30 +379,16 @@ var tempwait = setTimeout(function(){
 		//displayedValue: managerDisplay,
 		//placeHolder: "Select a User",
 		store: kraStore,
-		searchAttr: "kraName",
+		searchAttr: "kraName", //make sure the search attribute matches the key value in the data otherwise it will not work.
 		maxHeight: -1,
 		onChange: function(){
 			kraListId = this.item.kraId;
 			kraName = this.item.kraName;
-			console.log("Selected KRA: " + kraName + " (ID: " + kraListId + ")");
 		}
 		}, "strategicResult");
 		selectKra.startup();
 	});
 	},2000)
-
-	//Global Variables Go Here...
-	var saveGoal, saveRed, thresholdType, indName, kpiDescription, kpiOutcome, kraListId, kraName, collectionFrequency, kpiType, aggregationType, kpiOwner, kpiUpdater, darkGreen, green, blue, red, darkGreenType, greenType, blueType, redType, kpiMission, kpiVision, kpiValues, weight, formula, kpiCascade;
-
-	// VirtualSelect state tracking
-	var virtualSelectReady = false;
-	var myOptionsAjax = [];
-
-	//tree global variables
-	var childItem, tnAddType, tnEdit, edit, tnEditType, tnEditHolder, tnName, tnWeight;
-
-	//tree menu global variables
-	var tnMenuItem;
 
 	// Function to ensure collection frequency dropdown is created
 	ensureCollectionFrequencyDropdown = function() {
@@ -616,91 +616,11 @@ pduDbHome = function()
 			},200);
 			/*dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Project Key</th></tr><tr><td><div id='circle1'></div></td><td>With Major Issues</td></tr><tr><td><div id='circle2'></div></td><td>With Minor Issues</td></tr><tr><td><div id='circle3'></div></td><td>On Track</td></tr></table>";*/
 		});	
+		
+		domConstruct.destroy('pillarDetails');
 }
-pduDbBigFour = function()
-{
-	mainMenuState = "Big Four";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"../analytics.local/gok/bigFour/index.html"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
-flagshipProjects = function()
-{
-	mainMenuState = "Flagship Projects";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_home.php"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
-pduDbManufacturing = function()
-{
-	mainMenuState = "Big Four";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"../analytics.local/gok/bigFour/manufacturing.php"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
-pduDbUHC = function()
-{
-	mainMenuState = "Big Four";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"../analytics.local/gok/bigFour/uhc.php"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
-pduDbAffordableHousing = function()
-{
-	mainMenuState = "Big Four";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"../analytics.local/gok/bigFour/housing.php"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
-pduDbFoodSecurity = function()
-{
-	mainMenuState = "Big Four";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"../analytics.local/gok/bigFour/foodSecurity.php"
-		});
-		cp.placeAt("appLayout");
-		var treeTimeout = setTimeout(function()
-		{
-			domStyle.set(dom.byId("tree"), "display", "none");
-		},200);
-}
+
+
 pcSummaries = function()
 {
 	cp = new ContentPane({
@@ -716,589 +636,6 @@ pcSummaries = function()
 		domConstruct.destroy('departmentList');
 		domConstruct.empty(cp);
 		//domConstruct.destroy("appLayout");
-}
-pduDbDirectives = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		//href:"pdu_db_directives.php"
-		href:"directives/index.php"//Updated this with new bootstrap table. LTK 24.09.2017
-		});
-		cp.placeAt("appLayout");
-		
-		domConstruct.destroy("savedNotice");
-		domConstruct.destroy("userName");
-		
-		//Added the ones below for bootstrap table LTK 24.09.17
-		domConstruct.destroy("filterId");
-		domConstruct.destroy("toolbar");
-		domConstruct.destroy("id00");
-		domConstruct.destroy("id01");
-		domConstruct.destroy("id02");
-		domConstruct.destroy("id03");
-		domConstruct.destroy("id04");
-		domConstruct.destroy("id05");
-		domConstruct.destroy("id06");
-		domConstruct.destroy("id07");
-		domConstruct.destroy("id08");
-		domConstruct.destroy("id09");
-		domConstruct.destroy("id10");
-		domConstruct.destroy("id11");
-		domConstruct.destroy("id12");
-		domConstruct.destroy("id13");
-		domConstruct.destroy("id14");
-		domConstruct.destroy("id15");
-		domConstruct.destroy("id16");
-		domConstruct.destroy("id17");
-		domConstruct.destroy("id18");
-		domConstruct.destroy("id19");
-		domConstruct.destroy("id20");
-		domConstruct.destroy("id21");
-		domConstruct.destroy("ministryTitle");
-		domConstruct.destroy("ministryList");
-		domConstruct.destroy("countyList");
-		domConstruct.destroy("table");
-		
-		if(dijit.byId("newDirectiveDialog")) dijit.byId("newDirectiveDialog").destroy(true);//domConstruct.destroy("newDirectiveDialog");
-		domConstruct.destroy("nature");
-		if(dijit.byId("date")) dijit.byId("date").destroy(true);//domConstruct.destroy("date");
-		if(dijit.byId("venue")) dijit.byId("venue").destroy(true);//domConstruct.destroy("venue");
-		if(dijit.byId("action")) dijit.byId("action").destroy(true);
-		if(dijit.byId("action_by")) {dijit.byId("action_by").destroy(true); domConstruct.destroy("action_by");}
-		if(dijit.byId("department")) {dijit.byId("department").destroy(true); domConstruct.destroy("department");}
-		if(dijit.byId("description")) dijit.byId("description").destroy(true);
-		//domConstruct.destroy("description");
-		if(dijit.byId("initial_action")) dijit.byId("initial_action").destroy(true);//domConstruct.destroy("initial_action");
-		if(dijit.byId("comments")) dijit.byId("comments").destroy(true);//domConstruct.destroy("comments");
-		domConstruct.destroy("progress");
-		domConstruct.destroy("weight");
-		if(dijit.byId("parent")) {dijit.byId("parent").destroy(true);domConstruct.destroy("parent");}
-		if(dijit.byId("confirmDirectiveDialog")) dijit.byId("confirmDirectiveDialog").destroy(true);//domConstruct.destroy("confirmDirectiveDialog");
-		domConstruct.destroy("duplicateButton");
-		domConstruct.destroy("divNature");
-		domConstruct.destroy("divAction");
-		domConstruct.destroy("divDate");
-		domConstruct.destroy("divVenue");
-		domConstruct.destroy("divMinistry");
-		domConstruct.destroy("divDepartment");
-		domConstruct.destroy("divDescription");
-		domConstruct.destroy("divInitial");
-		domConstruct.destroy("divComments");
-		domConstruct.destroy("divProgress");
-		domConstruct.destroy("divWeight");
-		domConstruct.destroy("divParent");
-}
-pduDbExecutiveSummary = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"email_digest/index.php"
-		});
-		cp.placeAt("appLayout");
-}
-pduDbCountyCommissioner = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"countyCommissioner/index.php"
-		});
-		cp.placeAt("appLayout");
-}
-gokProjects = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		//href:"pdu_db_projects.php"//include this as archives
-		href:"../analytics.local/gok/gokProjects/"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("savedNotice");
-		domConstruct.destroy("userName");
-		domConstruct.destroy("filterId");
-		domConstruct.destroy("expandedProject");
-		domConstruct.destroy("toolbar");
-		domConstruct.destroy("browser");
-		domConstruct.destroy("approvals");
-		domConstruct.destroy("edit");
-		domConstruct.destroy("editStop");
-		domConstruct.destroy("new");
-		domConstruct.destroy("print");
-		domConstruct.destroy("dashboardButton");
-		domConstruct.destroy("countySelect");
-		domConstruct.destroy("countyList");
-		domConstruct.destroy("departmentSelect");
-		domConstruct.destroy("departmentList");
-		domConstruct.destroy("departmentTitle");
-		domConstruct.destroy("table");
-		domConstruct.destroy("updateSummary");
-		domConstruct.destroy("dashboard");
-		domConstruct.destroy("tableSummary");
-		domConstruct.destroy("dashboardDetails");
-		//dijit.byId("ministrySelect").destroy(true);domConstruct.destroy("ministrySelect");
-		
-}
-pduDbApprovals = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		//href:"pdu_db_projects.php"//include this as archives
-		href:"dataTablesApprovals/projectsTable.html"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("projectStatus");
-		domConstruct.destroy("projectCost");
-		domConstruct.destroy("tdManifestoSummary");
-		domConstruct.destroy("manifestoSummary");
-		domConstruct.destroy("projects");
-		dijit.byId("departmentSelect").destroy(true);domConstruct.destroy("departmentSelect");
-		dijit.byId("countySelect").destroy(true);domConstruct.destroy("countySelect");
-		domConstruct.destroy("messageBar");
-		domConstruct.destroy("saveCC");
-}
-pduDbMedia = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_media.php"
-		});
-		cp.placeAt("appLayout");
-}
-pduDbSGR = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_sgr.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		dijit.byId("statusContent").destroy(true);//domConstruct.destroy("statusContent");
-		domConstruct.destroy("sgrPhotos");
-		domConstruct.destroy("sgrTable");
-		domConstruct.destroy("imageDiv");
-		domConstruct.destroy("imgCaption");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-}
-pduDbRoads = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_roads.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		//dijit.byId("statusContent").destroy(true);//
-		domConstruct.destroy("completionStatus");
-		domConstruct.destroy("manifestoSummary");
-		domConstruct.destroy("roadsCounty");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-}
-pduDbLaptop = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_laptop.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		domConstruct.destroy("popup");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-		domConstruct.destroy("laptopPower");
-		domConstruct.destroy("teachersTraining");
-		domConstruct.destroy("deviceDeliveries");
-		/*dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Project Key</th></tr><tr><td><div id='circle2'></div></td><td>Schools With Solar Power</td></tr><tr><td><div id='circle3'></div></td><td>Schools On The Grid</td></tr></table>";*/
-}
-pduDbKonza = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_konza.php"
-		});
-		cp.placeAt("appLayout");
-		/*
-		dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Project Key</th></tr><tr><td><div id='circle2'></div></td><td>Schools With Solar Power</td></tr><tr><td><div id='circle3'></div></td><td>Schools On The Grid</td></tr></table>";*/
-}
-pduDbDeliveryBook = function()
-{
-	mainMenuState = "Home";
-	//window.location="deckPresentation/index.php";
-	window.open('deckPresentation/index.php','_blank');
-		dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Delivery Book Shortcut Keys</th></tr><tr><td>M</td><td>Menu</td></tr><tr><td>G</td><td>Go To</td></tr><tr><td>T</td><td>Table of Contents</td></tr></table>";
-}
-pduDbDeliveryBookPrint = function()
-{
-	mainMenuState = "Home";
-	console.log("at pdu delivery print");
-	//window.open("http://gprs.report/gprs/deckPresentationPrint/");
-	window.open('deckPresentationPrint/index.php','_blank');
-	//window.location="deckPresentationPrint/index.php";
-	console.log("at pdu delivery print 2");
-}
-pduDbTVET = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_tvet.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("tvetList");
-		domConstruct.destroy("tvetStages");
-		domConstruct.destroy("tvetCounty");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManagerSavingId");
-		domConstruct.destroy("notesManager");
-}
-pduDbMES = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_managed_healthcare.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-		domConstruct.destroy("legendLaptop");
-		domConstruct.destroy("mesDetailsTable");
-		/*dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Project Key</th></tr><tr><td><div style='background-color:green; width:20px; height: 20px'></div></td><td>All targeted county hospitals fully equipped</td></tr><tr><td><div style='background-color:orange; width:20px; height: 20px'></div></td><td>Only one of two county hospitals fully equipped</td></tr><tr><td><div style='background-color:yellow; width:20px; height: 20px'></div></td><td>MES installations ongoing in all targeted county hospitals (none that is fully equipped)</td></tr></table>";*/
-}
-pduDbMaternity = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_maternity.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("counties");
-		domConstruct.destroy("deliveries");
-		domConstruct.destroy("totals");
-		domConstruct.destroy("notes");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("userId");
-		domConstruct.destroy("commentsHistory");
-		domConstruct.destroy("commentary");
-		domConstruct.destroy("submitId");
-		/*dom.byId("dbProjectsKey").innerHTML = "<select id='hospital' data-dojo-type='dijit/form/FilteringSelect' onChange='maternity()'><option value='All'>All Hospitals</option><option value='Mbagathi District Hospital'>Mbagathi District Hospital</option><option value='Pumwani Maternity Hospital'>Pumwani Maternity Hospital</option><option value='Coast Province General Hospital'>Coast Province General Hospital</option><option value='Tudor Sub-District Hospital'>Tudor Sub-District Hospital</option><option value='Maweni Dispensary'>Maweni Dispensary</option></select>";*/
-}
-pduDbTitles = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_titles.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruptionSummary");
-		domConstruct.destroy("titles");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-}
-pduDbAGPO = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_agpo.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruptionSummary");
-		domConstruct.destroy("titles");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-}
-pduDbHousing = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_housing.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("titles");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-}
-pduDbLAPSSET = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_lapsset_map.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		dijit.byId("statusContent").destroy(true);//domConstruct.destroy("statusContent");
-		domConstruct.destroy("locationName");
-		domConstruct.destroy("locationLabel");
-		domConstruct.destroy("imgCaption");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-}
-pduDbRoads = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_roads.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("manifestoSummary");
-		domConstruct.destroy("completionStatus");
-		domConstruct.destroy("roadsCounty");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-}
-pduDbMW = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_5000.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("summary");
-		domConstruct.destroy("tarrif");
-		domConstruct.destroy("generation");
-		domConstruct.destroy("distribution");
-		domConstruct.destroy("transmission");
-		domConstruct.destroy("fuel");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("list");
-		domConstruct.destroy("submitId");
-		domConstruct.destroy("listDetails");
-		domConstruct.destroy("ketraco");
-}
-pduDbLastMile = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_lastmile.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("lastMile");
-}
-pduDbSocialInclusion = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_social_inclusion.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("socialInclusion");
-}
-pduDbHuduma = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_huduma.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("map");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-		domConstruct.destroy("legendLaptop");
-		domConstruct.destroy("mesDetailsTable");
-		domConstruct.destroy("hudumaOverall");
-		domConstruct.destroy("hudumaAmount");
-}
-pduDbKonza = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_konza.php"
-		});
-		cp.placeAt("appLayout");
-}
-pduDbGalana = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_galana.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("titles");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("projectId");
-}
-pduDbFertiliser = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_fertiliser.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("fertiliserTons");
-		domConstruct.destroy("fertiliserAmount");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("projectId");
-		domConstruct.destroy("yield");
-}
-pduDBLivestock = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_livestock.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("fertiliserTons");
-		domConstruct.destroy("fertiliserAmount");
-		domConstruct.destroy("titlesCounty");
-		domConstruct.destroy("titlesProcess");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("projectId");
-		domConstruct.destroy("tluInsured");
-		domConstruct.destroy("premiumsPaid");
-}
-pduDbCorruption = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_corruption.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruption");
-		domConstruct.destroy("corruptionOutcome");
-		domConstruct.destroy("corruptionDuration");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("userId");
-		domConstruct.destroy("commentsHistory");
-		domConstruct.destroy("commentary");
-		domConstruct.destroy("submitId");
-		domConstruct.destroy("corruptionList");
-		domConstruct.destroy("listDetails");
-}
-pduDbCrime = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_crime.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruptionSummary");
-		domConstruct.destroy("submitId");
-		domConstruct.destroy("crime");
-		domConstruct.destroy("crimeCounty");
-		domConstruct.destroy("crimeType");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("map");
-		domConstruct.destroy("crimeTrends");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-}
-pduDbAccidents = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_accidents.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("accidents");
-		domConstruct.destroy("submitId");
-		domConstruct.destroy("topRoads");
-		domConstruct.destroy("genderAge");
-		domConstruct.destroy("victimType");
-		domConstruct.destroy("tdManagerNotes");
-		domConstruct.destroy("notesManager");
-		domConstruct.destroy("map");
-		domConstruct.destroy("crimeTrends");
-		domConstruct.destroy("polygons-offset-x");
-		domConstruct.destroy("polygons-offset-y");
-}
-pduDbIFMIS = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_ifmis.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruptionSummary");
-		domConstruct.destroy("impactScore");
-		domConstruct.destroy("observations");
-}
-pduDbCS = function()
-{
-	mainMenuState = "Home";
-	cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_cs_score.php"
-		});
-		cp.placeAt("appLayout");
-		domConstruct.destroy("corruptionSummary");
-		domConstruct.destroy("impactScore");
-		domConstruct.destroy("overallObservations");
-		domConstruct.destroy("mediaObservations");
 }
 procurementPlan = function()
 {
@@ -1995,23 +1332,37 @@ if(dojo.byId('viewRights').innerHTML == 'Viewer') pduDbHome();
 else pduDbHome();
 },2000)
 //goHome();
-	governmentStore = new Memory({
-		data: json.parse(data),
-		getChildren: function(object)
-		{
-			return this.query({parent: object.id});
-		}
-	});
+	if(mainMenuState == "performanceContract")
+	{
+		console.log("in PC");
+		mainScorecardStore = new Memory({
+			data: json.parse(pcData),
+			getChildren: function(object)
+			{
+				return this.query({parent: object.id});
+			}
+		});
+	}
+	else
+	{
+		mainScorecardStore = new Memory({
+			data: json.parse(scorecardData),
+			getChildren: function(object)
+			{
+				return this.query({parent: object.id});
+			}
+		});
+	}
 
 	//alert("Tree: "+ data.length);
-	if(data.length <= 2) window.location.href = "logout.php";
+	if(scorecardData.length <= 2) window.location.href = "logout.php";
 
 	// To support dynamic data changes, including DnD,
 	// the store must support put(child, {parent: parent}).
 	// But dojo/store/Memory doesn't, so we have to implement it.
 	// Since our store is relational, that just amounts to setting child.parent
 	// to the parent's id.
-	aspect.around(governmentStore, "put", function(originalPut){
+	aspect.around(mainScorecardStore, "put", function(originalPut){
 		return function(obj, options){
 			if(options && options.parent){
 				obj.parent = options.parent.id;
@@ -2022,16 +1373,16 @@ else pduDbHome();
 						}
 					})
 			}
-			return originalPut.call(governmentStore, obj, options);
+			return originalPut.call(mainScorecardStore, obj, options);
 		}
 	});
 
 	// give store Observable interface so Tree can track updates
-	governmentStore = new Observable(governmentStore);
+	mainScorecardStore = new Observable(mainScorecardStore);
 
 	// create model to interface Tree to store
 	var model = new ObjectStoreModel({
-		store: governmentStore,
+		store: mainScorecardStore,
 
 		// query to get root node
 		query: {id: "root"},
@@ -2371,7 +1722,7 @@ else pduDbHome();
 					type: tnEditType,
 					overwrite: true
 				};
-				governmentStore.put(childItem);
+				mainScorecardStore.put(childItem);
 				tree.startup();
 		});
 	}
@@ -2935,7 +2286,8 @@ else pduDbHome();
 				aggregationType: aggregationType,
 				weight: weight,
 				archive: archive,
-				kpiCascade: kpiCascade
+				kpiCascade: kpiCascade,
+				kraListId: kraListId
 			}
 			}).then(function(treeId) {
 				//alert("After save id is: "+treeId+" and name is: "+ kpiName);
@@ -2943,7 +2295,7 @@ else pduDbHome();
 				{
 					//rename tree item
 					tnEditHolder.item.name = kpiName;
-					governmentStore.put(tnEditHolder.item);
+					mainScorecardStore.put(tnEditHolder.item);
 					tree.startup();
 				}
 				else
@@ -2956,7 +2308,7 @@ else pduDbHome();
 						type: tnEditType,
 						overwrite: true
 					};
-					governmentStore.put(childItem);
+					mainScorecardStore.put(childItem);
 					//tree.startup();
 					//tree.startup();//tree not refreshing - added 2nd startup and it seems to work!
 					//alert("item added: Name:"+ kpiName + ", Id: "+ treeId + ", Parent: "+tnAdd + ", Edit Type: "+tnEditType);
@@ -3132,7 +2484,7 @@ else pduDbHome();
 					type: "measure",
 					overwrite: true
 				};
-				governmentStore.put(childItem);
+				mainScorecardStore.put(childItem);
 				//tree.startup();
 				//tree.startup();//tree not refreshing - added 2nd startup and it seems to work!
 				//alert("item added: Name:"+ kpiName + ", Id: "+ treeId + ", Parent: "+tnAdd + ", Edit Type: "+tnEditType);
@@ -3232,7 +2584,7 @@ else pduDbHome();
 		else
 			showMeasureAddDialog();
 		//tnEdit.item.name = prompt("Enter a new name for the object");
-		//governmentStore.put(tnRename.item);
+		//mainScorecardStore.put(tnRename.item);
 	}
 	function onTreeItemDelete()
 	{
@@ -3245,7 +2597,7 @@ else pduDbHome();
 				tree_type: tnDelete.item.type
 			}
 			}).then(function(){
-				governmentStore.remove(tnDelete.item.id);
+				mainScorecardStore.remove(tnDelete.item.id);
 			});
 	}
 	function onTreeItemInitiative()
@@ -4836,7 +4188,7 @@ else
 
 			domConstruct.destroy("scrollIntoView");
 	}
-	else if(menuItemId == "bsc")
+	else if(menuItemId == "bsc" || menuItemId == "performanceContract")
 	{
 		tree.collapseAll();//starting the tree on collapse mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
 		request.post("reports/get-report-elements.php",{
@@ -4868,7 +4220,9 @@ else
 				initiativeCounter++;
 			}
 		});
-		mainMenuState = "Scorecards";
+		if(menuItemId == "performanceContract") mainMenuState = "performanceContract";
+		else mainMenuState = "Scorecards";
+		
 		cp = new ContentPane({
 		region: "center",
 		"class": "bpaPrint",

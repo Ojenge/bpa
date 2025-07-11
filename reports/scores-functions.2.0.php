@@ -3,10 +3,16 @@
 //include("../../config/config_mysqli.php");
 include("../functions/functions.php");
 
+if(isset($_POST['pillarId']))
+{
+	$objectivesArray = getObjectivesKRA($_POST['pillarId']);
+	$objectivesArray = json_encode($objectivesArray);
+	echo $objectivesArray;
+}
+
 function getScoreFromTarget($actual, $red, $green)
 {
 	$newGreen = $red + ($green - $red)/2;
-	file_put_contents("lee.txt", "withing getScoreFromTarget");
 	$score = ((abs($actual) - abs($red))/(abs($newGreen) - abs($red)) * ((1/3)+3)) + ((1/3)+3);
 	if($score > 10) $score = 10;
 	if($score < 0) $score = 0;
@@ -146,6 +152,14 @@ function getColor($score)
 	else $color = "table-secondary";
 	return $color;
 }
+function getColor3d($score)
+{
+	if($score >= 6.67) $color = "green3d";
+	else if($score >= 3.33 && $score < 6.67) $color = "yellow3d";
+	else if($score > 0) $color = "red3d";
+	else $color = "grey3d";
+	return $color;
+}
 function getOrgScore($orgId)
 {//Check structure of organization and call relevant function
 	global $connect;
@@ -230,6 +244,27 @@ function getObjectives($parentId)
 	{
 		$ids[$arrayPosition]["id"] = $row["id"];
 		$ids[$arrayPosition]["name"] = $row["name"];
+		$arrayPosition++;	
+	}
+	mysqli_free_result($result);
+	return $ids;
+}
+function getObjectivesKRA($kraId)
+{
+	global $connect;
+	$ids = array();
+	$arrayPosition = 0;
+	$objScore = "";
+	$result = mysqli_query($connect, "SELECT id, name FROM objective WHERE id IN (SELECT objectiveId FROM objective_kra_map WHERE kraId = '$kraId')");
+	while($row = mysqli_fetch_array($result))
+	{
+		$ids[$arrayPosition]["id"] = $row["id"];
+		$ids[$arrayPosition]["name"] = $row["name"];
+
+		$objScore = getObjScore($row["id"]);
+
+		$ids[$arrayPosition]["score"] =	$objScore;
+
 		$arrayPosition++;	
 	}
 	mysqli_free_result($result);
@@ -328,6 +363,10 @@ function getInitiativeColor($percent, $dueDate, $globalDate, $status)
 function getInitiatives($objId, $globalDate)
 {
 	global $connect;
+	$status = "";
+	$percent = "";
+	$symbol = "";
+
 	$initiatives = "<table style='width:100%'>";
 	$initiativeCount = 1;
 	$result = mysqli_query($connect, "SELECT initiative.id AS id, initiative.name AS name, initiative.dueDate AS dueDate 
@@ -350,19 +389,22 @@ function getInitiatives($objId, $globalDate)
 		{
 			$status = $resultStatus["status"];
 			$percent = $resultStatus["percentageCompletion"];
+			$symbol = "%";
 		}
 		else
 		{
-			$status = "-";
-			$percent = "-";
+			$status = "";
+			$percent = "";
+			$symbol = "";
 		}
 		
 		$colorInitiative = getInitiativeColor($percent, $dueDate, $globalDate, $status);
-		if($percent != "") $percent = $percent."%";
 		
 		//$initiatives = $initiatives."<tr><td valign='top'><ul><li>".$initiativeCount.'</li></ul></td><td id="init'.$id.'" style="cursor: pointer; text-decoration: underline; color: blue;" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()">'.$row["name"]."</td><td valign='top' class='text-right'>".$percent.'</td><td valign="top" class="float-end"><div class="rounded-circle trafficLightBootstrap '.$colorInitiative.'"></div></td></tr>';
 		//replacing the numbering as above with bullet points - they look neater. LTK 10Jul2025 1213hrs
-		$initiatives = $initiatives.'<tr><td id="init'.$id.'" style="cursor: pointer;" class="link-primary" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()"><ul><li>'.$row["name"]."</td><td valign='top' class='text-right'>".$percent.'</td><td valign="top" class="float-end"><div class="green3d"></div></li></ul></td></tr>';
+		$initiatives = $initiatives.'<tr><td id="init'.$id.'" style="cursor: pointer;" class="link-primary" onClick="getInitContent('.$id.')" onMouseOut="removeTooltip()"><ul class="mt-0 mb-0"><li>'.$row["name"].'</td><td valign="top" class="float-end"><div style="width:90px;" class="progress">
+		<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="Basic example" style="width: '.$percent.'%" aria-valuenow="'.$percent.'" aria-valuemin="0" aria-valuemax="100">'.$percent.$symbol.'</div>
+	  </div></li></ul></td></tr>';
 		$initiativeCount++;
 	}
 	$initiatives = $initiatives."</table>";
@@ -591,6 +633,24 @@ function getKpiScore($kpiId)
 {
 	$kpiArray = array();
 	$kpiArray[0]["id"] = $kpiId;
+	return getScore($kpiArray);
+}
+function kraScore($kraId)
+{
+	$kpiArray = array();
+	$kpiCount = 0;
+	$objCount = count(getObjectivesKRA($kraId));
+	if($objCount > 0)
+	{
+		$objectives = getObjectivesKRA($kraId);
+	
+		for($j = 0; $j < $objCount; $j++)
+		{
+			$kpiArray[$kpiCount] = getMeasures($objectives[$j]["id"]);
+			$kpiCount ++;
+		}
+		$kpiArray = array_flatten($kpiArray);
+	}
 	return getScore($kpiArray);
 }
 ?>

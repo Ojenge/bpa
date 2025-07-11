@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../../../bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
 </head>
 <body class="soria">
-<button type="button" class="btn btn-primary" id="buttonKRA" onclick="kraDialogShow()">New Strategic Result</button>
+<button type="button" class="btn btn-outline-primary" id="buttonKRA" onclick="kraDialogShow()">New Strategic Result</button>
 <div id="kraId" style='display:none;'></div>
 <div id="kraContent"></div>
 <script type="text/javascript" src="../../../jquery/3.6.0/jquery.min.js"></script>
