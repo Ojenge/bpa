@@ -1182,14 +1182,34 @@ var slider = new HorizontalSlider({
     <!-- Description and Owner-->
     <div id="divGroup2">
         <div id="divObjectiveDescription" style="display:none">
-        <div id="divPhoto">
-            <div data-dojo-id="photoTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Staff Photo'" style="float:right; width:200px;margin-top:0px;margin-left:3px;">
-                <div id="photo"><img src="../upload/images/default.jpg" max-width="190" height="122" align="middle" /></div>
-            </div>
-        </div>
+			<div id="divPhoto">
+				<div data-dojo-id="photoTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Staff Photo'" style="float:right; width:200px;margin-top:0px;margin-left:3px;" class="text-center">
+					<div id="photo"><img src="../upload/images/default.jpg" max-width="190" height="122" align="middle" /></div>
+				</div>
+
+				<!--Tried bootstrap cards as a possible replacement for dojo title panes and wasn't conviced this is the direction to take-->
+				<!--<div class="card text-center" style="float:right; width:200px;margin-top:0px;margin-left:3px;">
+					<div class="card-header">
+						Staff Photo
+					</div>
+					<div class="card-body">
+						<div id="photo"><img src="../upload/images/default.jpg" max-width="190" height="122" align="middle" /></div>
+					</div>
+				</div>-->
+			</div>
+		
             <div data-dojo-id="descriptionTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Description & Key Result Area'">
                 <div id="objectiveDescription"></div>
             </div>
+			<!--Tried bootstrap cards as a possible replacement for dojo title panes and wasn't conviced this is the direction to take-->
+			<!--<div class="card text-left" style="">
+				<div class="card-header" id="descriptionTitle">
+					Description & Key Result Area
+				</div>
+				<div class="card-body">
+					<div id="objectiveDescription"></div>
+				</div>
+			</div>-->
         </div>
         
         <div id="divOwner" style="display:none">
@@ -1294,13 +1314,13 @@ Initiatives
 </div>
 <div style="clear:left"></div>
 
-<div id="divDevelopmentPlan" style="display:none">
+<div id="divDevelopmentPlan" style="display:none" class="me-2 mt-2">
     <div data-dojo-id="developmentPlanTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Personal Development Plan'">
     	<div id="pdp"></div>
 	</div>
 </div>
 
-<div id="divCoreValues" style="display:none">
+<div id="divCoreValues" style="display:none" class="mt-2">
     <div data-dojo-id="coreValuesTitle" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Core Values'">
     	<div id="coreValuesScorecardPage"></div>
 	</div>
@@ -1325,7 +1345,7 @@ Initiatives
 <div style="clear:left"></div>
 <div style="clear:left"></div>
 
-<div id="divScorecardConversation" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Performance Conversations', open: true" style=" margin-left:-2px; display:none;">
+<div id="divScorecardConversation" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Performance Conversations', open: true" style="display:none;"  class="mt-1">
 	<!--<div id="userId" style="display:none;"><?php //echo "ind".$loggedInUser->user_id; ?></div>-->
 	<div id="conversationHistory"></div>
     <table class="table table-sm table-condensed table-responsive table-bordeless">

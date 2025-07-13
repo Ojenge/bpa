@@ -19,7 +19,7 @@
 
 <script src="../popper/popper.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="../bootstrap-icons/1.13.1/bootstrap-icons.css">
-<script src="../bootstrap/5.0.0/dist/js/bootstrap.min.js"></script>
+<script src="../bootstrap/5.2.3/dist/js/bootstrap.min.js"></script>
 <script src="../bootstrap_table/1.23.1/dist/bootstrap-table.min.js"></script>
 <script src="../bootstrap_table/1.23.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 <script src="../bootstrap_fileinput/js/fileinput.min.js" type="text/javascript"></script>

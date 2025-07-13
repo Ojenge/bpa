@@ -13,6 +13,7 @@ function getConversationDivId() {
 var gauge3, gauge4, chart, indicators, gaugeValue, cp, pdpId, view = "True", setFormula, valuesCount = 12, dataType, currency, valueIndicator3 = null, gridUpdateType, kpiListId, kpiName, csvImportVar = 'false';
 var upperLimit=[], lowerLimit=[], redLimit=0, greenLimit=0;//limits for line chart thresholds
 var tree, governmentStore; //this is to allow the definition tables to update the tree
+var treeCreated = "False"; //this is to ensure certain aspects of the tree are created only once;
 var period = "months";
 var chartType = "9Steps";
 var tdDomNode; //2D array variable used by cba_balanceSheet.php to hold chart dom ids. Putting this here so as to be able to destroy as appropriate
@@ -613,6 +614,7 @@ pduDbHome = function()
 			var treeTimeout = setTimeout(function()
 			{
 				domStyle.set(dom.byId("tree"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "none");
 			},200);
 			/*dom.byId("dbProjectsKey").innerHTML = "<table style='border:1px solid #999; padding:6px; border-radius:3px;'><tr><th colspan='2'>Project Key</th></tr><tr><td><div id='circle1'></div></td><td>With Major Issues</td></tr><tr><td><div id='circle2'></div></td><td>With Minor Issues</td></tr><tr><td><div id='circle3'></div></td><td>On Track</td></tr></table>";*/
 		});	
@@ -809,6 +811,7 @@ indDashboard = function()
 		domStyle.set(dom.byId("userSettings"), "display", "none");
 		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
+		domStyle.set(dom.byId("expandCollapse"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
 		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
@@ -827,6 +830,7 @@ indDashboard = function()
 		domStyle.set(dom.byId("userSettings"), "display", "none");
 		domStyle.set(dom.byId("coreValues"), "display", "none");
 		domStyle.set(dom.byId("tree"), "display", "none");
+		domStyle.set(dom.byId("expandCollapse"), "display", "none");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "block");
 		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
@@ -1293,6 +1297,7 @@ mainMenuState = "Home";
 	var treeTimeout = setTimeout(function()
 	{
 		domStyle.set(dom.byId("tree"), "display", "none");
+		domStyle.set(dom.byId("expandCollapse"), "display", "none");
 	},200);
 
 	
@@ -1336,19 +1341,34 @@ else pduDbHome();
 //goHome();
 
 /************************************************************************* 
- Start of governmentStore
+ Start of governmentStore/tree function
  ************************************************************************/
+treeFunction = function(dataSource)
+{
+	if(dataSource == "pcData")
+	{
+		governmentStore = new Memory({
+			data: json.parse(pcData),
+			getChildren: function(object)
+			{
+				return this.query({parent: object.id});
+			}
+		});	
 
- governmentStore = new Memory({
-		data: json.parse(bscData),
-		getChildren: function(object)
-		{
-			return this.query({parent: object.id});
-		}
-	});	
+		if(pcData.length <= 2) window.location.href = "logout.php";
+	}
+	else
+	{
+		governmentStore = new Memory({
+			data: json.parse(bscData),
+			getChildren: function(object)
+			{
+				return this.query({parent: object.id});
+			}
+		});	
 
-	//alert("Tree: "+ data.length);
-	if(bscData.length <= 2) window.location.href = "logout.php";
+		if(bscData.length <= 2) window.location.href = "logout.php";
+	}
 
 	// To support dynamic data changes, including DnD,
 	// the store must support put(child, {parent: parent}).
@@ -1387,8 +1407,32 @@ else pduDbHome();
 			return this.store.getChildren(object).length > 0;
 		}
 	});
+
+	if(dijit.byId("tree")) 
+	{
+		//dijit.byId("tree").destroyRecursive();
+		//domConstruct.destroy("tree");
+		dijit.byId("tree").destroy(true);
+		dijit.byId("treeMenu").destroy(true);
+		dijit.byId("organization").destroy(true);
+		dijit.byId("individual").destroy(true);
+		dijit.byId("perspective").destroy(true);
+		dijit.byId("objective").destroy(true);
+		dijit.byId("measure").destroy(true);
+		dijit.byId("linkedMeasure").destroy(true);
+		dijit.byId("edit").destroy(true);
+		dijit.byId("editWeight").destroy(true);
+		dijit.byId("delete").destroy(true);
+		dijit.byId("task").destroy(true);
+		dijit.byId("pdpMenu").destroy(true);
+		dijit.byId("report").destroy(true);
+		dijit.byId("dashboard").destroy(true);
+	}
+
 	if(dom.byId('viewRights').innerHTML == 'Administrator')
 	{
+		var treeCreateTimeout = setTimeout(function()
+		{
 		tree = new Tree({
 		model: model,
 		dndController: dndSource,
@@ -1429,6 +1473,13 @@ else pduDbHome();
 		}
 		}, "tree");
 		tree.startup();
+			var ngolaAdmin = setTimeout(function()
+			{
+				postTreeCreation();
+				postTreeCreationTwo();
+				collapseTree();
+			},1000)
+		},30);
 	}
 	else
 	{
@@ -1470,8 +1521,22 @@ else pduDbHome();
 		}
 		}, "tree");
 		tree.startup();
+			var ngolaAppUser = setTimeout(function()
+			{
+				postTreeCreation();
+				postTreeCreationTwo();
+				collapseTree();
+			},1000)
 	}
-	
+	//if(registry.byId("tree")) registry.byId("tree").destroyRecursive();
+}
+/************************************************************************* 
+ End of governmentStore tree function
+ ************************************************************************/
+//treeFunction("bscData");
+
+postTreeCreation = function()
+{
 	tree.on("click",function(object)
 	{
 		switch(mainMenuState)
@@ -1591,10 +1656,9 @@ else pduDbHome();
 			}
 		}
 	});
+}
 
-/************************************************************************* 
- End of governmentStore
- ************************************************************************/
+
  collapseTree = function()
  {
 	 tree.collapseAll();
@@ -2649,1990 +2713,2005 @@ else pduDbHome();
 		registry.byId("newReportDialog").show();
 		//dom.byId("initiativeLinkInput").value = tnName;
 	}
+
+postTreeCreationTwo = function()
+{
+	if(view == "Application")
+	{
+		//Tree Menu
+		tree.on("MouseDown", function(ev,node)
+		{
+			//var tnPersp = dijit.byNode(this.getParent().currentTarget);
+			var here=dijit.getEnclosingWidget(ev.target);
+			this.set('selectedNode',here);
+			kpiGlobalId = here.item.id;
+			//tnPersp = tnPersp.item.type;
 	
-var ngola = setTimeout(function(){
-if(view == "Application")
-{
-	//Tree Menu
-	tree.on("MouseDown", function(ev,node)
-	{
-		//var tnPersp = dijit.byNode(this.getParent().currentTarget);
-		var here=dijit.getEnclosingWidget(ev.target);
-        this.set('selectedNode',here);
-		kpiGlobalId = here.item.id;
-		//tnPersp = tnPersp.item.type;
-
-		if(ev.button == 2 && here.item.type == "perspective")
-		{
-			var interval = setTimeout(function()
+			if(ev.button == 2 && here.item.type == "perspective")
 			{
-				if(mainMenuState == "Scorecards")
+				var interval = setTimeout(function()
 				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "organization")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "table-row");
-					domStyle.set(dom.byId("individual"), "display", "table-row");
-					domStyle.set(dom.byId("perspective"), "display", "table-row");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "objective")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "measure")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-					domStyle.set(dom.byId("cut"), "display", "none");
-
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "individual")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "table-row");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-			//dijit.byId("new").set("label", "New Measure");
-			//dijit.byId("new").delete;
-		}
-		//domStyle.set(dom.byId("organization"), "display", "none");
-	});
-	var treeMenu = new Menu({
-		id: "treeMenu",
-		targetNodeIds: ["tree"],
-		selector: ".dijitTreeNode"
-	});
-	treeMenu.addChild(new MenuItem({
-		id: "organization",
-		label: "New Organization",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "individual",
-		label: "New Individual",
-		iconClass: "dijitIconFile",
-		onClick: onIndividualAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "perspective",
-		label: "New Perspective",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "objective",
-		label: "New Objective",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "measure",
-		label: "New Measure",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "linkedMeasure",
-		label: "Linked Measure",
-		iconClass: "dijitIconFile",
-		onClick: addLinkedMeasure
-	}) );
-	treeMenu.addChild(new MenuSeparator());
-	treeMenu.addChild(new MenuItem({
-		id: "edit",
-		label: "Edit",
-		iconClass: "dijitIconEditTask",
-		onClick: onTreeItemEdit
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "editWeight",
-		label: "Edit Weights",
-		iconClass: "dijitIconEdit",
-		onClick: editWeights
-	}) );
-	/*
-	treeMenu.addChild(new MenuItem({
-		id: "copy",
-		label: "Copy",
-		iconClass: "dijitIconCopy",
-		onClick: onTreeItemCopy
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "cut",
-		label: "Cut",
-		iconClass: "dijitIconCut",
-		//onClick: onTreeItemAdd
-	}) );*/
-	treeMenu.addChild(new MenuItem({
-		id: "delete",
-		label: "Delete",
-		iconClass: "dijitIconDelete",
-		onClick: onTreeItemDelete
-	}) );
-
-	//*************************************************************
-	//initiative menu
-	treeMenu.addChild(new MenuItem({
-		id: "task",
-		label: "Add Initiative",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemInitiative
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "pdpMenu",
-		label: "Add Personal Development Plan",
-		iconClass: "dijitIconFile",
-		onClick: onPdpAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "report",
-		label: "Add Report",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemReport
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "dashboard",
-		label: "Add Dashboard",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-
-	treeMenu.startup();
-	//End of Tree Menu
-	//@@@**********************************************************@@@
-}
-else if(view == "False")
-{
-	//console.log("view == False");
-	//@@@**********************************************************@@@
-	//Tree Menu
-	tree.on("MouseDown", function(ev,node)
-	{
-		//var tnPersp = dijit.byNode(this.getParent().currentTarget);
-
-		var here=dijit.getEnclosingWidget(ev.target);
-        this.set('selectedNode',here);
-		kpiGlobalId = here.item.id;
-		//tnPersp = tnPersp.item.type;
-
-		if(ev.button == 2 && here.item.type == "perspective")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("editWeight"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "table-row");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "organization")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "table-row");
-					domStyle.set(dom.byId("individual"), "display", "table-row");
-					domStyle.set(dom.byId("perspective"), "display", "table-row");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("editWeight"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "table-row");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-			//domConstruct.destroy('jaribio');
-		}
-		else if(ev.button == 2 && here.item.type == "objective")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("editWeight"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "table-row");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "measure")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("editWeight"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "table-row");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-					domStyle.set(dom.byId("cut"), "display", "none");
-
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-		else if(ev.button == 2 && here.item.type == "individual")
-		{
-			var interval = setTimeout(function()
-			{
-				if(mainMenuState == "Scorecards")
-				{
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "table-row");
-					domStyle.set(dom.byId("measure"), "display", "table-row");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
-					domStyle.set(dom.byId("edit"), "display", "table-row");
-					domStyle.set(dom.byId("editWeight"), "display", "table-row");
-					domStyle.set(dom.byId("delete"), "display", "table-row");
-				}
-				else if(mainMenuState == "Initiatives")
-				{
-					domStyle.set(dom.byId("task"), "display", "table-row");
-					domStyle.set(dom.byId("pdpMenu"), "display", "table-row");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Dashboards")
-				{
-					domStyle.set(dom.byId("dashboard"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("report"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-				else if(mainMenuState == "Reports")
-				{
-					domStyle.set(dom.byId("report"), "display", "table-row");
-					domStyle.set(dom.byId("task"), "display", "none");
-					domStyle.set(dom.byId("pdpMenu"), "display", "none");
-					domStyle.set(dom.byId("dashboard"), "display", "none");
-					domStyle.set(dom.byId("organization"), "display", "none");
-					domStyle.set(dom.byId("individual"), "display", "none");
-					domStyle.set(dom.byId("perspective"), "display", "none");
-					domStyle.set(dom.byId("objective"), "display", "none");
-					domStyle.set(dom.byId("measure"), "display", "none");
-					domStyle.set(dom.byId("linkedMeasure"), "display", "none");
-					domStyle.set(dom.byId("edit"), "display", "none");
-					domStyle.set(dom.byId("editWeight"), "display", "none");
-					domStyle.set(dom.byId("delete"), "display", "none");
-				}
-			},180);
-		}
-	});
-	var treeMenu = new Menu({
-		id: "treeMenu",
-		targetNodeIds: ["tree"],
-		selector: ".dijitTreeNode"
-	});
-	treeMenu.addChild(new MenuItem({
-		id: "organization",
-		label: "New Organization",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "individual",
-		label: "New Individual",
-		iconClass: "dijitIconFile",
-		onClick: onIndividualAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "perspective",
-		label: "New Perspective",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "objective",
-		label: "New Objective",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "measure",
-		label: "New Measure",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "linkedMeasure",
-		label: "Linked Measure",
-		iconClass: "dijitIconFile",
-		onClick: addLinkedMeasure
-	}) );
-	treeMenu.addChild(new MenuSeparator());
-	treeMenu.addChild(new MenuItem({
-		id: "edit",
-		label: "Edit",
-		iconClass: "dijitIconEditTask",
-		onClick: onTreeItemEdit
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "editWeight",
-		label: "Edit Weights",
-		iconClass: "dijitIconEdit",
-		onClick: editWeights
-	}) );
-	/*
-	treeMenu.addChild(new MenuItem({
-		id: "copy",
-		label: "Copy",
-		iconClass: "dijitIconCopy",
-		onClick: onTreeItemCopy
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "cut",
-		label: "Cut",
-		iconClass: "dijitIconCut",
-		//onClick: onTreeItemAdd
-	}) );*/
-	treeMenu.addChild(new MenuItem({
-		id: "delete",
-		label: "Delete",
-		iconClass: "dijitIconDelete",
-		onClick: onTreeItemDelete
-	}) );
-
-	//*************************************************************
-	//initiative menu
-	treeMenu.addChild(new MenuItem({
-		id: "task",
-		label: "Add Initiative",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemInitiative
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "pdpMenu",
-		label: "Add Personal Development Plan",
-		iconClass: "dijitIconFile",
-		onClick: onPdpAdd
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "report",
-		label: "Add Report",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemReport
-	}) );
-	treeMenu.addChild(new MenuItem({
-		id: "dashboard",
-		label: "Add Dashboard",
-		iconClass: "dijitIconFile",
-		onClick: onTreeItemAdd
-	}) );
-
-	treeMenu.startup();
-	//End of Tree Menu
-	//@@@**********************************************************@@@
-}
-else
-{
-	console.log("view == True");
-	//do nothing. don't show menu for viewers.
-}
-},2000)
-
-
-	toEmail = function()
-	{
-		//alert("To Email");
-		//dojo.byId("displayReportCopy").innerHTML = win.body().innerHTML;
-		/*var emailData = dom.byId("reportTitle").innerHTML + dom.byId("displayReport").innerHTML;
-		//alert(emailData);
-		request.post("../mailer/examples/mail2.php",
-		{
-			//handleAs: "json",
-			data:{
-				emailData: emailData
-				}
-		}).then(function(emailStatus)
-		{
-			//alert(emailStatus);
-
-		});*/
-	}
-	toPrint = function()
-	{
-		dijit.byId("leftCol").toggle(); //close the ExpandoPane for center contentPane to fit entire window. LTK 18May21 1537Hrs.
-		
-		var leftCol = setTimeout(function()
-		{
-			window.print();	
-		},600);//Wait for the panes to resize before printing.
-		var leftColTwo = setTimeout(function()
-		{
-			dijit.byId("leftCol").toggle();	
-		},1200);//reset while print dialog is still open.	
-	}
-	toPDF = function()
-	{
-		//alert("to PDF");
-		/*var pdfData = dom.byId("reportTitle").innerHTML + dom.byId("displayReport").innerHTML;
-		//var pdfData = dom.byId("appLayout").innerHTML;
-		request.post("lab/toPdf.php",
-		{
-			//handleAs: "json",
-			data:{
-				pdfData: pdfData
-				}
-		}).then(function(pdfName)
-		{
-			window.open(pdfName);
-			//window.location.href = "somepage.php?";
-		});*/
-	}
-	getBookmarkName = function()
-	{
-		dijit.byId("bookmarkDialog").show();
-	}
-	renameBookMark = function()
-	{
-		request.post("layout/delete-bookmark.php",{
-		handleAs: "json",
-		data: {
-			bookMarkId: dom.byId("bookMarkId").innerHTML,
-			action: "rename",
-			newName: dom.byId('bookmarkRenameInput').value
-		}
-		}).then(function()
-		{
-			//bookmark rename message
-			bookMarks();
-		})
-	}
-	toBookmark = function()
-	{
-		dijit.byId("bookmarkDialog").hide();
-		var userId = dom.byId('userIdJs').innerHTML;
-		//alert("Book Mark: "+ kpiGlobalId + " - " + kpiGlobalType + " - " + mainMenuState + " - " + userId);
-		if(kpiGlobalId != undefined && kpiGlobalType != undefined && mainMenuState != undefined && userId != undefined)
-		{
-			if(kpiGlobalType == "initiative") kpiGlobalId = dom.byId("selectedElement").innerHTML;
-			if(kpiGlobalType == "report") kpiGlobalId = selectedReport;
-			if(mainMenuState == "Strategy Map") kpiGlobalId = "map";
-			if(mainMenuState == "Organizational Structure - Finance") kpiGlobalId = "orgStructure";
-			request.post("layout/save-bookmark.php",
-			{
-				//handleAs: "json",
-				data:{
-					userId: userId,
-					kpiGlobalId: kpiGlobalId,
-					kpiGlobalType: kpiGlobalType,
-					mainMenuState: mainMenuState,
-					bookMarkName: dom.byId("bookmarkNameInput").value
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
 					}
-			}).then(function()
-			{
-				//window.open(pdfName);
-				//window.location.href = "somepage.php?";
-			});
-		}
-	}
-	// a menu item selection handler
-	var onItemSelect = function(event){
-	//dom.byId("lastSelected").innerHTML = this.get("label");
-	var menuItemId = this.get("id");
-	//console.log("Menu id is: " + menuItemId);
-	if(menuItemId == "day")
-	{
-		//alert("Tuko kwa date na id ni: " + menuItemId);
-		//registry.byId("dateDialog").show();
-		//registry.byId("calMonthOnly").value = "null";
-		popup.open({
-            popup: registry.byId("calDayOnly"),
-            around: dom.byId("Periods")
-        });
-		//alert("Tuko kwa date");
-	}
-	else if(menuItemId == "week")
-	{
-		//alert("Tuko kwa date na id ni: " + menuItemId);
-		//registry.byId("dateDialog").show();
-		//registry.byId("calMonthOnly").value = "null";
-		popup.open({
-            popup: registry.byId("calWeekOnly"),
-            around: dom.byId("Periods")
-        });
-		//alert("Tuko kwa date");
-	}
-	else if(menuItemId == "month")
-	{
-		//alert("Tuko kwa date na id ni: " + menuItemId);
-		//registry.byId("dateDialog").show();
-		//registry.byId("calMonthOnly").value = "null";
-		popup.open({
-            popup: registry.byId("calMonthOnly"),
-            around: dom.byId("Periods")
-        });
-		//alert("Tuko kwa date");
-	}
-	else if(menuItemId == "quarter")
-	{
-		//alert("Tuko kwa date na id ni: " + menuItemId);
-		//registry.byId("dateDialog").show();
-		//registry.byId("calMonthOnly").value = "null";
-		popup.open({
-            popup: registry.byId("calQuarterOnly"),
-            around: dom.byId("Periods")
-        });
-		//alert("Tuko kwa date");
-	}
-	else if(menuItemId == "halfYear")
-	{
-		popup.open({
-            popup: registry.byId("calHalfYearOnly"),
-            around: dom.byId("Periods")
-        });
-		//alert("Tuko kwa date");
-	}
-	else if(menuItemId == "year")
-	{
-		//alert("Tuko kwa date na id ni: " + menuItemId);
-		//registry.byId("dateDialog").show();
-		//registry.byId("calMonthOnly").value = "null";
-		popup.open({
-            popup: registry.byId("calYearOnly"),
-            around: dom.byId("Periods")
-        });
-	}
-	onCalendarChange = function()//Refresh Main Page Content
-	{
-		switch(mainMenuState)
-		{
-			case "Scorecards":
-			{
-				updateChart();
-				break;	
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
 			}
-			case "Personal Dashboard": //Adding the ability of the Personal Dashboard to show previous years. Should be applicable to all daashboards and reports. LTK 16May2021 1544Hrs
+			else if(ev.button == 2 && here.item.type == "organization")
 			{
-				indPerformance();//Not sure this function can be accessed from here but let's see... It could :-) LTK 16May2021 1532Hrs
-				var appraisalDateWait = setTimeout(function()
+				var interval = setTimeout(function()
 				{
-					var monthsArray = [];
-					monthsArray["01"] = "January";
-					monthsArray["02"] = "February";
-					monthsArray["03"] = "March";
-					monthsArray["04"] = "April";
-					monthsArray["05"] = "May";
-					monthsArray["06"] = "June";
-					monthsArray["07"] = "July";
-					monthsArray["08"] = "August";
-					monthsArray["09"] = "September";
-					monthsArray["10"] = "October";
-					monthsArray["11"] = "November";
-					monthsArray["12"] = "December";
-					var appraisalYear = globalDate.substring(0, 4);
-					var appraisalMonth = globalDate.slice(-2)
-					var appraisalDate = monthsArray[appraisalMonth] + " " + appraisalYear;
-					dom.byId("appraisalDate").innerHTML = appraisalDate; //Showing relevant appraisal date. LTK 23Aug2021 0833Hrs
-				},330);
-				break;	
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "table-row");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("perspective"), "display", "table-row");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
 			}
-			case "Accent Usage":
+			else if(ev.button == 2 && here.item.type == "objective")
 			{
-				accentUsage();
-				break;	
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
 			}
-		}	
-	}
-	closeDay = function()
-	{
-		//alert(registry.byId("calMonthOnly").value);
-		popup.close(registry.byId("calDayOnly"));
-		var newDateLabel = registry.byId("calDayOnly").value;
-		var phpDateLabel = newDateLabel;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"dd-MMM-yyyy"
-							});
-		//alert(newDateLabel);
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "days";
-		phpDateLabel = locale.format(phpDateLabel, {
-							selector: "date",
-							datePattern:"yyyy-MM-dd"
-							});
-		globalDate = phpDateLabel;
-		onCalendarChange();//Refresh Main Page Content. LTK 27 June 2021, 0036hrs
-	}
-	closeWeek = function()
-	{
-		//alert(registry.byId("calMonthOnly").value);
-		popup.close(registry.byId("calWeekOnly"));
-		var newDateLabel = registry.byId("calWeekOnly").value;
-		var phpDateLabel = newDateLabel;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"MMM-yyyy"
-							});
-		//alert(newDateLabel);
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "weeks";
-		phpDateLabel = locale.format(phpDateLabel, {
-							selector: "date",
-							datePattern:"yyyy-MM"
-							});
-		globalDate = phpDateLabel;
-		onCalendarChange();
-	}
-	closeMonth = function()
-	{
-		//alert(registry.byId("calMonthOnly").value);
-		popup.close(registry.byId("calMonthOnly"));
-		var newDateLabel = registry.byId("calMonthOnly").value;
-		var phpDateLabel = newDateLabel;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"MMM-yyyy"
-							});
-		//alert(newDateLabel);
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "months";
-		phpDateLabel = locale.format(phpDateLabel, {
-							selector: "date",
-							datePattern:"yyyy-MM"
-							});
-		globalDate = phpDateLabel;
-		onCalendarChange();
-	}
-	closeQuarter = function()
-	{
-		popup.close(registry.byId("calQuarterOnly"));
-		//alert("We here? "+registry.byId("calQuarterOnly").value);
-		var newDateLabel = registry.byId("calQuarterOnly").value;
-		var phpDateLabel = newDateLabel;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"qQ"
-							});
-		switch(newDateLabel)
-		{
-			case "01":
+			else if(ev.button == 2 && here.item.type == "measure")
 			{
-				newDateLabel = "Quarter 1";
-				break;
-			}
-			case "02":
-			{
-				newDateLabel = "Quarter 2";
-				break;
-			}
-			case "03":
-			{
-				newDateLabel = "Quarter 3";
-				break;
-			}
-			case "04":
-			{
-				newDateLabel = "Quarter 4";
-				break;
-			}
-		}
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "quarters";
-		phpDateLabel = locale.format(phpDateLabel, {
-							selector: "date",
-							datePattern:"yyyy-MM"
-							});
-		globalDate = phpDateLabel;
-		onCalendarChange();
-	}
-	closeHalfYear = function()
-	{
-		popup.close(registry.byId("calHalfYearOnly"));
-		var newDateLabel = registry.byId("calHalfYearOnly").value;
-		var phpDateLabel = newDateLabel;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"qQ"
-							});
-
-		switch(newDateLabel)
-		{
-			case "01":
-			{
-				newDateLabel = "Half Year 1";
-				break;
-			}
-			case "02":
-			{
-				newDateLabel = "Half Year 1";
-				break;
-			}
-			case "03":
-			{
-				newDateLabel = "Half Year 2";
-				break;
-			}
-			case "04":
-			{
-				newDateLabel = "Half Year 2";
-				break;
-			}
-		}
-
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "halfYears";
-		phpDateLabel = locale.format(phpDateLabel, {
-							selector: "date",
-							datePattern:"yyyy-MM"
-							});
-		globalDate = phpDateLabel;
-		onCalendarChange();
-	}
-	closeYear = function()
-	{
-		popup.close(registry.byId("calYearOnly"));
-		var newDateLabel = registry.byId("calYearOnly").value;
-		newDateLabel = locale.format(newDateLabel, {
-							selector: "date",
-							datePattern:"yyyy"
-							});
-		dojoDisplayDate.set("label", newDateLabel);
-		period = "years";
-		globalDate = newDateLabel;
-		onCalendarChange();
-	}
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+						domStyle.set(dom.byId("cut"), "display", "none");
 	
-	//var menuItem = this.get("label");
-	var menuItemId = this.get("id");
-	if(menuItemId == "home")
-	{
-		//console.log(dojo.byId('viewRights').innerHTML);
-		if(dojo.byId('viewRights').innerHTML == 'Viewer') pduDbProjects();
-		else pduDbHome();
-		domStyle.set(dom.byId("userSettings"), "display", "none");
-		domStyle.set(dom.byId("coreValues"), "display", "none");
-		domStyle.set(dom.byId("tree"), "display", "none");
-		domStyle.set(dom.byId("definitionTables"), "display", "none");
-		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');	
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+			}
+			else if(ev.button == 2 && here.item.type == "individual")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "table-row");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+	
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+				//dijit.byId("new").set("label", "New Measure");
+				//dijit.byId("new").delete;
+			}
+			//domStyle.set(dom.byId("organization"), "display", "none");
+		});
+		var treeMenu = new Menu({
+			id: "treeMenu",
+			targetNodeIds: ["tree"],
+			selector: ".dijitTreeNode"
+		});
+		treeMenu.addChild(new MenuItem({
+			id: "organization",
+			label: "New Organization",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "individual",
+			label: "New Individual",
+			iconClass: "dijitIconFile",
+			onClick: onIndividualAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "perspective",
+			label: "New Perspective",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "objective",
+			label: "New Objective",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "measure",
+			label: "New Measure",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "linkedMeasure",
+			label: "Linked Measure",
+			iconClass: "dijitIconFile",
+			onClick: addLinkedMeasure
+		}) );
+		treeMenu.addChild(new MenuSeparator());
+		treeMenu.addChild(new MenuItem({
+			id: "edit",
+			label: "Edit",
+			iconClass: "dijitIconEditTask",
+			onClick: onTreeItemEdit
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "editWeight",
+			label: "Edit Weights",
+			iconClass: "dijitIconEdit",
+			onClick: editWeights
+		}) );
+		/*
+		treeMenu.addChild(new MenuItem({
+			id: "copy",
+			label: "Copy",
+			iconClass: "dijitIconCopy",
+			onClick: onTreeItemCopy
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "cut",
+			label: "Cut",
+			iconClass: "dijitIconCut",
+			//onClick: onTreeItemAdd
+		}) );*/
+		treeMenu.addChild(new MenuItem({
+			id: "delete",
+			label: "Delete",
+			iconClass: "dijitIconDelete",
+			onClick: onTreeItemDelete
+		}) );
+	
+		//*************************************************************
+		//initiative menu
+		treeMenu.addChild(new MenuItem({
+			id: "task",
+			label: "Add Initiative",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemInitiative
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "pdpMenu",
+			label: "Add Personal Development Plan",
+			iconClass: "dijitIconFile",
+			onClick: onPdpAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "report",
+			label: "Add Report",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemReport
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "dashboard",
+			label: "Add Dashboard",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+	
+		treeMenu.startup();
+		//End of Tree Menu
+		//@@@**********************************************************@@@
 	}
-	else if(menuItemId == "home_previous")
+	else if(view == "False")
 	{
-		//var bc = dom.byId("appLayout");
-		mainMenuState = "Home";
-		if(dojo.byId('viewRights').innerHTML == 'Board')
+		//console.log("view == False");
+		//@@@**********************************************************@@@
+		//Tree Menu
+		tree.on("MouseDown", function(ev,node)
 		{
-			displayBookmark('report','Reports','19','Scorecard Summary');
+			//var tnPersp = dijit.byNode(this.getParent().currentTarget);
+	
+			var here=dijit.getEnclosingWidget(ev.target);
+			this.set('selectedNode',here);
+			kpiGlobalId = here.item.id;
+			//tnPersp = tnPersp.item.type;
+	
+			if(ev.button == 2 && here.item.type == "perspective")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+	
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+			}
+			else if(ev.button == 2 && here.item.type == "organization")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "table-row");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("perspective"), "display", "table-row");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+	
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+				//domConstruct.destroy('jaribio');
+			}
+			else if(ev.button == 2 && here.item.type == "objective")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+	
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+			}
+			else if(ev.button == 2 && here.item.type == "measure")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+	
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+						domStyle.set(dom.byId("cut"), "display", "none");
+	
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+			}
+			else if(ev.button == 2 && here.item.type == "individual")
+			{
+				var interval = setTimeout(function()
+				{
+					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "Initiatives")
+					{
+						domStyle.set(dom.byId("task"), "display", "table-row");
+						domStyle.set(dom.byId("pdpMenu"), "display", "table-row");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Dashboards")
+					{
+						domStyle.set(dom.byId("dashboard"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "Reports")
+					{
+						domStyle.set(dom.byId("report"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "none");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "none");
+						domStyle.set(dom.byId("editWeight"), "display", "none");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+				},180);
+			}
+		});
+		var treeMenu = new Menu({
+			id: "treeMenu",
+			targetNodeIds: ["tree"],
+			selector: ".dijitTreeNode"
+		});
+		treeMenu.addChild(new MenuItem({
+			id: "organization",
+			label: "New Organization",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "individual",
+			label: "New Individual",
+			iconClass: "dijitIconFile",
+			onClick: onIndividualAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "perspective",
+			label: "New Perspective",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "objective",
+			label: "New Objective",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "measure",
+			label: "New Measure",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "linkedMeasure",
+			label: "Linked Measure",
+			iconClass: "dijitIconFile",
+			onClick: addLinkedMeasure
+		}) );
+		treeMenu.addChild(new MenuSeparator());
+		treeMenu.addChild(new MenuItem({
+			id: "edit",
+			label: "Edit",
+			iconClass: "dijitIconEditTask",
+			onClick: onTreeItemEdit
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "editWeight",
+			label: "Edit Weights",
+			iconClass: "dijitIconEdit",
+			onClick: editWeights
+		}) );
+		/*
+		treeMenu.addChild(new MenuItem({
+			id: "copy",
+			label: "Copy",
+			iconClass: "dijitIconCopy",
+			onClick: onTreeItemCopy
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "cut",
+			label: "Cut",
+			iconClass: "dijitIconCut",
+			//onClick: onTreeItemAdd
+		}) );*/
+		treeMenu.addChild(new MenuItem({
+			id: "delete",
+			label: "Delete",
+			iconClass: "dijitIconDelete",
+			onClick: onTreeItemDelete
+		}) );
+	
+		//*************************************************************
+		//initiative menu
+		treeMenu.addChild(new MenuItem({
+			id: "task",
+			label: "Add Initiative",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemInitiative
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "pdpMenu",
+			label: "Add Personal Development Plan",
+			iconClass: "dijitIconFile",
+			onClick: onPdpAdd
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "report",
+			label: "Add Report",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemReport
+		}) );
+		treeMenu.addChild(new MenuItem({
+			id: "dashboard",
+			label: "Add Dashboard",
+			iconClass: "dijitIconFile",
+			onClick: onTreeItemAdd
+		}) );
+	
+		treeMenu.startup();
+		//End of Tree Menu
+		//@@@**********************************************************@@@
+	}
+	else
+	{
+		console.log("view == True");
+		//do nothing. don't show menu for viewers.
+	}
+}
+/*var ngola = setTimeout(function()
+{
+
+},2000)*/
+
+bscMenuCase = function()
+{
+	//you may need to put the content in the case in a function if you are to use the same to the Performance Contract
+	/*		
+	request.post("reports/get-report-elements.php",{
+	handleAs: "json"
+	}).then(function(data)
+	{
+		var reportCounter = 0;
+		while(reportCounter < data.length)
+		{
+			var trial = tree.getDomNodeById(data[reportCounter].id);
+			trial.labelNode.style.color = "black";
+			trial.labelNode.style.fontWeight = "normal";
+			//trial.labelNode.style.backgroundColor = "green";
+			reportCounter++;
 		}
-		else
+	});
+	//being lazy here - running these two files yet one could have clicked weither report or initiative. refine this when the mind wakes up.
+	request.post("initiatives/get-initiative-elements.php",{
+	handleAs: "json"
+	}).then(function(data)
+	{
+		var initiativeCounter = 0;
+		while(initiativeCounter < data.length)
 		{
-			cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"dashboards/indDashboard.php"
-			//href:"../dojox/calendar/tests/calendar.html"
-			});
-			cp.placeAt("appLayout");
+			var trial = tree.getDomNodeById(data[initiativeCounter].id);
+			trial.labelNode.style.color = "black";
+			trial.labelNode.style.fontWeight = "normal";
+			//trial.labelNode.style.backgroundColor = "green";
+			initiativeCounter++;
 		}
-			domStyle.set(dom.byId("userSettings"), "display", "none");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "none");
-			domStyle.set(dom.byId("definitionTables"), "display", "none");
-			domStyle.set(dom.byId("homeLinks"), "display", "block");
-			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			dojo.byId("dynamicMenu").innerHTML = "";
-
-			
-			domConstruct.destroy("divIndGroup1");
-
-			domConstruct.destroy("divIndGauge");
-			domConstruct.destroy("divIndWeight");
-			domConstruct.destroy("myIndGauge");
-
-			domConstruct.destroy("divIndGroup2");
-			domConstruct.destroy("divIndDescription");
-			domConstruct.destroy("divIndPhoto");
-			domConstruct.destroy("indPhoto");
-			domConstruct.destroy("indDescription");
-
-			domConstruct.destroy("divIndChart");
-			domConstruct.destroy("indChart");
-
-			domConstruct.destroy("divIndInitiatives");
-			domConstruct.destroy("initiativeIndContent");
-
-			domConstruct.destroy("divIndCascadedTo");
-			domConstruct.destroy("cascadedIndContent");
-
-			domConstruct.destroy("divIndDevelopmentPlan");
-			domConstruct.destroy("IndPdp");
-
-			domConstruct.destroy("divIndNotes");
-			domConstruct.destroy("indInterpretation");
-			domConstruct.destroy("divIndNotes2");
-			domConstruct.destroy("indWayForward");
-
-			domConstruct.destroy("scrollIntoView");
-	}
-	else if(menuItemId == "bsc" || menuItemId == "performanceContract")
-	{
-
-		tree.collapseAll();//starting the tree on expand mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
-		
-		request.post("reports/get-report-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var reportCounter = 0;
-			while(reportCounter < data.length)
-			{
-				var trial = tree.getDomNodeById(data[reportCounter].id);
-				trial.labelNode.style.color = "black";
-				trial.labelNode.style.fontWeight = "normal";
-				//trial.labelNode.style.backgroundColor = "green";
-				reportCounter++;
-			}
-		});
-		//being lazy here - running these two files yet one could have clicked weither report or initiative. refine this when the mind wakes up.
-		request.post("initiatives/get-initiative-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var initiativeCounter = 0;
-			while(initiativeCounter < data.length)
-			{
-				var trial = tree.getDomNodeById(data[initiativeCounter].id);
-				trial.labelNode.style.color = "black";
-				trial.labelNode.style.fontWeight = "normal";
-				//trial.labelNode.style.backgroundColor = "green";
-				initiativeCounter++;
-			}
-		});
-		if(menuItemId == "performanceContract") mainMenuState = "performanceContract";
-		else mainMenuState = "Scorecards";
-		
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"scorecards/highScorecard.php"
-			//style:"overflow:auto"
-			});
-			cp.placeAt("appLayout");
-			domStyle.set(dom.byId("userSettings"), "display", "none");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "block");
-			domStyle.set(dom.byId("definitionTables"), "display", "none");
-			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			dojo.byId("dynamicMenu").innerHTML = "";
-			if(dijit.byId("updateMeasureDialog")){
-			dijit.byId("updateMeasureDialog").destroy(true);
-			//dijit.byId("updateMeasureDialog").destroyRecursive();
-			}
-			//dijit.byId("updateMeasureDialog").destroyRecursive();
-			domConstruct.destroy('divGroup1');
-			domConstruct.destroy("divIntro");
-			domConstruct.destroy("plot");
-			domConstruct.destroy("myGauge");
-			domConstruct.destroy('divChart');
-			domConstruct.destroy('chartDiv');
-			domConstruct.destroy('notes');
-			domConstruct.destroy('objectiveName');
-			domConstruct.destroy('objectiveDescription');
-			domConstruct.destroy('objectiveOwner');
-			domConstruct.destroy('objectiveTeam');
-			domConstruct.destroy('divGroup2');
-			domConstruct.destroy('divMeasures');
-			domConstruct.destroy('divInitiatives');
-			domConstruct.destroy('divCascadedTo');
-			domConstruct.destroy('divDevelopmentPlan');
-			domConstruct.destroy('divCoreValues');
-			domConstruct.destroy('divNotes');
-			domConstruct.destroy('divNotes2');
-			domConstruct.destroy('divMeasureNotes');//19th January 2017. Incorporating a module to handle PC notes.
-			domConstruct.destroy('measureNotes');
-			domConstruct.destroy('scoreGauge4');
-			domConstruct.destroy('divChartType');
-			domConstruct.destroy('chartLegend');
-			domConstruct.destroy('previousCheckbox');
-			domConstruct.destroy('msgContent');
-			domConstruct.destroy('bodyContent');
-			domConstruct.destroy('cascadedContent');
-			domConstruct.destroy('pdp');
-			domConstruct.destroy('coreValuesScorecardPage');
-			domConstruct.destroy('interpretation');
-			domConstruct.destroy('wayForward');
-			if(dijit.byId("divConversation")) dijit.byId("divConversation").destroyRecursive();
-			if(dijit.byId("divConversation")) dijit.byId("divConversation").destroy(true);
-			// Properly destroy conversation widgets
-			if(registry.byId("divAdvocacyConversation")) {
-				registry.byId("divAdvocacyConversation").destroyRecursive();
-			}
-			if(registry.byId("divInitiativeConversation")) {
-				registry.byId("divInitiativeConversation").destroyRecursive();
-			}
-			if(registry.byId("divScorecardConversation")) {
-				registry.byId("divScorecardConversation").destroyRecursive();
-			}
-			// Clean up DOM elements after widget destruction
-			domConstruct.destroy('divAdvocacyConversation');
-			domConstruct.destroy('divInitiativeConversation');
-			domConstruct.destroy('divScorecardConversation');
-			domConstruct.destroy('conversationHistory');
-			domConstruct.destroy('conversation');
-			domConstruct.destroy('submitId');
-			if(dijit.byId("kpiAuditTrailDialog")) dijit.byId("kpiAuditTrailDialog").destroyRecursive();
-			if(dijit.byId("kpiAuditTrailDialog")) dijit.byId("kpiAuditTrailDialog").destroy(true);
-			domConstruct.destroy('kpiAuditContent');
-			domConstruct.destroy('scrollIntoView');
-			if(dijit.byId("csvImport")) dijit.byId("csvImport").destroy(true);
-			if(dijit.byId("newCsvFileDialog")) dijit.byId("newCsvFileDialog").destroy(true);
-			domConstruct.destroy('csvFormat');
-			domConstruct.destroy('csvErrors');
-			domConstruct.destroy('gridContainer');
-			if(dijit.byId("csvSaveButton")) dijit.byId("csvSaveButton").destroy(true);//domConstruct.destroy('csvSaveButton');
-			domConstruct.destroy('csvForm');
-			if(dijit.byId("csvUploader")) dijit.byId("csvUploader").destroy(true);//domConstruct.destroy('csvUploader');
-			domConstruct.destroy('hiddenKpiId');
-			if(dijit.byId("csvFiles")) dijit.byId("csvFiles").destroy(true);//domConstruct.destroy('csvFiles');
-			if(dijit.byId("chartSlider")) dijit.byId("chartSlider").destroy(true);
-			
-			if(dijit.byId("bulkMeasureDialogGoal"))
-				dijit.byId("bulkMeasureDialogGoal").destroyRecursive();
-			if(dijit.byId("bulkMeasureDialogGoal")) dijit.byId("bulkMeasureDialogGoal").destroy(true);	
-				domConstruct.destroy("gridKpi");
-			
-			if(dijit.byId("bulkMeasureDialog2"))
-				dijit.byId("bulkMeasureDialog2").destroyRecursive();
-			if(dijit.byId("bulkMeasureDialog2")) dijit.byId("bulkMeasureDialog2").destroy(true);	
-			domConstruct.destroy("gridKpi2");
-			
-			if(dijit.byId("bulkMeasureDialog3"))
-				dijit.byId("bulkMeasureDialog3").destroyRecursive();
-			if(dijit.byId("bulkMeasureDialog3")) dijit.byId("bulkMeasureDialog3").destroy(true);
-			domConstruct.destroy("gridKpi3");
-			
-			if(dijit.byId("bulkMeasureDialog4"))
-				dijit.byId("bulkMeasureDialog4").destroyRecursive();
-			if(dijit.byId("bulkMeasureDialog4")) dijit.byId("bulkMeasureDialog4").destroy(true);
-			domConstruct.destroy("gridKpi4");
-			//domConstruct.destroy('updateButton');
-			//dijit.byId('kpiAuditTrailButton').destroy();
-			//if(dojo.byId("divConversation") != null) dijit.byId('divConversation').destroyRecursive();
-	}
-	else if(menuItemId == "initiatives")
-	{
-		//tree.expandAll();
-		request.post("reports/get-report-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var reportCounter = 0;
-			while(reportCounter < data.length)
-			{
-				var trial = tree.getDomNodeById(data[reportCounter].id);
-				trial.labelNode.style.color = "black";
-				trial.labelNode.style.fontWeight = "normal";
-				//trial.labelNode.style.backgroundColor = "green";
-				reportCounter++;
-			}
-		});
-
-		request.post("initiatives/get-initiative-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var initiativeCounter = 0;
-			while(initiativeCounter < data.length)
-			{
-				//console.log("linkedObject id = " + data[initiativeCounter].id);
-				var trial = tree.getDomNodeById(data[initiativeCounter].id);
-				trial.labelNode.style.color = "#006400";
-				trial.labelNode.style.fontWeight = "bold";
-				//trial.labelNode.style.backgroundColor = "green";
-				initiativeCounter++;
-			}
-			collapseTree();
-		});
-
-		//var bc = dom.byId("appLayout");
-		mainMenuState = "Initiatives";
-		cp = new ContentPane({
-			href:"initiatives/initiative.php",
-			region: "center"
-			//style: "width: 100px; height:200px; position:absolute; left: 1px; "
-			});
-			cp.placeAt("appLayout");
-			
-			//dijit.byId('initiativeGauge').destroyRecursive();
-			//dijit.byId('initiativeStatusGauge').destroyRecursive();
-			//domConstruct.destroy("newInitiativeDialog");
-			domStyle.set(dom.byId("userSettings"), "display", "none");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "block");
-			domStyle.set(dom.byId("definitionTables"), "display", "none");
-			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			dojo.byId("dynamicMenu").innerHTML = "";
-			
-			if(dijit.byId("initiativeListSelect")) dijit.byId("initiativeListSelect").destroy(true);
-			if(dijit.byId("initiativeStartInput")) dijit.byId("initiativeStartInput").destroy(true);
-			if(dijit.byId("newInitiativeManagerInput")) dijit.byId("newInitiativeManagerInput").destroy(true);
-			if(dijit.byId("initiativeManagerInput")) dijit.byId("initiativeManagerInput").destroy(true);
-			if(dijit.byId("initiativeSponsorInput")) dijit.byId("initiativeSponsorInput").destroy(true);
-			if(dijit.byId("initiativeDueInput")) dijit.byId("initiativeDueInput").destroy(true);
-			if(dijit.byId("initiativeCompleteInput")) dijit.byId("initiativeCompleteInput").destroy(true);
-
-			domConstruct.destroy("nav-home-tab"); //LTK 16 March 2021 0751 hours
-			domConstruct.destroy("nav-allInitiatives-tab");
-			domConstruct.destroy("nav-home");
-			domConstruct.destroy("nav-gantt-tab");
-			domConstruct.destroy("nav-gantt");
-			domConstruct.destroy("initiativeNameDiv");
-			domConstruct.destroy("objectImpactedDiv")
-			domConstruct.destroy("archive");
-			domConstruct.destroy("sponsorDiv");
-			domConstruct.destroy("managerDiv");
-			domConstruct.destroy("parentDiv");
-			domConstruct.destroy("deliverableDiv");
-			domConstruct.destroy("scopeDiv");
-			domConstruct.destroy("budgetDiv");
-			domConstruct.destroy("tdDamageColor");
-			domConstruct.destroy("damageDiv");
-			domConstruct.destroy("startDateDiv");
-			domConstruct.destroy("endDateDiv");
-			domConstruct.destroy("completionDateDiv");
-			domConstruct.destroy("initiativeGauge");
-			domConstruct.destroy("statusDiv");//LTK. 25.03.2018 12.45am
-			domConstruct.destroy("percentageCompletionDiv");
-			domConstruct.destroy("statusDetailsDiv");
-			domConstruct.destroy("statusNotesDiv");
-			domConstruct.destroy("testTd");
-			
-			domConstruct.destroy("gantt");
-			// Properly destroy conversation widgets
-			if(registry.byId("divConversation")) {
-				registry.byId("divConversation").destroyRecursive();
-			}
-			if(registry.byId("divAdvocacyConversation")) {
-				registry.byId("divAdvocacyConversation").destroyRecursive();
-			}
-			if(registry.byId("divInitiativeConversation")) {
-				registry.byId("divInitiativeConversation").destroyRecursive();
-			}
-			if(registry.byId("divScorecardConversation")) {
-				registry.byId("divScorecardConversation").destroyRecursive();
-			}
-			// Clean up DOM elements after widget destruction
-			domConstruct.destroy('divConversation');
-			domConstruct.destroy('divAdvocacyConversation');
-			domConstruct.destroy('divInitiativeConversation');
-			domConstruct.destroy('divScorecardConversation');
-			domConstruct.destroy('conversationHistory');
-			domConstruct.destroy('conversation');
-			domConstruct.destroy('submitId');
-
-			domConstruct.destroy("nav-allInitiatives");
-			domConstruct.destroy("table");
-			
-			if(dijit.byId("newInitiativeDialog")) dijit.byId("newInitiativeDialog").destroy(true);
-			domConstruct.destroy("newInitiativeDialog-table");
-			domConstruct.destroy("initiativeName");
-			if(dijit.byId("initiativeNameInput")) dijit.byId("initiativeNameInput").destroy(true);
-			domConstruct.destroy("initiativeDeliverable");
-			domConstruct.destroy("initiativeDeliverableInput");
-			domConstruct.destroy("initiativeScope");
-			if(dijit.byId("scopeInput")) dijit.byId("scopeInput").destroy(true);
-			domConstruct.destroy("initiativeDeliverable");
-			domConstruct.destroy("deliverableStatusInput");
-			domConstruct.destroy("initiativeSponsor");
-			domConstruct.destroy("initiativeSponsorInput");
-			domConstruct.destroy("initiativeManager");
-			domConstruct.destroy("initiativeManagerInput");
-			domConstruct.destroy("initiativeTeam");
-			domConstruct.destroy("initiativeTeamInput");
-			if(dijit.byId("initiativeTeamInput")) dijit.byId("initiativeTeamInput").destroy(true);
-			domConstruct.destroy("teamMembers");
-			domConstruct.destroy("initiativeParent");
-			domConstruct.destroy("initiativeParentInput");
-			if(dijit.byId("initiativeParentInput")) 
-			{
-				dijit.byId("initiativeParentInput").destroyRecursive();
-				if(dijit.byId("initiativeParentInput")) dijit.byId("initiativeParentInput").destroy(true);
-			}
-			domConstruct.destroy("initiativeLink");
-			domConstruct.destroy("initiativeLinkInput");
-			if(dijit.byId("initiativeLinkInput")) 
-			{
-				dijit.byId("initiativeLinkInput").destroyRecursive();
-				if(dijit.byId("initiativeLinkInput")) dijit.byId("initiativeLinkInput").destroy(true);
-			}
-			domConstruct.destroy("initiativeBudget");
-			domConstruct.destroy("initiativeBudgetInput");
-			domConstruct.destroy("initiativeCost");
-			domConstruct.destroy("initiativeCostInput");
-			
-			domConstruct.destroy("initiativeStart");
-			domConstruct.destroy("initiativeStartInput");
-			if(dijit.byId("initiativeStartInput")) dijit.byId("initiativeStartInput").destroy(true);
-			
-			domConstruct.destroy("initiativeDue");
-			domConstruct.destroy("initiativeDueInput");
-			if(dijit.byId("initiativeDueInput")) dijit.byId("initiativeDueInput").destroy(true);
-			
-			domConstruct.destroy("initiativeComplete");
-			domConstruct.destroy("initiativeCompleteInput");
-			if(dijit.byId("initiativeComplete")) dijit.byId("initiativeComplete").destroy(true);
-			
-			domConstruct.destroy("initiativeStatus");
-			domConstruct.destroy("initiativeStatusInput");
-			domConstruct.destroy("initiativeStatusDetails");
-			if(dijit.byId("initiativeStatusDetailsInput")) 
-			{
-				dijit.byId("initiativeStatusDetailsInput").destroyRecursive();
-				if(dijit.byId("initiativeStatusDetailsInput")) dijit.byId("initiativeStatusDetailsInput").destroy(true);
-			}
-			domConstruct.destroy("initiativeNotes");
-			if(dijit.byId("initiativeNotesInput")) dijit.byId("initiativeNotesInput").destroy(true);
-			domConstruct.destroy("percentageCompletion");
-			domConstruct.destroy("percentageCompletionInput");
-			
-			domConstruct.destroy("userListGantt");
-			if(dijit.byId("userListGantt")) 
-			{
-				dijit.byId("userListGantt").destroyRecursive();
-				if(dijit.byId("userListGantt")) dijit.byId("userListGantt").destroy(true);
-			}
-			
-			domConstruct.destroy("nav-pip-tab");
-			domConstruct.destroy("nav-pip");
-			domConstruct.destroy("tablePIP");
-	}
-	else if(menuItemId == "flagshipProjects")
-	{
-		//mainMenuState = "Strategy Map";
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-		href:"pdu_db_home.php"
+	});
+	*/
+	cp = new ContentPane({
+	region: "center",
+	"class": "bpaPrint",
+		href:"scorecards/highScorecard.php"
+		//style:"overflow:auto"
 		});
 		cp.placeAt("appLayout");
 		domStyle.set(dom.byId("userSettings"), "display", "none");
 		domStyle.set(dom.byId("coreValues"), "display", "none");
-		domStyle.set(dom.byId("tree"), "display", "none");
-		domStyle.set(dom.byId("definitionTables"), "display", "none");
-		domStyle.set(dom.byId("homeLinks"), "display", "block");
-		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-		dojo.byId("dynamicMenu").innerHTML = "";
-	}
-	else if(menuItemId == "reports")
-	{
-		mainMenuState = "Reports";
-
-		cp = new ContentPane({
-			region: "center",
-			href:"report.php"
-			});
-		cp.placeAt("appLayout");
-		domStyle.set(dom.byId("userSettings"), "display", "none");
-		domStyle.set(dom.byId("coreValues"), "display", "none");
+		domStyle.set(dom.byId("expandCollapse"), "display", "block");
 		domStyle.set(dom.byId("tree"), "display", "block");
 		domStyle.set(dom.byId("definitionTables"), "display", "none");
 		domStyle.set(dom.byId("homeLinks"), "display", "none");
 		//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
 		domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
 		dojo.byId("dynamicMenu").innerHTML = "";
-		domConstruct.destroy('displayReport');
-		//domConstruct.destroy('redReportName');
-		domConstruct.destroy('tdRedReportName');
-		domConstruct.destroy('selectedObjects');
-		domConstruct.destroy('selectedObjectsIds');
-		domConstruct.destroy('columnsToShow');
-		domConstruct.destroy('columnOrg');
-		domConstruct.destroy('columnOrgScore');
-		domConstruct.destroy('columnPersp');
-		domConstruct.destroy('columnPerspScore');
-		domConstruct.destroy('columnObj');
-		domConstruct.destroy('columnObjScore');
-		domConstruct.destroy('columnKpi');
-		domConstruct.destroy('columnOwner');
-		domConstruct.destroy('columnUpdater');
-		domConstruct.destroy('columnScore');
-		domConstruct.destroy('columnActual');
-		domConstruct.destroy('columnTarget');
-		domConstruct.destroy('columnVariance');
-		domConstruct.destroy('columnPercentVariance');
-		domConstruct.destroy('redFilter');
-		domConstruct.destroy('greyFilter');
-		domConstruct.destroy('greenFilter');
-		domConstruct.destroy('initiativeFilter');
-		domConstruct.destroy('initiativeGroup');
-		domConstruct.destroy('newInitiativeReportDialog');
-		//domConstruct.destroy('initiativeReportName');
-		domConstruct.destroy('tdInitiativeReportName');
-		domConstruct.destroy('selectedInitObjects');
-		domConstruct.destroy('selectedInitObjectsIds');
-		domConstruct.destroy('initColumnsToShow');
-		domConstruct.destroy('initSponsor');
-		domConstruct.destroy('initOwner');
-		domConstruct.destroy('initBudget');
-		domConstruct.destroy('initCost');
-		domConstruct.destroy('initStart');
-		domConstruct.destroy('initDue');
-		domConstruct.destroy('initComplete');
-		domConstruct.destroy('initDeliverable');
-		domConstruct.destroy('initDeliverableStatus');
-		domConstruct.destroy('initParent');
-		domConstruct.destroy('initRedFilter');
-		domConstruct.destroy('initGreyFilter');
-		domConstruct.destroy('initGreenFilter');
-		domConstruct.destroy('tdCascadeReportName');
-		//domConstruct.destroy('cascadeReportName');
-		domConstruct.destroy('selectedCascadeObjects');
-		domConstruct.destroy('selectedCascadeObjectsIds');
-		domConstruct.destroy('organizationsReport');
-		domConstruct.destroy('perspectivesReport');
-		domConstruct.destroy('objectivesReport');
-		domConstruct.destroy('measuresReport');
-		domConstruct.destroy('gridCopyReport');
-		domConstruct.destroy('droppedItems');
-
-		if(dijit.byId("redReportName")) dijit.byId("redReportName").destroy(true);
-		if(dijit.byId("initiativeReportName")) dijit.byId("initiativeReportName").destroy(true);
-		if(dijit.byId("cascadeReportName")) dijit.byId("cascadeReportName").destroy(true);
-		if(dijit.byId("newCustomReportDialog")) dijit.byId("newCustomReportDialog").destroy(true);
-		if(dijit.byId("newReportDialog")) dijit.byId("newReportDialog").destroy(true);
-		if(dijit.byId("newInitiativeReportDialog")) dijit.byId("newInitiativeReportDialog").destroy(true);
-		if(dijit.byId("newCascadeReportDialog")) dijit.byId("newCascadeReportDialog").destroy(true);
-		if(dijit.byId("selectObjectDialog")) dijit.byId("selectObjectDialog").destroy(true);
-
-		request.post("initiatives/get-initiative-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var initiativeCounter = 0;
-			while(initiativeCounter < data.length)
-			{
-				var trial = tree.getDomNodeById(data[initiativeCounter].id);
-				trial.labelNode.style.color = "black";
-				trial.labelNode.style.fontWeight = "normal";
-				//trial.labelNode.style.backgroundColor = "green";
-				initiativeCounter++;
-			}
-		});
-
-		request.post("reports/get-report-elements.php",{
-		handleAs: "json"
-		}).then(function(data)
-		{
-			var reportCounter = 0;
-			while(reportCounter < data.length)
-			{
-				var trial = tree.getDomNodeById(data[reportCounter].id);
-				trial.labelNode.style.color = "#006400";
-				trial.labelNode.style.fontWeight = "bold";
-				//trial.labelNode.style.backgroundColor = "green";
-				reportCounter++;
-			}
-			collapseTree();
-		});
-	}
-	else if(menuItemId == "calendarMenu")
-	{
-		mainMenuState = "Calendar";
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint cpStyles",
-			href:"calendar/index.html"
-			});
-			cp.placeAt("appLayout");
-			domStyle.set(dom.byId("userSettings"), "display", "none");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "none");
-			domStyle.set(dom.byId("homeLinks"), "display", "true");
-			//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			//dojo.byId("dynamicMenu").innerHTML = "";
-			domConstruct.destroy("wrap");
-			domConstruct.destroy("calendar");
-	}
-	else if(menuItemId == "definitionTables")
-	{
-		mainMenuState = "Definition Tables";
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"ddtObj.php"
-			});
-			cp.placeAt("appLayout");
-			domStyle.set(dom.byId("userSettings"), "display", "none");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "none");
-			domStyle.set(dom.byId("definitionTables"), "display", "block");
-			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			dojo.byId("dynamicMenu").innerHTML = "";
-			domConstruct.destroy("objName");
-			domConstruct.destroy("objOwner");
-			domConstruct.destroy("objTeam");
-			domConstruct.destroy("objDescr");
-			domConstruct.destroy("objOutcome");
-			domConstruct.destroy("objFrom");
-			domConstruct.destroy("objTo");
-			domConstruct.destroy("objKpi");
-			domConstruct.destroy("objTarget");
-			domConstruct.destroy("objInitiative");
-			//domConstruct.destroy("objFrom");
-			//domConstruct.destroy("objFrom");
-	}
-	else if(menuItemId == "admin")
-	{
-		mainMenuState = "Admin";
-		//var bc = dom.byId("appLayout");
-
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"admin/account.php"
-			});
-			cp.placeAt("appLayout");
-			//bc.addChild(cp);
-			//bc.startup();
-			domStyle.set(dom.byId("userSettings"), "display", "block");
-			domStyle.set(dom.byId("coreValues"), "display", "none");
-			domStyle.set(dom.byId("tree"), "display", "none");
-			domStyle.set(dom.byId("definitionTables"), "display", "none");
-			domStyle.set(dom.byId("homeLinks"), "display", "none");
-			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			dojo.byId("dynamicMenu").innerHTML = "";
-			domConstruct.destroy("main");
+		if(dijit.byId("updateMeasureDialog")){
+		dijit.byId("updateMeasureDialog").destroy(true);
+		//dijit.byId("updateMeasureDialog").destroyRecursive();
+		}
+		//dijit.byId("updateMeasureDialog").destroyRecursive();
+		domConstruct.destroy('divGroup1');
+		domConstruct.destroy("divIntro");
+		domConstruct.destroy("plot");
+		domConstruct.destroy("myGauge");
+		domConstruct.destroy('divChart');
+		domConstruct.destroy('chartDiv');
+		domConstruct.destroy('notes');
+		domConstruct.destroy('objectiveName');
+		domConstruct.destroy('objectiveDescription');
+		domConstruct.destroy('objectiveOwner');
+		domConstruct.destroy('objectiveTeam');
+		domConstruct.destroy('divGroup2');
+		domConstruct.destroy('divMeasures');
+		domConstruct.destroy('divInitiatives');
+		domConstruct.destroy('divCascadedTo');
+		domConstruct.destroy('divDevelopmentPlan');
+		domConstruct.destroy('divCoreValues');
+		domConstruct.destroy('divNotes');
+		domConstruct.destroy('divNotes2');
+		domConstruct.destroy('divMeasureNotes');//19th January 2017. Incorporating a module to handle PC notes.
+		domConstruct.destroy('measureNotes');
+		domConstruct.destroy('scoreGauge4');
+		domConstruct.destroy('divChartType');
+		domConstruct.destroy('chartLegend');
+		domConstruct.destroy('previousCheckbox');
+		domConstruct.destroy('msgContent');
+		domConstruct.destroy('bodyContent');
+		domConstruct.destroy('cascadedContent');
+		domConstruct.destroy('pdp');
+		domConstruct.destroy('coreValuesScorecardPage');
+		domConstruct.destroy('interpretation');
+		domConstruct.destroy('wayForward');
+		if(dijit.byId("divConversation")) dijit.byId("divConversation").destroyRecursive();
+		if(dijit.byId("divConversation")) dijit.byId("divConversation").destroy(true);
+		// Properly destroy conversation widgets
+		if(registry.byId("divAdvocacyConversation")) {
+			registry.byId("divAdvocacyConversation").destroyRecursive();
+		}
+		if(registry.byId("divInitiativeConversation")) {
+			registry.byId("divInitiativeConversation").destroyRecursive();
+		}
+		if(registry.byId("divScorecardConversation")) {
+			registry.byId("divScorecardConversation").destroyRecursive();
+		}
+		// Clean up DOM elements after widget destruction
+		domConstruct.destroy('divAdvocacyConversation');
+		domConstruct.destroy('divInitiativeConversation');
+		domConstruct.destroy('divScorecardConversation');
+		domConstruct.destroy('conversationHistory');
+		domConstruct.destroy('conversation');
+		domConstruct.destroy('submitId');
+		if(dijit.byId("kpiAuditTrailDialog")) dijit.byId("kpiAuditTrailDialog").destroyRecursive();
+		if(dijit.byId("kpiAuditTrailDialog")) dijit.byId("kpiAuditTrailDialog").destroy(true);
+		domConstruct.destroy('kpiAuditContent');
+		domConstruct.destroy('scrollIntoView');
+		if(dijit.byId("csvImport")) dijit.byId("csvImport").destroy(true);
+		if(dijit.byId("newCsvFileDialog")) dijit.byId("newCsvFileDialog").destroy(true);
+		domConstruct.destroy('csvFormat');
+		domConstruct.destroy('csvErrors');
+		domConstruct.destroy('gridContainer');
+		if(dijit.byId("csvSaveButton")) dijit.byId("csvSaveButton").destroy(true);//domConstruct.destroy('csvSaveButton');
+		domConstruct.destroy('csvForm');
+		if(dijit.byId("csvUploader")) dijit.byId("csvUploader").destroy(true);//domConstruct.destroy('csvUploader');
+		domConstruct.destroy('hiddenKpiId');
+		if(dijit.byId("csvFiles")) dijit.byId("csvFiles").destroy(true);//domConstruct.destroy('csvFiles');
+		if(dijit.byId("chartSlider")) dijit.byId("chartSlider").destroy(true);
 		
-	}
-	else if(menuItemId == "coreValuesMenu")
+		if(dijit.byId("bulkMeasureDialogGoal"))
+			dijit.byId("bulkMeasureDialogGoal").destroyRecursive();
+		if(dijit.byId("bulkMeasureDialogGoal")) dijit.byId("bulkMeasureDialogGoal").destroy(true);	
+			domConstruct.destroy("gridKpi");
+		
+		if(dijit.byId("bulkMeasureDialog2"))
+			dijit.byId("bulkMeasureDialog2").destroyRecursive();
+		if(dijit.byId("bulkMeasureDialog2")) dijit.byId("bulkMeasureDialog2").destroy(true);	
+		domConstruct.destroy("gridKpi2");
+		
+		if(dijit.byId("bulkMeasureDialog3"))
+			dijit.byId("bulkMeasureDialog3").destroyRecursive();
+		if(dijit.byId("bulkMeasureDialog3")) dijit.byId("bulkMeasureDialog3").destroy(true);
+		domConstruct.destroy("gridKpi3");
+		
+		if(dijit.byId("bulkMeasureDialog4"))
+			dijit.byId("bulkMeasureDialog4").destroyRecursive();
+		if(dijit.byId("bulkMeasureDialog4")) dijit.byId("bulkMeasureDialog4").destroy(true);
+		domConstruct.destroy("gridKpi4");
+		//domConstruct.destroy('updateButton');
+		//dijit.byId('kpiAuditTrailButton').destroy();
+		//if(dojo.byId("divConversation") != null) dijit.byId('divConversation').destroyRecursive();
+}
+
+/****************************************************************************************
+Menu item selection handler
+*****************************************************************************************/
+var onItemSelect = function(event)
+{
+	//dom.byId("lastSelected").innerHTML = this.get("label");
+	var menuItemId = this.get("id");
+	switch(menuItemId)
 	{
-		mainMenuState = "coreValuesMenu";
-		cp = new ContentPane({
-		region: "center",
-		"class": "bpaPrint",
-			href:"scorecards/coreValues/getCoreValues.php?mainMenuState=coreValuesMenu"
+		case "day":
+		{
+			//alert("Tuko kwa date na id ni: " + menuItemId);
+			//registry.byId("dateDialog").show();
+			//registry.byId("calMonthOnly").value = "null";
+			popup.open({
+            popup: registry.byId("calDayOnly"),
+            around: dom.byId("Periods")
+        	});
+			break;
+		}
+		case "week":
+		{
+			popup.open({
+				popup: registry.byId("calWeekOnly"),
+				around: dom.byId("Periods")
+			});
+			break;
+		}
+		case "month":
+		{
+			popup.open({
+				popup: registry.byId("calMonthOnly"),
+				around: dom.byId("Periods")
+			});
+			break;
+		}
+		case "quarter":
+		{
+			popup.open({
+				popup: registry.byId("calQuarterOnly"),
+				around: dom.byId("Periods")
+			});
+			break;
+		}
+		case "halfYear":
+		{
+			popup.open({
+				popup: registry.byId("calHalfYearOnly"),
+				around: dom.byId("Periods")
+			});
+			break;
+		}
+		case "year":
+		{
+			popup.open({
+				popup: registry.byId("calYearOnly"),
+				around: dom.byId("Periods")
+			});
+			break;
+		}
+		//var menuItem = this.get("label");//was repeating this after the menu related functions that were sandwiched in between
+		//var menuItemId = this.get("id");
+		case "home":
+		{
+			//console.log(dojo.byId('viewRights').innerHTML);
+			if(dojo.byId('viewRights').innerHTML == 'Viewer') pduDbProjects();
+			else pduDbHome();
+			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
+			domStyle.set(dom.byId("tree"), "display", "none");
+			domStyle.set(dom.byId("expandCollapse"), "display", "none");
+			domStyle.set(dom.byId("definitionTables"), "display", "none");
+			domStyle.set(dom.byId("homeLinks"), "display", "block");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+			break;
+		}
+		case "home_previous":
+		{
+			//var bc = dom.byId("appLayout");
+			mainMenuState = "Home";
+			if(dojo.byId('viewRights').innerHTML == 'Board')
+			{
+				displayBookmark('report','Reports','19','Scorecard Summary');
+			}
+			else
+			{
+				cp = new ContentPane({
+			region: "center",
+			"class": "bpaPrint",
+				href:"dashboards/indDashboard.php"
+				//href:"../dojox/calendar/tests/calendar.html"
+				});
+				cp.placeAt("appLayout");
+			}
+				domStyle.set(dom.byId("userSettings"), "display", "none");
+				domStyle.set(dom.byId("coreValues"), "display", "none");
+				domStyle.set(dom.byId("tree"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "none");
+				domStyle.set(dom.byId("definitionTables"), "display", "none");
+				domStyle.set(dom.byId("homeLinks"), "display", "block");
+				//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+				domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+				dojo.byId("dynamicMenu").innerHTML = "";
+
+				
+				domConstruct.destroy("divIndGroup1");
+
+				domConstruct.destroy("divIndGauge");
+				domConstruct.destroy("divIndWeight");
+				domConstruct.destroy("myIndGauge");
+
+				domConstruct.destroy("divIndGroup2");
+				domConstruct.destroy("divIndDescription");
+				domConstruct.destroy("divIndPhoto");
+				domConstruct.destroy("indPhoto");
+				domConstruct.destroy("indDescription");
+
+				domConstruct.destroy("divIndChart");
+				domConstruct.destroy("indChart");
+
+				domConstruct.destroy("divIndInitiatives");
+				domConstruct.destroy("initiativeIndContent");
+
+				domConstruct.destroy("divIndCascadedTo");
+				domConstruct.destroy("cascadedIndContent");
+
+				domConstruct.destroy("divIndDevelopmentPlan");
+				domConstruct.destroy("IndPdp");
+
+				domConstruct.destroy("divIndNotes");
+				domConstruct.destroy("indInterpretation");
+				domConstruct.destroy("divIndNotes2");
+				domConstruct.destroy("indWayForward");
+
+				domConstruct.destroy("scrollIntoView");
+				break;
+		}
+		case "bsc":
+		{
+			mainMenuState = "Scorecards";
+			treeFunction("bscData");
+			var interval = setTimeout(function()//wait for tree to finish loading
+			{
+			//tree.collapseAll();//starting the tree on expand mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
+			bscMenuCase();	
+			},3000);
+			break;
+		}
+		case "performanceContract":
+		{
+			mainMenuState = "performanceContract";
+			treeFunction("pcData");
+			var interval = setTimeout(function()//wait for tree to finish loading
+			{
+				bscMenuCase();
+			},1000);
+			//tree.collapseAll();//starting the tree on expand mode doesn't show newly added nodes so using this as a work around. LTK 30.11.15
+			break;
+		}
+		case "initiatives":
+		{
+			//tree.expandAll();
+			request.post("reports/get-report-elements.php",{
+			handleAs: "json"
+			}).then(function(data)
+			{
+				var reportCounter = 0;
+				while(reportCounter < data.length)
+				{
+					var trial = tree.getDomNodeById(data[reportCounter].id);
+					trial.labelNode.style.color = "black";
+					trial.labelNode.style.fontWeight = "normal";
+					//trial.labelNode.style.backgroundColor = "green";
+					reportCounter++;
+				}
+			});
+
+			request.post("initiatives/get-initiative-elements.php",{
+			handleAs: "json"
+			}).then(function(data)
+			{
+				var initiativeCounter = 0;
+				while(initiativeCounter < data.length)
+				{
+					//console.log("linkedObject id = " + data[initiativeCounter].id);
+					var trial = tree.getDomNodeById(data[initiativeCounter].id);
+					trial.labelNode.style.color = "#006400";
+					trial.labelNode.style.fontWeight = "bold";
+					//trial.labelNode.style.backgroundColor = "green";
+					initiativeCounter++;
+				}
+				collapseTree();
+			});
+
+			//var bc = dom.byId("appLayout");
+			mainMenuState = "Initiatives";
+			cp = new ContentPane({
+				href:"initiatives/initiative.php",
+				region: "center"
+				//style: "width: 100px; height:200px; position:absolute; left: 1px; "
+				});
+				cp.placeAt("appLayout");
+				
+				//dijit.byId('initiativeGauge').destroyRecursive();
+				//dijit.byId('initiativeStatusGauge').destroyRecursive();
+				//domConstruct.destroy("newInitiativeDialog");
+				domStyle.set(dom.byId("userSettings"), "display", "none");
+				domStyle.set(dom.byId("coreValues"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "block");
+				domStyle.set(dom.byId("tree"), "display", "block");
+				domStyle.set(dom.byId("definitionTables"), "display", "none");
+				domStyle.set(dom.byId("homeLinks"), "display", "none");
+				//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+				domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+				dojo.byId("dynamicMenu").innerHTML = "";
+				
+				if(dijit.byId("initiativeListSelect")) dijit.byId("initiativeListSelect").destroy(true);
+				if(dijit.byId("initiativeStartInput")) dijit.byId("initiativeStartInput").destroy(true);
+				if(dijit.byId("newInitiativeManagerInput")) dijit.byId("newInitiativeManagerInput").destroy(true);
+				if(dijit.byId("initiativeManagerInput")) dijit.byId("initiativeManagerInput").destroy(true);
+				if(dijit.byId("initiativeSponsorInput")) dijit.byId("initiativeSponsorInput").destroy(true);
+				if(dijit.byId("initiativeDueInput")) dijit.byId("initiativeDueInput").destroy(true);
+				if(dijit.byId("initiativeCompleteInput")) dijit.byId("initiativeCompleteInput").destroy(true);
+
+				domConstruct.destroy("nav-home-tab"); //LTK 16 March 2021 0751 hours
+				domConstruct.destroy("nav-allInitiatives-tab");
+				domConstruct.destroy("nav-home");
+				domConstruct.destroy("nav-gantt-tab");
+				domConstruct.destroy("nav-gantt");
+				domConstruct.destroy("initiativeNameDiv");
+				domConstruct.destroy("objectImpactedDiv")
+				domConstruct.destroy("archive");
+				domConstruct.destroy("sponsorDiv");
+				domConstruct.destroy("managerDiv");
+				domConstruct.destroy("parentDiv");
+				domConstruct.destroy("deliverableDiv");
+				domConstruct.destroy("scopeDiv");
+				domConstruct.destroy("budgetDiv");
+				domConstruct.destroy("tdDamageColor");
+				domConstruct.destroy("damageDiv");
+				domConstruct.destroy("startDateDiv");
+				domConstruct.destroy("endDateDiv");
+				domConstruct.destroy("completionDateDiv");
+				domConstruct.destroy("initiativeGauge");
+				domConstruct.destroy("statusDiv");//LTK. 25.03.2018 12.45am
+				domConstruct.destroy("percentageCompletionDiv");
+				domConstruct.destroy("statusDetailsDiv");
+				domConstruct.destroy("statusNotesDiv");
+				domConstruct.destroy("testTd");
+				
+				domConstruct.destroy("gantt");
+				// Properly destroy conversation widgets
+				if(registry.byId("divConversation")) {
+					registry.byId("divConversation").destroyRecursive();
+				}
+				if(registry.byId("divAdvocacyConversation")) {
+					registry.byId("divAdvocacyConversation").destroyRecursive();
+				}
+				if(registry.byId("divInitiativeConversation")) {
+					registry.byId("divInitiativeConversation").destroyRecursive();
+				}
+				if(registry.byId("divScorecardConversation")) {
+					registry.byId("divScorecardConversation").destroyRecursive();
+				}
+				// Clean up DOM elements after widget destruction
+				domConstruct.destroy('divConversation');
+				domConstruct.destroy('divAdvocacyConversation');
+				domConstruct.destroy('divInitiativeConversation');
+				domConstruct.destroy('divScorecardConversation');
+				domConstruct.destroy('conversationHistory');
+				domConstruct.destroy('conversation');
+				domConstruct.destroy('submitId');
+
+				domConstruct.destroy("nav-allInitiatives");
+				domConstruct.destroy("table");
+				
+				if(dijit.byId("newInitiativeDialog")) dijit.byId("newInitiativeDialog").destroy(true);
+				domConstruct.destroy("newInitiativeDialog-table");
+				domConstruct.destroy("initiativeName");
+				if(dijit.byId("initiativeNameInput")) dijit.byId("initiativeNameInput").destroy(true);
+				domConstruct.destroy("initiativeDeliverable");
+				domConstruct.destroy("initiativeDeliverableInput");
+				domConstruct.destroy("initiativeScope");
+				if(dijit.byId("scopeInput")) dijit.byId("scopeInput").destroy(true);
+				domConstruct.destroy("initiativeDeliverable");
+				domConstruct.destroy("deliverableStatusInput");
+				domConstruct.destroy("initiativeSponsor");
+				domConstruct.destroy("initiativeSponsorInput");
+				domConstruct.destroy("initiativeManager");
+				domConstruct.destroy("initiativeManagerInput");
+				domConstruct.destroy("initiativeTeam");
+				domConstruct.destroy("initiativeTeamInput");
+				if(dijit.byId("initiativeTeamInput")) dijit.byId("initiativeTeamInput").destroy(true);
+				domConstruct.destroy("teamMembers");
+				domConstruct.destroy("initiativeParent");
+				domConstruct.destroy("initiativeParentInput");
+				if(dijit.byId("initiativeParentInput")) 
+				{
+					dijit.byId("initiativeParentInput").destroyRecursive();
+					if(dijit.byId("initiativeParentInput")) dijit.byId("initiativeParentInput").destroy(true);
+				}
+				domConstruct.destroy("initiativeLink");
+				domConstruct.destroy("initiativeLinkInput");
+				if(dijit.byId("initiativeLinkInput")) 
+				{
+					dijit.byId("initiativeLinkInput").destroyRecursive();
+					if(dijit.byId("initiativeLinkInput")) dijit.byId("initiativeLinkInput").destroy(true);
+				}
+				domConstruct.destroy("initiativeBudget");
+				domConstruct.destroy("initiativeBudgetInput");
+				domConstruct.destroy("initiativeCost");
+				domConstruct.destroy("initiativeCostInput");
+				
+				domConstruct.destroy("initiativeStart");
+				domConstruct.destroy("initiativeStartInput");
+				if(dijit.byId("initiativeStartInput")) dijit.byId("initiativeStartInput").destroy(true);
+				
+				domConstruct.destroy("initiativeDue");
+				domConstruct.destroy("initiativeDueInput");
+				if(dijit.byId("initiativeDueInput")) dijit.byId("initiativeDueInput").destroy(true);
+				
+				domConstruct.destroy("initiativeComplete");
+				domConstruct.destroy("initiativeCompleteInput");
+				if(dijit.byId("initiativeComplete")) dijit.byId("initiativeComplete").destroy(true);
+				
+				domConstruct.destroy("initiativeStatus");
+				domConstruct.destroy("initiativeStatusInput");
+				domConstruct.destroy("initiativeStatusDetails");
+				if(dijit.byId("initiativeStatusDetailsInput")) 
+				{
+					dijit.byId("initiativeStatusDetailsInput").destroyRecursive();
+					if(dijit.byId("initiativeStatusDetailsInput")) dijit.byId("initiativeStatusDetailsInput").destroy(true);
+				}
+				domConstruct.destroy("initiativeNotes");
+				if(dijit.byId("initiativeNotesInput")) dijit.byId("initiativeNotesInput").destroy(true);
+				domConstruct.destroy("percentageCompletion");
+				domConstruct.destroy("percentageCompletionInput");
+				
+				domConstruct.destroy("userListGantt");
+				if(dijit.byId("userListGantt")) 
+				{
+					dijit.byId("userListGantt").destroyRecursive();
+					if(dijit.byId("userListGantt")) dijit.byId("userListGantt").destroy(true);
+				}
+				
+				domConstruct.destroy("nav-pip-tab");
+				domConstruct.destroy("nav-pip");
+				domConstruct.destroy("tablePIP");
+				break;
+		}
+		case "flagshipProjects":
+		{
+			//mainMenuState = "Strategy Map";
+			cp = new ContentPane({
+			region: "center",
+			"class": "bpaPrint",
+			href:"pdu_db_home.php"
 			});
 			cp.placeAt("appLayout");
-			domStyle.set(dom.byId("coreValues"), "display", "block");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
 			domStyle.set(dom.byId("tree"), "display", "none");
+			domStyle.set(dom.byId("expandCollapse"), "display", "none");
+			domStyle.set(dom.byId("definitionTables"), "display", "none");
+			domStyle.set(dom.byId("homeLinks"), "display", "block");
+			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+			dojo.byId("dynamicMenu").innerHTML = "";
+			break;
+		}
+		case "reports":
+		{
+			mainMenuState = "Reports";
+
+			cp = new ContentPane({
+				region: "center",
+				href:"report.php"
+				});
+			cp.placeAt("appLayout");
+			domStyle.set(dom.byId("userSettings"), "display", "none");
+			domStyle.set(dom.byId("coreValues"), "display", "none");
+			domStyle.set(dom.byId("tree"), "display", "block");
+			domStyle.set(dom.byId("expandCollapse"), "display", "block");
 			domStyle.set(dom.byId("definitionTables"), "display", "none");
 			domStyle.set(dom.byId("homeLinks"), "display", "none");
 			//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
-			//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
-			//dojo.byId("dynamicMenu").innerHTML = "";
-			
-			//domConstruct.destroy("coreValueId");
-			//domConstruct.destroy("attributeId");
-			//domConstruct.destroy("attributeScoreId");
-			
-			/*domConstruct.destroy("coreValue");
-			domConstruct.destroy("coreValueDescription");
-			domConstruct.destroy("errorMsgCoreValue");
-			domConstruct.destroy("attribute");
-			domConstruct.destroy("attributeDescription");
-			domConstruct.destroy("errorMsgAttribute");
-			domConstruct.destroy("errorMsgCoreValue");
-			domConstruct.destroy("attributeScore");
-			domConstruct.destroy("attributeScoreDate");
-			domConstruct.destroy("attributeScoreList");
-			domConstruct.destroy("errorMsgAttributeScore");
-			domConstruct.destroy("attributeScoreDialog");
-			domConstruct.destroy("coreValueDialog");*/
-	}
-	else if (menuItemId == "logOut")
-	{
-		window.location="logout.php";
-	}
+			domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+			dojo.byId("dynamicMenu").innerHTML = "";
+			domConstruct.destroy('displayReport');
+			//domConstruct.destroy('redReportName');
+			domConstruct.destroy('tdRedReportName');
+			domConstruct.destroy('selectedObjects');
+			domConstruct.destroy('selectedObjectsIds');
+			domConstruct.destroy('columnsToShow');
+			domConstruct.destroy('columnOrg');
+			domConstruct.destroy('columnOrgScore');
+			domConstruct.destroy('columnPersp');
+			domConstruct.destroy('columnPerspScore');
+			domConstruct.destroy('columnObj');
+			domConstruct.destroy('columnObjScore');
+			domConstruct.destroy('columnKpi');
+			domConstruct.destroy('columnOwner');
+			domConstruct.destroy('columnUpdater');
+			domConstruct.destroy('columnScore');
+			domConstruct.destroy('columnActual');
+			domConstruct.destroy('columnTarget');
+			domConstruct.destroy('columnVariance');
+			domConstruct.destroy('columnPercentVariance');
+			domConstruct.destroy('redFilter');
+			domConstruct.destroy('greyFilter');
+			domConstruct.destroy('greenFilter');
+			domConstruct.destroy('initiativeFilter');
+			domConstruct.destroy('initiativeGroup');
+			domConstruct.destroy('newInitiativeReportDialog');
+			//domConstruct.destroy('initiativeReportName');
+			domConstruct.destroy('tdInitiativeReportName');
+			domConstruct.destroy('selectedInitObjects');
+			domConstruct.destroy('selectedInitObjectsIds');
+			domConstruct.destroy('initColumnsToShow');
+			domConstruct.destroy('initSponsor');
+			domConstruct.destroy('initOwner');
+			domConstruct.destroy('initBudget');
+			domConstruct.destroy('initCost');
+			domConstruct.destroy('initStart');
+			domConstruct.destroy('initDue');
+			domConstruct.destroy('initComplete');
+			domConstruct.destroy('initDeliverable');
+			domConstruct.destroy('initDeliverableStatus');
+			domConstruct.destroy('initParent');
+			domConstruct.destroy('initRedFilter');
+			domConstruct.destroy('initGreyFilter');
+			domConstruct.destroy('initGreenFilter');
+			domConstruct.destroy('tdCascadeReportName');
+			//domConstruct.destroy('cascadeReportName');
+			domConstruct.destroy('selectedCascadeObjects');
+			domConstruct.destroy('selectedCascadeObjectsIds');
+			domConstruct.destroy('organizationsReport');
+			domConstruct.destroy('perspectivesReport');
+			domConstruct.destroy('objectivesReport');
+			domConstruct.destroy('measuresReport');
+			domConstruct.destroy('gridCopyReport');
+			domConstruct.destroy('droppedItems');
 
-	};
-//dijit.byId("appLayout").destroyRecursive();
-	// Parse only if widgets don't already exist to prevent duplicate registration
-	try {
-		parser.parse();
-	} catch(e) {
-		console.warn("Parser error (likely duplicate widget registration):", e.message);
-		// If parsing fails due to duplicate registration, try to clean up and re-parse
-		if(e.message.includes("already registered")) {
-			console.log("Attempting to clean up duplicate widgets and re-parse...");
-			// Additional cleanup if needed
-			setTimeout(function() {
-				try {
-					parser.parse();
-				} catch(e2) {
-					console.error("Second parse attempt failed:", e2.message);
+			if(dijit.byId("redReportName")) dijit.byId("redReportName").destroy(true);
+			if(dijit.byId("initiativeReportName")) dijit.byId("initiativeReportName").destroy(true);
+			if(dijit.byId("cascadeReportName")) dijit.byId("cascadeReportName").destroy(true);
+			if(dijit.byId("newCustomReportDialog")) dijit.byId("newCustomReportDialog").destroy(true);
+			if(dijit.byId("newReportDialog")) dijit.byId("newReportDialog").destroy(true);
+			if(dijit.byId("newInitiativeReportDialog")) dijit.byId("newInitiativeReportDialog").destroy(true);
+			if(dijit.byId("newCascadeReportDialog")) dijit.byId("newCascadeReportDialog").destroy(true);
+			if(dijit.byId("selectObjectDialog")) dijit.byId("selectObjectDialog").destroy(true);
+
+			request.post("initiatives/get-initiative-elements.php",{
+			handleAs: "json"
+			}).then(function(data)
+			{
+				var initiativeCounter = 0;
+				while(initiativeCounter < data.length)
+				{
+					var trial = tree.getDomNodeById(data[initiativeCounter].id);
+					trial.labelNode.style.color = "black";
+					trial.labelNode.style.fontWeight = "normal";
+					//trial.labelNode.style.backgroundColor = "green";
+					initiativeCounter++;
 				}
-			}, 100);
+			});
+
+			request.post("reports/get-report-elements.php",{
+			handleAs: "json"
+			}).then(function(data)
+			{
+				var reportCounter = 0;
+				while(reportCounter < data.length)
+				{
+					var trial = tree.getDomNodeById(data[reportCounter].id);
+					trial.labelNode.style.color = "#006400";
+					trial.labelNode.style.fontWeight = "bold";
+					//trial.labelNode.style.backgroundColor = "green";
+					reportCounter++;
+				}
+				collapseTree();
+			});
+			break;
+		}
+		case "calendarMenu":
+		{
+			mainMenuState = "Calendar";
+			cp = new ContentPane({
+			region: "center",
+			"class": "bpaPrint cpStyles",
+				href:"calendar/index.html"
+				});
+				cp.placeAt("appLayout");
+				domStyle.set(dom.byId("userSettings"), "display", "none");
+				domStyle.set(dom.byId("coreValues"), "display", "none");
+				domStyle.set(dom.byId("tree"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "none");
+				domStyle.set(dom.byId("homeLinks"), "display", "true");
+				//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+				//dojo.byId("dynamicMenu").innerHTML = "";
+				domConstruct.destroy("wrap");
+				domConstruct.destroy("calendar");
+			break;
+		}
+		case "admin":
+		{
+			mainMenuState = "Admin";
+			//var bc = dom.byId("appLayout");
+
+			cp = new ContentPane({
+			region: "center",
+			"class": "bpaPrint",
+				href:"admin/account.php"
+				});
+				cp.placeAt("appLayout");
+				//bc.addChild(cp);
+				//bc.startup();
+				domStyle.set(dom.byId("userSettings"), "display", "block");
+				domStyle.set(dom.byId("coreValues"), "display", "none");
+				domStyle.set(dom.byId("tree"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "none");
+				domStyle.set(dom.byId("definitionTables"), "display", "none");
+				domStyle.set(dom.byId("homeLinks"), "display", "none");
+				//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+				domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+				dojo.byId("dynamicMenu").innerHTML = "";
+				domConstruct.destroy("main");
+			break;
+		}
+		case "coreValuesMenu":
+		{
+			mainMenuState = "coreValuesMenu";
+			cp = new ContentPane({
+			region: "center",
+			"class": "bpaPrint",
+				href:"scorecards/coreValues/getCoreValues.php?mainMenuState=coreValuesMenu"
+				});
+				cp.placeAt("appLayout");
+				domStyle.set(dom.byId("coreValues"), "display", "block");
+				domStyle.set(dom.byId("userSettings"), "display", "none");
+				domStyle.set(dom.byId("tree"), "display", "none");
+				domStyle.set(dom.byId("expandCollapse"), "display", "none");
+				domStyle.set(dom.byId("definitionTables"), "display", "none");
+				domStyle.set(dom.byId("homeLinks"), "display", "none");
+				//domStyle.set(dom.byId("advocacyLinks"), "display", "none");
+				//domStyle.set(registry.byId("menuSeparator").domNode, 'display', 'none');
+				//dojo.byId("dynamicMenu").innerHTML = "";
+				
+				//domConstruct.destroy("coreValueId");
+				//domConstruct.destroy("attributeId");
+				//domConstruct.destroy("attributeScoreId");
+				
+				/*domConstruct.destroy("coreValue");
+				domConstruct.destroy("coreValueDescription");
+				domConstruct.destroy("errorMsgCoreValue");
+				domConstruct.destroy("attribute");
+				domConstruct.destroy("attributeDescription");
+				domConstruct.destroy("errorMsgAttribute");
+				domConstruct.destroy("errorMsgCoreValue");
+				domConstruct.destroy("attributeScore");
+				domConstruct.destroy("attributeScoreDate");
+				domConstruct.destroy("attributeScoreList");
+				domConstruct.destroy("errorMsgAttributeScore");
+				domConstruct.destroy("attributeScoreDialog");
+				domConstruct.destroy("coreValueDialog");*/
+			break;
+		}
+		case "logOut":
+		{
+			window.location="logout.php";
+			break;
+		}
+	}//End of Case Switch for mainMenuState.
+
+};
+/****************************************************************************************
+End of menu item selection handler
+*****************************************************************************************/
+
+/****************************************************************************************
+Start of menu related functions
+*****************************************************************************************/
+onCalendarChange = function()//Refresh Main Page Content
+{
+	switch(mainMenuState)
+	{
+		case "Scorecards":
+		{
+			updateChart();
+			break;	
+		}
+		case "Personal Dashboard": //Adding the ability of the Personal Dashboard to show previous years. Should be applicable to all daashboards and reports. LTK 16May2021 1544Hrs
+		{
+			indPerformance();//Not sure this function can be accessed from here but let's see... It could :-) LTK 16May2021 1532Hrs
+			var appraisalDateWait = setTimeout(function()
+			{
+				var monthsArray = [];
+				monthsArray["01"] = "January";
+				monthsArray["02"] = "February";
+				monthsArray["03"] = "March";
+				monthsArray["04"] = "April";
+				monthsArray["05"] = "May";
+				monthsArray["06"] = "June";
+				monthsArray["07"] = "July";
+				monthsArray["08"] = "August";
+				monthsArray["09"] = "September";
+				monthsArray["10"] = "October";
+				monthsArray["11"] = "November";
+				monthsArray["12"] = "December";
+				var appraisalYear = globalDate.substring(0, 4);
+				var appraisalMonth = globalDate.slice(-2)
+				var appraisalDate = monthsArray[appraisalMonth] + " " + appraisalYear;
+				dom.byId("appraisalDate").innerHTML = appraisalDate; //Showing relevant appraisal date. LTK 23Aug2021 0833Hrs
+			},330);
+			break;	
+		}
+		case "Accent Usage":
+		{
+			accentUsage();
+			break;	
+		}
+	}	
+}
+closeDay = function()
+{
+	//alert(registry.byId("calMonthOnly").value);
+	popup.close(registry.byId("calDayOnly"));
+	var newDateLabel = registry.byId("calDayOnly").value;
+	var phpDateLabel = newDateLabel;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"dd-MMM-yyyy"
+						});
+	//alert(newDateLabel);
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "days";
+	phpDateLabel = locale.format(phpDateLabel, {
+						selector: "date",
+						datePattern:"yyyy-MM-dd"
+						});
+	globalDate = phpDateLabel;
+	onCalendarChange();//Refresh Main Page Content. LTK 27 June 2021, 0036hrs
+}
+closeWeek = function()
+{
+	//alert(registry.byId("calMonthOnly").value);
+	popup.close(registry.byId("calWeekOnly"));
+	var newDateLabel = registry.byId("calWeekOnly").value;
+	var phpDateLabel = newDateLabel;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"MMM-yyyy"
+						});
+	//alert(newDateLabel);
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "weeks";
+	phpDateLabel = locale.format(phpDateLabel, {
+						selector: "date",
+						datePattern:"yyyy-MM"
+						});
+	globalDate = phpDateLabel;
+	onCalendarChange();
+}
+closeMonth = function()
+{
+	//alert(registry.byId("calMonthOnly").value);
+	popup.close(registry.byId("calMonthOnly"));
+	var newDateLabel = registry.byId("calMonthOnly").value;
+	var phpDateLabel = newDateLabel;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"MMM-yyyy"
+						});
+	//alert(newDateLabel);
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "months";
+	phpDateLabel = locale.format(phpDateLabel, {
+						selector: "date",
+						datePattern:"yyyy-MM"
+						});
+	globalDate = phpDateLabel;
+	onCalendarChange();
+}
+closeQuarter = function()
+{
+	popup.close(registry.byId("calQuarterOnly"));
+	//alert("We here? "+registry.byId("calQuarterOnly").value);
+	var newDateLabel = registry.byId("calQuarterOnly").value;
+	var phpDateLabel = newDateLabel;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"qQ"
+						});
+	switch(newDateLabel)
+	{
+		case "01":
+		{
+			newDateLabel = "Quarter 1";
+			break;
+		}
+		case "02":
+		{
+			newDateLabel = "Quarter 2";
+			break;
+		}
+		case "03":
+		{
+			newDateLabel = "Quarter 3";
+			break;
+		}
+		case "04":
+		{
+			newDateLabel = "Quarter 4";
+			break;
+		}
+	}
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "quarters";
+	phpDateLabel = locale.format(phpDateLabel, {
+						selector: "date",
+						datePattern:"yyyy-MM"
+						});
+	globalDate = phpDateLabel;
+	onCalendarChange();
+}
+closeHalfYear = function()
+{
+	popup.close(registry.byId("calHalfYearOnly"));
+	var newDateLabel = registry.byId("calHalfYearOnly").value;
+	var phpDateLabel = newDateLabel;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"qQ"
+						});
+
+	switch(newDateLabel)
+	{
+		case "01":
+		{
+			newDateLabel = "Half Year 1";
+			break;
+		}
+		case "02":
+		{
+			newDateLabel = "Half Year 1";
+			break;
+		}
+		case "03":
+		{
+			newDateLabel = "Half Year 2";
+			break;
+		}
+		case "04":
+		{
+			newDateLabel = "Half Year 2";
+			break;
 		}
 	}
 
-	var setClickHandler = function(item){
-		item.on("click", onItemSelect);
-	};
-	registry.byClass("dijit.MenuItem").forEach(setClickHandler);
-	registry.byClass("dijit.MenuBarItem").forEach(setClickHandler);
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "halfYears";
+	phpDateLabel = locale.format(phpDateLabel, {
+						selector: "date",
+						datePattern:"yyyy-MM"
+						});
+	globalDate = phpDateLabel;
+	onCalendarChange();
+}
+closeYear = function()
+{
+	popup.close(registry.byId("calYearOnly"));
+	var newDateLabel = registry.byId("calYearOnly").value;
+	newDateLabel = locale.format(newDateLabel, {
+						selector: "date",
+						datePattern:"yyyy"
+						});
+	dojoDisplayDate.set("label", newDateLabel);
+	period = "years";
+	globalDate = newDateLabel;
+	onCalendarChange();
+}
+toEmail = function()
+{
+	//alert("To Email");
+	//dojo.byId("displayReportCopy").innerHTML = win.body().innerHTML;
+	/*var emailData = dom.byId("reportTitle").innerHTML + dom.byId("displayReport").innerHTML;
+	//alert(emailData);
+	request.post("../mailer/examples/mail2.php",
+	{
+		//handleAs: "json",
+		data:{
+			emailData: emailData
+			}
+	}).then(function(emailStatus)
+	{
+		//alert(emailStatus);
+
+	});*/
+}
+toPrint = function()
+{
+	dijit.byId("leftCol").toggle(); //close the ExpandoPane for center contentPane to fit entire window. LTK 18May21 1537Hrs.
+	
+	var leftCol = setTimeout(function()
+	{
+		window.print();	
+	},600);//Wait for the panes to resize before printing.
+	var leftColTwo = setTimeout(function()
+	{
+		dijit.byId("leftCol").toggle();	
+	},1200);//reset while print dialog is still open.	
+}
+toPDF = function()
+{
+	//alert("to PDF");
+	/*var pdfData = dom.byId("reportTitle").innerHTML + dom.byId("displayReport").innerHTML;
+	//var pdfData = dom.byId("appLayout").innerHTML;
+	request.post("lab/toPdf.php",
+	{
+		//handleAs: "json",
+		data:{
+			pdfData: pdfData
+			}
+	}).then(function(pdfName)
+	{
+		window.open(pdfName);
+		//window.location.href = "somepage.php?";
+	});*/
+}
+getBookmarkName = function()
+{
+	dijit.byId("bookmarkDialog").show();
+}
+renameBookMark = function()
+{
+	request.post("layout/delete-bookmark.php",{
+	handleAs: "json",
+	data: {
+		bookMarkId: dom.byId("bookMarkId").innerHTML,
+		action: "rename",
+		newName: dom.byId('bookmarkRenameInput').value
+	}
+	}).then(function()
+	{
+		//bookmark rename message
+		bookMarks();
+	})
+}
+toBookmark = function()
+{
+	dijit.byId("bookmarkDialog").hide();
+	var userId = dom.byId('userIdJs').innerHTML;
+	//alert("Book Mark: "+ kpiGlobalId + " - " + kpiGlobalType + " - " + mainMenuState + " - " + userId);
+	if(kpiGlobalId != undefined && kpiGlobalType != undefined && mainMenuState != undefined && userId != undefined)
+	{
+		if(kpiGlobalType == "initiative") kpiGlobalId = dom.byId("selectedElement").innerHTML;
+		if(kpiGlobalType == "report") kpiGlobalId = selectedReport;
+		if(mainMenuState == "Strategy Map") kpiGlobalId = "map";
+		if(mainMenuState == "Organizational Structure - Finance") kpiGlobalId = "orgStructure";
+		request.post("layout/save-bookmark.php",
+		{
+			//handleAs: "json",
+			data:{
+				userId: userId,
+				kpiGlobalId: kpiGlobalId,
+				kpiGlobalType: kpiGlobalType,
+				mainMenuState: mainMenuState,
+				bookMarkName: dom.byId("bookmarkNameInput").value
+				}
+		}).then(function()
+		{
+			//window.open(pdfName);
+			//window.location.href = "somepage.php?";
+		});
+	}
+}
+/****************************************************************************************
+End of menu related functions
+*****************************************************************************************/
+
+//dijit.byId("appLayout").destroyRecursive();
+// Parse only if widgets don't already exist to prevent duplicate registration
+try {
+	parser.parse();
+} catch(e) {
+	console.warn("Parser error (likely duplicate widget registration):", e.message);
+	// If parsing fails due to duplicate registration, try to clean up and re-parse
+	if(e.message.includes("already registered")) {
+		console.log("Attempting to clean up duplicate widgets and re-parse...");
+		// Additional cleanup if needed
+		setTimeout(function() {
+			try {
+				parser.parse();
+			} catch(e2) {
+				console.error("Second parse attempt failed:", e2.message);
+			}
+		}, 100);
+	}
+}
+
+var setClickHandler = function(item){
+	item.on("click", onItemSelect);
+};
+registry.byClass("dijit.MenuItem").forEach(setClickHandler);
+registry.byClass("dijit.MenuBarItem").forEach(setClickHandler);
 
 savePdp = function(edit, id)
 {
@@ -7097,7 +7176,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			combinedData = null;
 			var smartCount = 1;
 			var smartNumber, bgColor, smartScore;
-			var combinedData = "<table class='table table-bordered border-info rounded table-sm table-condensed table-striped'>";
+			var combinedData = "<table class='table table-bordered rounded table-sm table-condensed table-striped'>";
 			while(smartCount <= data["Measure Count"])
 			{
 				smartNumber = "Measure"+smartCount;
@@ -7112,7 +7191,15 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			combinedData = null;
 			var taskCount = 1;
 			var deliverable, bgColor, trafficLight, objectiveImpacted, taskNumber, taskId, dueDate;
-			var combinedData = "<table class='table table-bordered border-info rounded table-sm table-condensed table-striped'><tr><th>"+'Activity/Task'+"</th><th style='white-sapce:nowrap;'>"+'Objective(s) Impacted'+"</th><th colspan='2'>"+'Due Date'+"</th></tr>";
+			var combinedData = "<table class='table rounded table-sm table-condensed table-striped mb-0'>";
+			combinedData += "<tr>";
+			combinedData += "	<thead class='table-primary'>";
+			combinedData += "		<th>"+'Activity/Task'+"</th>";
+			combinedData += "		<th style='white-sapce:nowrap;'>"+'Objective(s) Impacted'+"</th>";
+			combinedData += "		<th colspan='2'>"+'Due Date'+"</th>";
+			combinedData += "	</thead>";
+			combinedData += "</tr>";
+			
 			while(taskCount <= data["Initiative Count"])
 			{
 				objectiveImpacted = "Objective"+taskCount;
@@ -7124,7 +7211,7 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 				bgColor = "Color"+taskCount;
 				trafficLight = "trafficLight"+taskCount;
 				//console.log("traffic light: " + trafficLight + " = " + data[trafficLight]);
-				combinedData = combinedData + "<tr><td style='cursor: pointer; text-decoration: underline; color: blue;' id='init"+data[taskId]+"' onClick='moreDetailsTask("+data[taskId]+")' onMouseOut='removeTooltip()'>"+data[taskNumber]+"</td><td>"+data[objectiveImpacted]+"</td><td style='white-space:nowrap;' class='border-end-0'>"+data[dueDate]+"</td><td class='border-start-0'><div class='"+data[trafficLight]+"'></td></div></tr>";
+				combinedData = combinedData + "<tr><td style='cursor: pointer;' class='link-primary' id='init"+data[taskId]+"' onClick='moreDetailsTask("+data[taskId]+")' onMouseOut='removeTooltip()'>"+data[taskNumber]+"</td><td>"+data[objectiveImpacted]+"</td><td style='white-space:nowrap;' class='border-end-0'>"+data[dueDate]+"</td><td class='border-start-0'><div class='"+data[trafficLight]+"'></td></div></tr>";
 				taskCount++;
 			}
 			dojo.byId("measureContent").innerHTML = combinedData+"</table>";
@@ -7132,7 +7219,8 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			combinedData = null;
 			//var cascadedScore;
 			var bgColor;
-			combinedData = "<table class='table table-bordered table-sm table-condensed table-striped border-info rounded'>";
+			combinedData = "<table class='table table-sm table-condensed table-striped'>";
+			combinedData = combinedData + "<tr><thead class='bg-primary' style='--bs-bg-opacity: .1;'><th>Cascaded From</th><th>Score</th></thead></tr>";
 			//while(cascadedCount <= data["Cascaded Count"])
 			//{
 				//cascadedNumber = "Cascaded To"+cascadedCount;
@@ -7162,7 +7250,19 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			var pdpCount = 1;
 			var skillGap, intervention, pdpStartDate, pdpDueDate, resource, comments, pdpId, pdpColor;
 			/*combinedData = "<table style='font-size: 13px; border-collapse: collapse; border-top: 1px solid #9baff1; border-bottom: 1px solid #9baff1;'><tr><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Competency/Skill Gap'+"</strong></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Intevention'+"</strong></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Start Date'+"</strong></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Due Date'+"</strong></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Resource'+"</strong></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-left: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'><strong>"+'Comments'+"</strong></td><td></td><td style='text-align:center; padding: 2px; border-right: 1px solid #aabcfe; border-top: 1px solid #aabcfe;'></td></tr>";*/
-			combinedData = "<table class='table table-bordered border-info rounded table-sm table-condensed table-striped'><tr class='table-primary'><td><strong>"+'Competency/Skill Gap'+"</strong></td><td><strong>"+'Intevention'+"</strong></td><td><strong>"+'Start Date'+"</strong></td><td style='text-align:center;' colspan='2'><strong>"+'Due Date'+"</strong></td><td><strong>"+'Resource'+"</strong></td><td><strong>"+'Comments'+"</strong></td><td colspan='2'></td></tr>";
+			combinedData = "<table class='table table-sm table-condensed table-striped mb-0'>";
+			combinedData += "<tr>";
+			combinedData += "<thead class='bg-primary' style='--bs-bg-opacity: .1;'>";
+			combinedData += "<th>Competency/Skill Gap</th>";
+			combinedData += "<th>Intevention</th>";
+			combinedData += "<th>Start Date</th>";
+			combinedData += "<th style='text-align:center;' colspan='2'>Due Date</th>";
+			combinedData += "<th>Resource</th>";
+			combinedData += "<th>Comments</th>";
+			combinedData += "<th colspan='2'></th>";
+			combinedData += "</thead>";
+			combinedData += "</tr>";
+
 			while(pdpCount <= data["pdpCount"])
 			{
 			skillGap = "skillGap"+pdpCount;

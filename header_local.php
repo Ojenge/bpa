@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/mapDetails.css" type="text/css" media="all">-->
 
 <link rel="stylesheet" href="../bootstrap-icons/1.13.1/bootstrap-icons.css">
-<link rel="stylesheet" href="../bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
+<link rel="stylesheet" href="../bootstrap/5.2.3/dist/css/bootstrap.min.css" media="all">
 <link rel="stylesheet" href="../bootstrap_table/1.23.1/dist/bootstrap-table.min.css" media="all">
 <link href="../bootstrap_fileinput/css/fileinput.min.css" media="screen" rel="stylesheet" type="text/css"/>
 <link href="../font-awesome-5.15.3/css/all.css" media="all" rel="stylesheet" type="text/css"/>

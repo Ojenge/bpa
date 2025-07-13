@@ -201,11 +201,11 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
             data-dojo-type="dijit/layout/TabContainer"
             data-dojo-props="region: 'left'"  tabPosition="bottom"  tabStrip="true">
         	<div id="myTab" data-dojo-type='dijit/layout/ContentPane'>
-            <div id="tree" style="display:none;">  
-            <button id="collapse" data-dojo-type="dijit/form/Button" data-dojo-props="onClick:collapseTree" type="button">Collapse Tree</button>
-            <button id="expand" data-dojo-type="dijit/form/Button" data-dojo-props="onClick:expandTree" type="button">Expand Tree</button>
-
-            </div>
+                <div id="expandCollapse" style="display:none;">
+                    <button data-dojo-type="dijit/form/Button" data-dojo-props="onClick:collapseTree" type="button">Collapse Tree</button>
+                    <button data-dojo-type="dijit/form/Button" data-dojo-props="onClick:expandTree" type="button">Expand Tree</button>
+                </div>
+            <div id="tree" style="display:none;"></div>
             <div id="userSettings" style="display:none;">
             	<a href="#" onClick="userSettings();">Change User Details</a><br>
              <?php if($showAdmin == "True") {?>
@@ -414,7 +414,7 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
          </tr>-->
 
 		 <tr id="addCascade">
-         	<td id="addCascadeTitle">Cascaded From</td>
+         	<td id="addCascadeTitle">Alignment/Cascading</td>
             <td>
             <input type='text' style='width:90%' id='kpiCascade'></td>
          </tr>

@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/mapDetails.css" type="text/css" media="all">-->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://accent-analytics.com/bootstrap/5.0.0/dist/css/bootstrap.min.css" media="all">
+<link rel="stylesheet" href="https://accent-analytics.com/bootstrap/5.2.3/dist/css/bootstrap.min.css" media="all">
 <link rel="stylesheet" href="https://accent-analytics.com/bootstrap_table/1.18.3/bootstrap-table.min.css" media="all">
 <link href="https://accent-analytics.com/bootstrap_fileinput/css/fileinput.min.css" media="screen" rel="stylesheet" type="text/css"/>
 <link href="https://accent-analytics.com/font-awesome-5.15.3/css/all.css" media="all" rel="stylesheet" type="text/css"/>
