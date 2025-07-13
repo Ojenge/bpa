@@ -68,7 +68,7 @@ require([
 	"dijit/tree/dndSource",
 	//"dojo/text!http://localhost/analytics.local/layout/tree.php",
 	"dojo/text!/bpa/layout/tree.php",
-	"dojo/text!/bpa/layout/pc.json",
+	"dojo/text!/bpa/layout/treePc.php",
 	"dojo/data/ItemFileReadStore",
 	"dojo/data/ItemFileWriteStore",
 	"dojox/gfx",
