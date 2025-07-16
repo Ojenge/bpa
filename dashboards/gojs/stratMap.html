@@ -9,8 +9,8 @@
 <!--<script src="../release/go.js"></script>
 <script src="../extensions/HyperlinkText.js"></script>
 <script src="../assets/js/goSamples.js"></script>   this is only for the GoJS Samples framework -->
-<script src="gojs/release/go.js"></script>
-<script src="gojs/extensions/HyperlinkText.js"></script>
+<script src="dashboards/gojs/release/go.js"></script>
+<script src="dashboards/gojs/extensions/HyperlinkText.js"></script>
 
 <script id="code">
 //alert("here");
@@ -21,23 +21,6 @@ require([
 "dojo/request"
 ], function( dom, domStyle, request)
 {
-//var myColor = "white";
-/*getColor = function(id)
-{	//alert("ID:" + id);
-	request.post("../../analytics/dashboards/get-color.php",{
-		handleAs: "json",
-		data: { id: id }				
-	}).then(function(color)			
-	{
-		//alert("hapa " + myColor);
-		myColor = color.color;
-		//alert("hapa " + myColor);
-		dom.byId("color").innerHTML = color.color;
-		//console.log("Color = " + color.color);
-		//return myColor;
-	});
-	return myColor;
-}*/
   // These parameters need to be set before defining the templates.
   var MINLENGTH = 200;  // this controls the minimum length of any swimlane
   var MINBREADTH = 20;  // this controls the minimum breadth of any non-collapsed swimlane
@@ -100,7 +83,6 @@ require([
     return new go.Size(MINLENGTH, MINBREADTH);
   }
 
-
   // define a custom ResizingTool to limit how far one can shrink a lane Group
   function LaneResizingTool() {
     go.ResizingTool.call(this);
@@ -144,7 +126,6 @@ require([
     relayoutDiagram();  // now that the lane has changed size, layout the pool again
   };
   // end LaneResizingTool class
-
 
   // define a custom grid layout that makes sure the length of each lane is the same
   // and that each lane is broad enough to hold its subgraph
@@ -197,7 +178,6 @@ require([
     diagram.commitTransaction("PoolLayout");
   };
   // end PoolLayout class
-
 
   var init = function() {
     //if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
@@ -257,8 +237,9 @@ require([
 
 function showMessage(s) {
     //document.getElementById("changeMethodsMsg").textContent = s;
+    //console.log(s);
   }
-  
+
     myDiagram.nodeTemplate =
       $(go.Node, "Auto",
 	    new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -515,7 +496,7 @@ function showMessage(s) {
 	// create the model from the data in the JavaScript object parsed from JSON text
 	myDiagram.model = new go.GraphLinksModel(jsondata["nodes"], jsondata["links"]);
 	}
-	jQuery.getJSON("../../gojs-mark/samples/data/stratMapICT.php", loadJSON);
+	jQuery.getJSON("dashboards/gojs/data/stratMapKDIC.php", loadJSON);
     
     // force all lanes' layouts to be performed
     relayoutLanes();
@@ -527,9 +508,16 @@ init();
     document.getElementById("mySavedModel").value = myDiagram.model.toJson();
     myDiagram.isModified = false;
   }
+  
+  load = function() 
+  {
+    myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+    myDiagram.delayInitialization(relayoutDiagram);
+  }
+
   loadKDIC = function() 
   {
-		request.post("../../gojs-mark/samples/data/stratMapHacoArray.php",{
+		request.post("dashboards/gojs/data/stratMapKDIC.php",{
 			handleAs: "json",
 			data: {
 				
@@ -538,7 +526,7 @@ init();
 			{
 				var jsonData = JSON.stringify(data)
 				myDiagram.model = go.Model.fromJson(jsonData);
-				console.log("Data = "+JSON.stringify(data));
+				//console.log("Data = "+JSON.stringify(data));
     			myDiagram.delayInitialization(relayoutDiagram);
 			})
 	//jQuery.getJSON("../gojs-mark/samples/data/stratMapHaco.php", haco);
@@ -547,7 +535,7 @@ init();
   
   loadICT = function() 
   {
-    request.post("../../gojs-mark/samples/data/stratMapICTArray.php",{
+    request.post("dashboards/gojs/data/stratMapICTArray.php",{
 			handleAs: "json",
 			data: {
 				
@@ -556,7 +544,7 @@ init();
 			{
 				var jsonData = JSON.stringify(data)
 				myDiagram.model = go.Model.fromJson(jsonData);
-				console.log("Data = "+JSON.stringify(data));
+				//console.log("Data = "+JSON.stringify(data));
     			myDiagram.delayInitialization(relayoutDiagram);
 			})
   }
@@ -581,6 +569,8 @@ init();
             <td><div id="myDiagramDiv" style="border:border 1px solid white; width:850px; height:550px;"></div></td>
         </tr>
         <tr><td><div id="mapDrillDown"></div></td></tr>
+        <tr><td><button id="SaveButton" onclick="save()">Save</button><button onclick="load()">Load</button></td>
+        <tr><td><textarea id="mySavedModel" style="width:60%;height:100px"></textarea></td></tr>
     </table>
     <!--</div>-->
  

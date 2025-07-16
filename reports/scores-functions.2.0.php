@@ -1,7 +1,10 @@
 <?php
 //file_put_contents("test.txt", "Are we getting here?");
 //include("../../config/config_mysqli.php");
-include("../functions/functions.php");
+$path = $_SERVER['DOCUMENT_ROOT'];
+$path .= "/bpa/functions/functions.php";
+include_once($path);
+//include("/bpa/functions/functions.php");
 
 if(isset($_POST['pillarId']))
 {
@@ -156,7 +159,7 @@ function getOwnColor($score)
 {
 	if($score >= 6.67) $color = "green";
 	else if($score >= 3.33 && $score < 6.67) $color = "yellow";
-	else if($score > 0 && $score < 3.33) $color = "red";
+	else if($score >= 0 && $score < 3.33) $color = "red";
 	else $color = "grey";
 	return $color;
 }
