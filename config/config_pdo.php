@@ -2,8 +2,8 @@
 //error_reporting(E_ALL ^ E_DEPRECATED);
 
 $host = 'localhost';
-$user = 'root';
-$pass = 'Hermione#1989';
+$user = 'accenta0_user';
+$pass = 'bvM1369';
 $dbName = 'kdic_local';
 $port = '3306';
 

@@ -113,11 +113,6 @@ if(@$userPermission[1]["permission_id"] == "3000" && $view == "True") $view = "F
 }
 
 </style>
-<script src="https://cors-anywhere.herokuapp.com/https://accent-analytics.com/highCharts414/js/adapters/standalone-framework.js"></script>
-<script src="https://cors-anywhere.herokuapp.com/https://accent-analytics.com/highCharts414/js/highcharts.js"></script>
-<script src="https://cors-anywhere.herokuapp.com/https://accent-analytics.com/highCharts414/js/highcharts-more.js"></script>
-<script src="https://cors-anywhere.herokuapp.com/https://accent-analytics.com/highCharts404/js/modules/drilldown.js"></script>
-<script src="https://cors-anywhere.herokuapp.com/https://accent-analytics.com/highCharts414/js/themes/sand-signika.js"></script>
 
 <script src="js/measure.js"></script>
 <script type="text/javascript" src="https://accent-analytics.com/dojo/dojo.js" data-dojo-config="async: true, parseOnLoad: true"></script>
