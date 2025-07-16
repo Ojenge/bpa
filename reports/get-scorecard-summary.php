@@ -37,7 +37,7 @@ for($i = 0; $i < $perspCount; $i++)
         $table .= "<tr class='table-primary'>";
         $table .= "<td class='border-bottom-0'>";
         $table .= '<button class="float-start btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="'.$rowIdRef.'" aria-expanded="true" aria-controls="'.$rowId.'">
-        <i class="bi bi-chevron-expand fs-6"></i>
+        <i class="bi bi-chevron-bar-expand fs-6"></i>
                         </button>&nbsp;';
         //$table .= "</td><td>";
         $table .= "<div class='float-start grey3d'></div>&nbsp;";
