@@ -1,10 +1,7 @@
 <?php
 
 //include_once("../config.php");
-//include_once("../../../bpa/analytics/functions.php");
-$path = $_SERVER['DOCUMENT_ROOT'];
-$path .= "/bpa/functions/functions.php";
-include_once($path);
+include_once("../../../bpa/analytics/functions.php");
 
 //@$objectId = $_POST['objectId'];
 //@$objectPeriod = $_POST['objectPeriod'];
