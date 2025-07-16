@@ -1,6 +1,6 @@
 <?php
-$username="root";
-$password="Hermione#1989";
+$username="accenta0_user";
+$password="bvM1369";
 $database="kdic_local";
 $server="localhost";
 $port = "3306";

@@ -2,8 +2,8 @@
 //Database Information
 $db_host = "localhost"; //Host address (most likely localhost)
 $db_name = "kdic_local"; //Name of Database
-$db_user = "root"; //Name of database user
-$db_pass = "Hermione#1989"; //Password for database user
+$db_user = "accenta0_user"; //Name of database user
+$db_pass = "bvM1369"; //Password for database user
 $db_table_prefix = "uc_";
 
 GLOBAL $errors;

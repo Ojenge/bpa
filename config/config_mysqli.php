@@ -1,5 +1,5 @@
 <?php
-$username="root";
+$username="accenta0_user";
 $password="bvM1369";
 $database="kdic_local";
 $server="localhost";
