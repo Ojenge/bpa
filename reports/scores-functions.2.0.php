@@ -146,17 +146,25 @@ function getScore($kpiArray)
 }
 function getColor($score)
 {
-	if($score >= 6.67) $color = "bg-success";
-	else if($score >= 3.33 && $score < 6.67) $color = "bg-warning";
-	else if($score > 0) $color = "bg-danger";
+	if($score >= 6.67) $color = "table-success";
+	else if($score >= 3.33 && $score < 6.67) $color = "table-warning";
+	else if($score > 0  && $score < 3.33) $color = "table-danger";
 	else $color = "table-secondary";
+	return $color;
+}
+function getOwnColor($score)
+{
+	if($score >= 6.67) $color = "green";
+	else if($score >= 3.33 && $score < 6.67) $color = "yellow";
+	else if($score > 0 && $score < 3.33) $color = "red";
+	else $color = "grey";
 	return $color;
 }
 function getColor3d($score)
 {
 	if($score >= 6.67) $color = "green3d";
 	else if($score >= 3.33 && $score < 6.67) $color = "yellow3d";
-	else if($score > 0) $color = "red3d";
+	else if($score > 0 && $score < 3.33) $color = "red3d";
 	else $color = "grey3d";
 	return $color;
 }

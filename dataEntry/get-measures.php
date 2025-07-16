@@ -1,6 +1,6 @@
 <?php
-include_once("../config_msqli.php");
-include_once("../models/config.php");
+include_once("../config/config_msqli.php");
+include_once("../admin/models/config.php");
 
 @$objectId = $_POST['objectId'];
 @$objectPeriod = $_POST['objectPeriod'];
@@ -119,19 +119,19 @@ while($row = mysqli_fetch_assoc($get_gauge_result))
 	{
 		if($indKpiRow["3score"] < 3.3) 
 		{
-			echo "<td class='border-end-0'><div class='rounded-circle trafficLightBootstrap bg-danger'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//red
+			echo "<td class='border-end-0'><div class='red3d'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//red
 		}
 		else if($indKpiRow["3score"] >= 3.3 && $indKpiRow["3score"] < 6.67) 
 		{
-			echo "<td class='border-end-0'><div class='rounded-circle trafficLightBootstrap bg-warning'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//yellow
+			echo "<td class='border-end-0'><div class='yellow3d'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//yellow
 		}
 		else if($indKpiRow["3score"] >= 6.67) 
 		{
-			echo "<td class='border-end-0'><div class='rounded-circle trafficLightBootstrap bg-success'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//green
+			echo "<td class='border-end-0'><div class='green3d'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//green
 		}
 		else 
 		{
-			echo "<td class='border-end-0'><div class='rounded-circle trafficLightBootstrap bg-secondary'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//grey
+			echo "<td class='border-end-0'><div class='grey3d'></div></td><td class='border-start-0' style='text-align:center;'>".round($indKpiRow["3score"],2)."</td>";//grey
 		}
 	}
 	

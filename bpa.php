@@ -88,7 +88,7 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
                     <div id="dbMenu" data-dojo-type="dijit/Menu">
                     </div>
             	</div>-->
-                <div id="reports" data-dojo-type="dijit/MenuBarItem">Reports</div>
+                <!--<div id="reports" data-dojo-type="dijit/MenuBarItem">Reports</div>-->
                  <div id="calendarMenu" data-dojo-type="dijit/MenuBarItem">Calendar</div>
                 <!--<div id="inboxMenu" data-dojo-type="dijit/MenuBarItem">Inbox</div>-->
                  <?php if($view == "False") {?>

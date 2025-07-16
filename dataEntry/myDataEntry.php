@@ -1,5 +1,5 @@
 <?php
-require_once("../models/config.php");
+require_once("../admin/models/config.php");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -87,7 +87,7 @@ if(dijit.byId("bulkMeasureDialog2"))
 //if(dom.byId("dataEntryUserId").innerHTML == 'ind1')
 //{
 	domStyle.set(dom.byId("individualInput"), 'display', 'block');
-	request.post("../userCalls/get-users.php",{
+	request.post("userCalls/get-users.php",{
 	handleAs: "json",
 	data: {
 	}
@@ -220,7 +220,7 @@ savePdp = function(id)//Put these later in a single js file since they are also 
 		}
 		else pdpId = pdpEditId;*/
 		//console.log("Value = " + dom.byId("dataEntryUserId").innerHTML)
-		request.post("save-pdp.php",{
+		request.post("individual/save-pdp.php",{
 		//handleAs: "json",
 		data: {
 				userId : dom.byId("dataEntryUserId").innerHTML,
@@ -246,7 +246,7 @@ savePdp = function(id)//Put these later in a single js file since they are also 
 	}
 	else
 	{
-		request.post("save-pdp.php",{
+		request.post("individual/save-pdp.php",{
 		//handleAs: "json",
 		data: {
 				userId : tnAdd,
@@ -275,7 +275,7 @@ editPip = function(id)
 	//console.log("editPip = " + id);
 	myPipEdit = 'Edit';
 	myPipEditId = id;
-	request.post("get-pdp.php",{
+	request.post("individual/get-pdp.php",{
 		handleAs: "json",
 		data:{
 			pdpId: myPipEditId
@@ -320,7 +320,7 @@ updateComment = function(objectId, loggedInUser, note)
 //updateComment = function(note)
 {
 	//alert(note + " and " + objectId);
-	request.post("save-comment.php",{
+	request.post("myDataEntry/save-comment.php",{
 	data: {
 		objectId: objectId,
 		loggedInUser: loggedInUser,
@@ -336,7 +336,7 @@ updateComment = function(objectId, loggedInUser, note)
 
 function myEditorHandler(editorContent)
 {
-	request.post("../scorecards/save-editor-content.php",{
+	request.post("scorecards/save-editor-content.php",{
 	data: {
 		Type: "interpretation",
 		objectId: dom.byId("dataEntryUserId").innerHTML,

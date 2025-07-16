@@ -2,7 +2,7 @@
 error_reporting(0); //To show all - change 0 to E_ALL
 ini_set('display_errors', 0); //To show all - change 0 to 1
 //require_once("../models/config.php");
-include_once("../config_msqli.php");
+include_once("../config/config_msqli.php");
 
 @$objectId = $_POST['objectId'];
 @$objectDate = $_POST['objectDate'];

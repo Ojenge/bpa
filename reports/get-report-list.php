@@ -1,7 +1,6 @@
 <?php
 include_once("../config/config_mysqli.php");
 $linkedTo = $_POST["linkedTo"];
-$linkedTo = $_POST["linkedTo"];
 //$linkedTo = "org1";
 $reportList = mysqli_query($connect, "SELECT reportName, Id FROM report WHERE linkedTo = '$linkedTo'");
 $rowsCount = mysqli_num_rows($reportList);

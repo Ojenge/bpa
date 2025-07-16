@@ -1,10 +1,12 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 include_once("../config/config_mysqli.php");
 include_once("../functions/functions.php");
 include_once("../functions/calendar-labels.php");
 include_once("../functions/perspOrg-scores.php");
 function groupInitiatives($initiativeId)
 {
+	global $connect;
 	$initiativeQuery = mysqli_query($connect, "SELECT id, name FROM initiative WHERE id = '$initiativeId'");
 	$initiativeNumRows = mysqli_num_rows($initiativeQuery);
 	$initiativeCount = 1;
@@ -82,7 +84,7 @@ function groupInitiatives($initiativeId)
 
 $get_report_type = mysqli_query($connect, "SELECT Type FROM report WHERE Id = '$reportId'");
 $get_report_type = mysqli_fetch_assoc($get_report_type);
-$reportType = $get_report_type["Type"];
+@$reportType = $get_report_type["Type"];
 
 switch($reportType)
 {
@@ -107,6 +109,7 @@ switch($reportType)
 
 function cascadeReport($reportType, $objectDate)
 {
+	global $connect;
 	$cascadeOrgName = NULL;
 	$cascadeReport = mysqli_query($connect, "SELECT objective.id AS objId, objective.name AS objName, objective.cascadedFrom AS cascadedFrom, objective.linkedObject AS linkedObject FROM objective WHERE cascadedfrom IS NOT NULL");
 	//echo "<table border='1'><tr><td>Linked To</td><td>Obj Name</td><td>Cascaded From</td><td>Cascaded From Objective</td></tr>";
@@ -155,9 +158,11 @@ function cascadeReport($reportType, $objectDate)
 	}
 	echo "]";	
 }
-customReport('0', 'customReport', '2021-04');
+customReport('0', 'customReport', '2025-07');
 function customReport($reportId, $reportType, $objectDate)
 {
+	global $connect;
+	$objectFilter = "";
 	$colSpan = 0;
 	$colHeaders = "<tr>";
 	$get_report = mysqli_query($connect, "SELECT * FROM report WHERE id = '$reportId'");
@@ -283,7 +288,8 @@ function customReport($reportId, $reportType, $objectDate)
 		$data = substr($data, 1, -1);
 		echo $data.",";
 	}
-	echo "\"Measure\":[";
+	//echo "\"Measure\":[";
+	echo "[";
 	$data = NULL;
 	
 	/***************************************************************************************************
@@ -324,7 +330,7 @@ function customReport($reportId, $reportType, $objectDate)
 			$perspectives = mysqli_query($connect, "SELECT perspective.id AS perspId, perspective.name AS perspName 
 			FROM perspective WHERE parentId = '$orgId'");
 		
-		echo "###=>".$perspective_count = mysqli_num_rows($perspectives);
+		$perspective_count = mysqli_num_rows($perspectives);
 		$perspRowCount = $perspective_count;
 		if($perspective_count == 0)
 		{
@@ -838,13 +844,14 @@ function customReport($reportId, $reportType, $objectDate)
 	/***************************************************************************************************
 	End of code to get scorecard details...
 	****************************************************************************************************/
-	echo "{}]}";
+	echo "{}]";
 	//echo "]}";
 }
 
 //initiativeReport(12, 'initiativeReport', '2017-07');
 function initiativeReport($reportId, $reportType, $objectDate)
 {
+	global $connect;
 	$get_report = mysqli_query($connect, "SELECT report.reportName AS reportName, report.selectedObjects AS selectedObjects, report_init.sponsor AS sponsor, report_init.owner AS owner, report_init.budget AS budget, report_init.cost AS cost, report_init.start AS start, report_init.due AS due, report_init.completed AS completed, report_init.deliverable AS deliverable, report_init.deliverableStatus AS deliverableStatus, report_init.parent AS parent, report_init.red AS red, report_init.yellow AS yellow, report_init.green AS green FROM report, report_init 
 	WHERE report.id = '$reportId' AND report_init.id = '$reportId'");
 	//echo "{
@@ -986,11 +993,12 @@ function initiativeReport($reportId, $reportType, $objectDate)
 		//echo $row["budget"];
 		if($row["sponsor"] == "true")
 		{
-			$sponsorId = $initRow["sponsor"];
+			/*$sponsorId = $initRow["sponsor"];
 			$names = mysqli_query($connect, "SELECT display_name FROM uc_users WHERE user_id = '$sponsorId'");
 			$names = mysqli_fetch_assoc($names);
 			if($names["display_name"] == NULL || $names["display_name"] == '') $data["sponsor"] = ''; 
-			else $data["sponsor"] = $names["display_name"];  
+			else $data["sponsor"] = $names["display_name"];  */
+			$data["sponsor"] = "";
 		}
 		if($row["owner"] == "true")
 		{
@@ -1087,5 +1095,6 @@ function initiativeReport($reportId, $reportType, $objectDate)
 		//if ($count == 2) exit;
 	}
 	echo "]}";
+	//echo "]";
 }
-?>f
+?>

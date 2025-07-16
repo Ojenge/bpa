@@ -1,22 +1,22 @@
 <?php
-
+error_reporting(E_ERROR | E_PARSE); //remove this line in production
 include_once("../../../config/config_mysqli.php");
 include_once("../../../admin/models/config.php");
 include_once("../../../reports/scores-functions.2.0.php");
-//include_once("../../../reports/scores-functions.2.0.php");
+include_once("../../../functions/functions.php");
 
 @$objectId = $_POST['objectId'];
 @$objectPeriod = $_POST['objectPeriod'];
 @$objectDate = $_POST['objectDate'];
 @$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
 
-//@$objectId = "org1";
-//@$objectPeriod = "months";
-//@$objectDate = "2024-03-03";
-//@$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
+@$objectId = "org1";
+@$objectPeriod = "months";
+@$objectDate = "2025-07-14";
+@$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
 
 //$userPermission = fetchUserPermissions($loggedInUser->user_id);
-$userPermission = fetchUserPermissions("16");
+$userPermission = fetchUserPermissions("1");
 
 //echo json_encode($userPermission, JSON_PRETTY_PRINT);
 
@@ -66,7 +66,8 @@ while($row = mysqli_fetch_array($staffQuery))
 	{
 		//echo "If";
 		$score = individualScore($row["user_id"], $objectDate);
-		$orgArray[$count]["className"] = getColor($score);
+		$orgArray[$count]["className"] = getOwnColor($score);
+		//$orgArray[$count]["className"] = "green";
 	}
 	else
 	{
@@ -115,7 +116,7 @@ for($i=1; $i<sizeof($orgArray); $i++)
 	$orgArray[$i]["reportsTo"] = $orgArray[$parent]["id"];
 }
 //echo "<pre>";
-$org = json_encode(findParent($orgArray), JSON_PRETTY_PRINT);
+$org = json_encode(findParent($orgArray));
 $org = substr($org, 1);
 $org = substr($org, 0, -1);
 echo $org;

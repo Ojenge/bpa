@@ -712,7 +712,7 @@ indDashboard = function()
 		cp = new ContentPane({
 		region: "center",
 		"class": "bpaPrint",
-			href: "../gojs-mark/samples/stratMap.html"
+			href: "dashboards/gojs/stratMap.html"
 		});
 		cp.placeAt("appLayout");
 	
@@ -1558,6 +1558,18 @@ postTreeCreation = function()
 				postComment();
 				break; //end of mainMenuItem case for Scorecard
 			}
+			case "performanceContract":
+			{
+				//domStyle.set(dom.byId("divIntro"), "display", "none");
+				dojo.byId("dynamicMenu").innerHTML = null;
+				var objectId = object.id;
+				var objectType = object.type;
+				kpiGlobalName = object.name;
+				tnAdd = object.id;
+				scorecardMain(objectId, objectType);
+				postComment();
+				break; //end of mainMenuItem case for Performance Contract
+			}
 			case "Initiatives":
 			{
 				kpiGlobalId = object.id;
@@ -2238,7 +2250,7 @@ postTreeCreation = function()
 	}
 	hideMeasureAddDialog = function()
 	{
-		console.log(dijit.byId("collectionFrequency")); // Add this line
+		//console.log(dijit.byId("collectionFrequency")); // Add this line
 
 		// Fix: Add null check to prevent "Cannot read properties of undefined" error
 		var collectionFrequencyWidget = dijit.byId("collectionFrequency");
@@ -2315,7 +2327,7 @@ postTreeCreation = function()
 		//var treeId = tnEditHolder.item.id;
 		}
 		registry.byId("newMeasureDialog").hide(); //putting this here to see whether the owner tags will pick up properly
-		//console.log("Edit type is "+ edit);
+		console.log("Edit type is "+ edit + "; mainMenuState = " + mainMenuState);
 		//tnContent = object.name;
 		request.post("layout/save-tree.php",{
 			// The URL of the request
@@ -2349,7 +2361,8 @@ postTreeCreation = function()
 				weight: weight,
 				archive: archive,
 				kpiCascade: kpiCascade,
-				kraListId: kraListId
+				kraListId: kraListId,
+				mainMenuState: mainMenuState //adding this to help distinguish trees
 			}
 			}).then(function(treeId) {
 				//alert("After save id is: "+treeId+" and name is: "+ kpiName);
@@ -3663,37 +3676,6 @@ postTreeCreationTwo = function()
 bscMenuCase = function()
 {
 	//you may need to put the content in the case in a function if you are to use the same to the Performance Contract
-	/*		
-	request.post("reports/get-report-elements.php",{
-	handleAs: "json"
-	}).then(function(data)
-	{
-		var reportCounter = 0;
-		while(reportCounter < data.length)
-		{
-			var trial = tree.getDomNodeById(data[reportCounter].id);
-			trial.labelNode.style.color = "black";
-			trial.labelNode.style.fontWeight = "normal";
-			//trial.labelNode.style.backgroundColor = "green";
-			reportCounter++;
-		}
-	});
-	//being lazy here - running these two files yet one could have clicked weither report or initiative. refine this when the mind wakes up.
-	request.post("initiatives/get-initiative-elements.php",{
-	handleAs: "json"
-	}).then(function(data)
-	{
-		var initiativeCounter = 0;
-		while(initiativeCounter < data.length)
-		{
-			var trial = tree.getDomNodeById(data[initiativeCounter].id);
-			trial.labelNode.style.color = "black";
-			trial.labelNode.style.fontWeight = "normal";
-			//trial.labelNode.style.backgroundColor = "green";
-			initiativeCounter++;
-		}
-	});
-	*/
 	cp = new ContentPane({
 	region: "center",
 	"class": "bpaPrint",
@@ -3968,38 +3950,7 @@ var onItemSelect = function(event)
 		}
 		case "initiatives":
 		{
-			//tree.expandAll();
-			request.post("reports/get-report-elements.php",{
-			handleAs: "json"
-			}).then(function(data)
-			{
-				var reportCounter = 0;
-				while(reportCounter < data.length)
-				{
-					var trial = tree.getDomNodeById(data[reportCounter].id);
-					trial.labelNode.style.color = "black";
-					trial.labelNode.style.fontWeight = "normal";
-					//trial.labelNode.style.backgroundColor = "green";
-					reportCounter++;
-				}
-			});
-
-			request.post("initiatives/get-initiative-elements.php",{
-			handleAs: "json"
-			}).then(function(data)
-			{
-				var initiativeCounter = 0;
-				while(initiativeCounter < data.length)
-				{
-					//console.log("linkedObject id = " + data[initiativeCounter].id);
-					var trial = tree.getDomNodeById(data[initiativeCounter].id);
-					trial.labelNode.style.color = "#006400";
-					trial.labelNode.style.fontWeight = "bold";
-					//trial.labelNode.style.backgroundColor = "green";
-					initiativeCounter++;
-				}
-				collapseTree();
-			});
+			treeFunction("bscData");
 
 			//var bc = dom.byId("appLayout");
 			mainMenuState = "Initiatives";
@@ -4155,6 +4106,29 @@ var onItemSelect = function(event)
 				domConstruct.destroy("nav-pip-tab");
 				domConstruct.destroy("nav-pip");
 				domConstruct.destroy("tablePIP");
+				
+				var reportTimer = setTimeout(function()
+				{
+					//Color the scorecard elements with initiatives
+					request.post("initiatives/get-initiative-elements.php",{
+					handleAs: "json"
+					}).then(function(data)
+					{
+						//tree.expandAll();
+						var initiativeCounter = 0;
+						while(initiativeCounter < data.length)
+						{
+							//console.log("linkedObject id = " + data[initiativeCounter].id);
+							var trial = tree.getDomNodeById(data[initiativeCounter].id);
+							trial.labelNode.style.color = "#006400";
+							trial.labelNode.style.fontWeight = "bold";
+							//trial.labelNode.style.backgroundColor = "green";
+							initiativeCounter++;
+						}
+						collapseTree();
+					});
+				},2000);
+
 				break;
 		}
 		case "flagshipProjects":
@@ -4180,10 +4154,10 @@ var onItemSelect = function(event)
 		case "reports":
 		{
 			mainMenuState = "Reports";
-
+			treeFunction("bscData");
 			cp = new ContentPane({
 				region: "center",
-				href:"report.php"
+				href:"reports/report.php"
 				});
 			cp.placeAt("appLayout");
 			domStyle.set(dom.byId("userSettings"), "display", "none");
@@ -4258,37 +4232,25 @@ var onItemSelect = function(event)
 			if(dijit.byId("newInitiativeReportDialog")) dijit.byId("newInitiativeReportDialog").destroy(true);
 			if(dijit.byId("newCascadeReportDialog")) dijit.byId("newCascadeReportDialog").destroy(true);
 			if(dijit.byId("selectObjectDialog")) dijit.byId("selectObjectDialog").destroy(true);
-
-			request.post("initiatives/get-initiative-elements.php",{
-			handleAs: "json"
-			}).then(function(data)
+			var reportTimer = setTimeout(function()
 			{
-				var initiativeCounter = 0;
-				while(initiativeCounter < data.length)
+				//Color the scorecard elements with reports
+				request.post("reports/get-report-elements.php",{
+				handleAs: "json"
+				}).then(function(data)
 				{
-					var trial = tree.getDomNodeById(data[initiativeCounter].id);
-					trial.labelNode.style.color = "black";
-					trial.labelNode.style.fontWeight = "normal";
-					//trial.labelNode.style.backgroundColor = "green";
-					initiativeCounter++;
-				}
-			});
-
-			request.post("reports/get-report-elements.php",{
-			handleAs: "json"
-			}).then(function(data)
-			{
-				var reportCounter = 0;
-				while(reportCounter < data.length)
-				{
-					var trial = tree.getDomNodeById(data[reportCounter].id);
-					trial.labelNode.style.color = "#006400";
-					trial.labelNode.style.fontWeight = "bold";
-					//trial.labelNode.style.backgroundColor = "green";
-					reportCounter++;
-				}
-				collapseTree();
-			});
+					var reportCounter = 0;
+					while(reportCounter < data.length)
+					{
+						var trial = tree.getDomNodeById(data[reportCounter].id);
+						trial.labelNode.style.color = "#006400";
+						trial.labelNode.style.fontWeight = "bold";
+						//trial.labelNode.style.backgroundColor = "green";
+						reportCounter++;
+					}
+					collapseTree();
+				});
+			},2000);
 			break;
 		}
 		case "calendarMenu":
@@ -7410,10 +7372,9 @@ initiativeMain = function(tnAdd, objectType, objectName)
 		if (dijit.byId("myTooltipDialog"))
 		{
 			dijit.byId("myTooltipDialog").destroy(true);
-			//alert("nimeharibiwa");
 		}
 		if(initiativeListContent.length == 0) dataForInitiativeListDiv = "No Initiative for Selected Item";
-		var reportTimer = setTimeout(function()
+		var initiativeListTimer = setTimeout(function()
 		{
 				var myTooltipDialog = new TooltipDialog({
 				id: 'myTooltipDialog',
@@ -7430,7 +7391,7 @@ initiativeMain = function(tnAdd, objectType, objectName)
 					around: dom.byId('dynamicMenu')
 				});
 			});
-		},500);			
+		},100);			
 	});
 	//domStyle.set(dom.byId("divConversation"), "display", "none");
 }
