@@ -662,22 +662,22 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 				if($row["dueDate"] <= date("Y-m-d") && $row["completionDate"] == NULL)
 				{
 					$ind_row["Color".$count] = "#eca1a6";//red
-					$ind_row["trafficLight".$count] = "rounded-circle bg-danger trafficLightBootstrap";
+					$ind_row["trafficLight".$count] = "red3d";
 				}
 				else if ($row["dueDate"] >= $row["completionDate"] && $row["completionDate"] != NULL)
 				{
 					$ind_row["Color".$count] = "#b5e7a0";//green
-					$ind_row["trafficLight".$count] = "rounded-circle bg-success trafficLightBootstrap";
+					$ind_row["trafficLight".$count] = "green3d";
 				}
 				else if ($row["completionDate"] > $row["dueDate"])
 				{
 					$ind_row["Color".$count] = "#ffef96";//yellow
-					$ind_row["trafficLight".$count] = "rounded-circle bg-warning trafficLightBootstrap";
+					$ind_row["trafficLight".$count] = "yellow3d";
 				}
 				else 
 				{
 					$ind_row["Color".$count] = "#FFFFFF";
-					$ind_row["trafficLight".$count] = "rounded-circle bg-secondary trafficLightBootstrap";
+					$ind_row["trafficLight".$count] = "grey3d";
 				}
 				$link_id = $row["id"];
 				

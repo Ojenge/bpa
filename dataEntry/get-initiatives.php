@@ -1,14 +1,14 @@
 <?php
 error_reporting(0); //To show all - change 0 to E_ALL
 ini_set('display_errors', 0); //To show all - change 0 to 1
-require_once("../models/config.php");
-include_once("../config_msqli.php");
+require_once("../admin/models/config.php");
+include_once("../config/config_msqli.php");
 
 @$objectId = $_POST['objectId'];
 @$objectPeriod = $_POST['objectPeriod'];
 @$objectDate = $_POST['objectDate'];
 
-file_put_contents("track.txt", "objectId = $objectId; objectDate = $objectDate");
+//file_put_contents("track.txt", "objectId = $objectId; objectDate = $objectDate");
 
 function numberToRoman($number) {
     $map = array('m' => 1000, 'cm' => 900, 'd' => 500, 'cd' => 400, 'c' => 100, 'xc' => 90, 'l' => 50, 'xl' => 40, 'x' => 10, 'ix' => 9, 'v' => 5, 'iv' => 4, 'i' => 1);
@@ -34,7 +34,7 @@ else
 	$year = date("Y", strtotime($objectDate));
 	$month = date("m", strtotime($objectDate));
 }
-$initiative_query="SELECT id, name, deliverable, startDate, dueDate, completionDate, parent FROM initiative WHERE projectManager = '$objectId' AND archive != 'Yes' AND dueDate LIKE '$year%'";
+$initiative_query="SELECT id, name, deliverable, startDate, dueDate, completionDate, parent FROM initiative WHERE projectManager = '$objectId' AND archive != 'Yes'";
 $initiative_result = mysqli_query($GLOBALS["___mysqli_ston"], $initiative_query);
 $initiative_count = mysqli_num_rows($initiative_result);
 
@@ -74,14 +74,14 @@ while($row = mysqli_fetch_assoc($initiative_result))
 		//$ind_row["completionDate".$count] = $row["completionDate"];
 		if($row["dueDate"] <= date("Y-m-d") && $row["completionDate"] == NULL)
 		//$color = "#eca1a6";//red
-		$color = "rounded-circle trafficLightBootstrap bg-danger";
+		$color = "red3d";
 		else if ($row["dueDate"] < $row["completionDate"] && $row["completionDate"] != NULL)
 		//$color = "#ffef96";//yellow
-		$color = "rounded-circle trafficLightBootstrap bg-warning";
+		$color = "yellow3d";
 		else if ($row["completionDate"] <= $row["dueDate"] && $row["completionDate"] != NULL)
 		//$color = "#b5e7a0";//green
-		$color = "rounded-circle trafficLightBootstrap bg-success";
-		else $color = "rounded-circle trafficLightBootstrap bg-secondary";
+		$color = "green3d";
+		else $color = "grey3d";
 		
 		$link_id = $row["id"];
 		//echo "<strong>".$link_id."</strong><br>";
@@ -103,7 +103,7 @@ while($row = mysqli_fetch_assoc($initiative_result))
 		}
 		if($row["dueDate"] == NULL || $row["dueDate"] == '0000-00-00' || $row["dueDate"] == '1970-01-01')
 		{
-			$color = "rounded-circle trafficLightBootstrap bg-secondary";
+			$color = "grey3d";
 			echo "<td class='border-end-0'><div class='$color'></div></td><td class='border-start-0' style='text-align:center; white-space:nowrap;'>No Due Date</td>";
 		}
 		else
@@ -184,11 +184,11 @@ while($row = mysqli_fetch_assoc($initiative_result))
 				//$ind_row["startDate".$count] = $row["startDate"];
 				//$ind_row["completionDate".$count] = $row["completionDate"];
 				if($rowTask["dueDate"] <= date("Y-m-d") && $rowTask["completionDate"] == NULL)
-				$color = "rounded-circle trafficLightBootstrap bg-danger";
+				$color = "red3d";
 				else if ($rowTask["dueDate"] < $rowTask["completionDate"] && $rowTask["completionDate"] != NULL)
-				$color = "rounded-circle trafficLightBootstrap bg-warning";
+				$color = "yellow3d";
 				else if ($rowTask["completionDate"] <= $rowTask["dueDate"] && $rowTask["completionDate"] != NULL)
-				$color = "rounded-circle trafficLightBootstrap bg-success";
+				$color = "green3d";
 				else $color = "#FFFFFF";
 				
 				$link_idTask = $rowTask["id"];
@@ -211,7 +211,7 @@ while($row = mysqli_fetch_assoc($initiative_result))
 				}
 				if($rowTask["dueDate"] == NULL || $rowTask["dueDate"] == '0000-00-00' || $rowTask["dueDate"] == '1970-01-01')
 				{
-					$color = "rounded-circle trafficLightBootstrap bg-secondary";
+					$color = "grey3d";
 					echo "<td class='border-end-0' style='white-space:nowrap;'><div class='$color'></div></td><td class='border-start-0' style='text-align:center; white-space:nowrap;'>No Due Date</td>";
 				}
 				else

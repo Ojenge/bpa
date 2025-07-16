@@ -3,10 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title>Organization Chart</title>
-  <link rel="icon" href="images/kdic/kdic-logo-mini.png">
-  <link rel="stylesheet" href="dashboards/orgChart/css/font-awesome.min.css">
+  <link rel="icon" href="images/favicons/favicon.ico">
+  <!--<link rel="stylesheet" href="dashboards/orgChart/css/font-awesome.min.css">
+  <link rel="stylesheet" href="dashboards/orgChart/css/jquery.orgchart.css">
+  <link rel="stylesheet" href="dashboards/orgChart/css/style.css">-->
+
   <link rel="stylesheet" href="dashboards/orgChart/css/jquery.orgchart.css">
   <link rel="stylesheet" href="dashboards/orgChart/css/style.css">
+
   <style type="text/css">
     .orgchart { background: #fff; }
     .orgchart td.left, .orgchart td.right, .orgchart td.top { border-color: #aaa; }
@@ -15,8 +19,8 @@
 	.orgchart .green .title { background-color: #090; }
     .orgchart .green .content { border-color: #090; }
     
-	.orgchart .amber .title { background-color:#FC0; }
-    .orgchart .amber .content { border-color: #FC0; }
+	.orgchart .yellow .title { background-color:#FFA500; }
+    .orgchart .yellow .content { border-color: #FFA500; }
     
 	.orgchart .red .title { background-color:#F00; }
     .orgchart .red .content { border-color: #F00; }
@@ -75,54 +79,42 @@
 	  height: 0px;
 	  top: 30px;
 	}
+
+	.orgchart .node .avatar {
+      border-radius: 50%;
+	  width: 72px;
+	  height: 72px;
+      box-shadow: rgba(99, 99, 99, 0.8) 0px 2px 8px 0px;
+    }
+    .orgchart .couple:has(> .nodes) > .node:first-child::after {
+      top: 148px;
+    }
+    .orgchart .couple::after  {
+      top: 148px;
+      width: 30px;
+      left: calc(50% - 15px);
+    }
+    .orgchart .couple:first-child:not(:only-child)::before {
+      width: calc(100% - 74px);
+      left: 74px;
+    }
+    .orgchart .hierarchy.couple:only-child::before {
+      width: 152px;
+      left: calc(50% - 76px);
+    }
+    .orgchart .couple:last-child:not(:only-child)::before {
+      width: calc(50% + 76px);
+    }
   </style>
 </head>
 <body>
 <div id="chart-container"></div>
-<!--<script type="text/javascript" src="dashboards/orgChart/js/jquery.min.js"></script>-->
+<!--<script type="text/javascript" src="dashboards/orgChart/js/jquery.min.js"></script>
+<script type="text/javascript" src="dashboards/orgChart/js/jquery.orgchart.js"></script>-->
 <script type="text/javascript" src="dashboards/orgChart/js/jquery.orgchart.js"></script>
-<script type="text/javascript">
-$(function() 
-{
-	$('#chart-container').orgchart({
-	'data':'dashboards/orgChart/database/org-chart.php',
-	'nodeContent': 'title',
-	'verticalLevel': 5,
-	'visibleLevel': 10,
-	'nodeID': 'user_id',
-	/*'direction': 'l2r',*/
-	'createNode': function($node, data) 
-	{
-		var secondMenuIcon = $('<i>', 
-		{
-			  'class': 'fa fa-info-circle second-menu-icon',
-			  click: function() 
-			  {
-				$(this).siblings('.second-menu').toggle();
-			  }
-		});
-		var secondMenu = '<div class="second-menu"><img class="avatar" src="' + data.photo + '"></div>';
-		$node.append(secondMenuIcon).append(secondMenu);
-		$node.on('click', function(event) 
-		{
-			orgDrillDown(data.user_id);
-		})
-		
-		if (data.title === "CEO") {
-          var assistantNode =
-            '<div class="assistant-node"><div class="connector"/><div class="title"><i class="fa fa-user-circle-o symbol"></i>Executive Assistant</div><div class="content">Executive Assistant</div><i class="edge verticalEdge bottomEdge fa"></i></div>';
-          //$node.append(assistantNode);
-        }
-	}
-});
-/*
-$('#chart-container').find('.node').on('click', function () {
-  alert(JSON.stringify($(this).data('nodeData')));
-});*/
-});
-</script>
+
 <?php
-require_once("../../admin/models/config.php");
+//require_once("../../admin/models/config.php");
 ?>
 <script type="text/javascript">
 require([
@@ -134,9 +126,56 @@ require([
 'dojo/domReady!'			
 ], function(dom, request,TooltipDialog, popup, on)
 {
-orgDrillDown = function(personalId)
+	request.post("dashboards/orgChart/database/org-chart.php",{
+	//request.post("dashboards/orgChart/database/kdicStructure.json",{
+	handleAs: "json"
+					
+	}).then(function(dataStructure) 
+	{
+		//dataStructure = JSON.parse(dataStructure);
+		$('#chart-container').orgchart({
+		'data':dataStructure,
+		'nodeContent': 'title',
+		'verticalLevel': 5,
+		//'visibleLevel': 10,
+		'nodeID': 'user_id',
+		/*'direction': 'l2r',*/
+		'createNode': function($node, data) 
+		{
+			//$node.prepend(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+		
+			//console.log("Are we getting herer? " + data);
+			var secondMenuIcon = $('<i>', 
+			{
+				'class': 'fa fa-info-circle second-menu-icon',
+				click: function() 
+				{
+					$(this).siblings('.second-menu').toggle();
+				}
+			});
+			var secondMenu = '<div class="second-menu"><img class="avatar" src="' + data.photo + '"></div>';
+			var staffPhoto = '<img class="avatar" src="' + data.photo + '">';
+			//$node.append(secondMenuIcon).append(secondMenu);
+			$node.prepend(staffPhoto);
+			$node.on('click', function(event) 
+			{
+				orgDrillDown(data.user_id);
+			})
+			
+			if (data.title === "CEO") {
+			var assistantNode =
+				'<div class="assistant-node"><div class="connector"/><div class="title"><i class="fa fa-user-circle-o symbol"></i>Executive Assistant</div><div class="content">Executive Assistant</div><i class="edge verticalEdge bottomEdge fa"></i></div>';
+			//$node.append(assistantNode);
+			}
+		}
+	});
+
+	});
+
+var orgDrillDown = function(personalId)
 {
-//console.log("globalDate = " + globalDate + "; period = " + period + "; personalId = " + personalId);//this test is to check if the global variables are set correctly and it works well.
+	//if(dom.byId("appraisalCheck").checked == true) showAppraisal();
+
 request.post("individual/get-appraisal.php",{
 handleAs: "json",
 data: {
@@ -148,7 +187,8 @@ data: {
 }						
 }).then(function(data) 
 {
-	if (data['photo'] == undefined) dom.byId("personalPhoto").innerHTML = "<img class='rounded-3' src='../../upload/images/default.jpg' max-width='200' height='122'  />";
+	//console.log("Selected Date is " + globalDate);
+	if (data['photo'] == undefined) dom.byId("personalPhoto").innerHTML = "<img class='rounded-3' src='upload/images/default.jpg' max-width='200' height='122'  />";
 	else dom.byId("personalPhoto").innerHTML = "<img class='rounded-3' src='"+data['photo']+"' max-width='200' height='122' align='middle' />";
 	
 	var combinedData = null;
@@ -313,12 +353,12 @@ data: {
 
 var appraisalWait = setTimeout(function()
 {
-	showAppraisal();
+	//showAppraisal();
 },100)
 
 }//end of personalDashboard Function
 orgDrillDown("ind1");
-/*showAppraisal = function()
+var showAppraisal = function()
 {
 	if(dom.byId("appraisalCheck").checked == true)
 	{//show appraisal form
@@ -330,17 +370,17 @@ orgDrillDown("ind1");
 		query(".appraisalNode").style("display", "none");
 		query(".signature").style("display", "none");
 	}
-}*/
+}
 })
 </script>
-<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
 <br><br>
 
 <div>
 
 <table>
 	<tr>
-		<td><div id="personalDetails"></div>Personal Details</td>
+		<td><div id="personalDetails"></div></td>
 		<td valign="top"><div id="personalPhoto"></div></td>
 	</tr>
 	<tr><td colspan="2"> <div id="measurePersonalContent"></div></td></tr>

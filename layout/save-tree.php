@@ -177,6 +177,7 @@ $kpiOwner = isset($_POST['kpiOwner']) ? mysqli_real_escape_string($connect, $_PO
 $measureType = isset($_POST['measureType']) ? mysqli_real_escape_string($connect, $_POST['measureType']) : '';
 $dataType = isset($_POST['dataType']) ? mysqli_real_escape_string($connect, $_POST['dataType']) : '';
 $aggregationType = isset($_POST['aggregationType']) ? mysqli_real_escape_string($connect, $_POST['aggregationType']) : '';
+$kraListId = isset($_POST['kraListId']) ? mysqli_real_escape_string($connect, $_POST['kraListId']) : '';
 
 // Numeric fields with proper validation and sanitization
 $darkGreen = isset($_POST['darkGreen']) ? str_replace(',', '', mysqli_real_escape_string($connect, $_POST['darkGreen'])) : '0';
@@ -225,6 +226,7 @@ if ($objectType == 'measure' && $tree_edit == 'editMe') {
 $archive = isset($_POST['archive']) ? mysqli_real_escape_string($connect, $_POST['archive']) : 'No';
 $kpiCascade = isset($_POST['kpiCascade']) ? mysqli_real_escape_string($connect, $_POST['kpiCascade']) : '';
 $indPhoto = isset($_POST['indPhoto']) ? mysqli_real_escape_string($connect, $_POST['indPhoto']) : '';
+$mainMenuState = isset($_POST['mainMenuState']) ? mysqli_real_escape_string($connect, $_POST['mainMenuState']) : '';
 $sort = 3000;
 
 switch($objectType)
@@ -273,7 +275,7 @@ switch($objectType)
 				die("Error inserting organization");
 			}
 
-			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'organization', 'no', '3000')");
+			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort, bscType) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'organization', 'no', '3000' , '$mainMenuState')");
 			if (!$insert_tree) {
 				mysqli_rollback($connect);
 				file_put_contents("error.txt", "Error inserting tree: " . mysqli_error($connect));
@@ -339,7 +341,7 @@ switch($objectType)
 				die("Error inserting perspective");
 			}
 
-			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'perspective', 'no', '3000')");
+			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort, bscType) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'perspective', 'no', '3000', '$mainMenuState')");
 			if (!$insert_tree) {
 				mysqli_rollback($connect);
 				file_put_contents("error.txt", "Error inserting tree: " . mysqli_error($connect));
@@ -395,6 +397,23 @@ switch($objectType)
 				die("Error updating tree");
 			}
 
+			$update_kra_link = mysqli_query($connect, "UPDATE objective_kra_map SET kraId = '$kraListId' WHERE objectiveId='$tree_id'");
+			if(mysqli_affected_rows($connect) == 0) 
+			{
+				$insert_kra_link = mysqli_query($connect, "INSERT INTO objective_kra_map (id, objectiveId, kraId) VALUES (default, '$tree_id', '$kraListId')");
+				if (!$insert_kra_link) {
+					mysqli_rollback($connect);
+					file_put_contents("error.txt", "Error inserting KRA link: " . mysqli_error($connect));
+					die("Error inserting KRA link");
+				}
+			} 
+			elseif (!$update_kra_link) 
+			{
+				mysqli_rollback($connect);
+				file_put_contents("error.txt", "Error updating KRA link: " . mysqli_error($connect));
+				die("Error updating KRA link");
+			}
+
 			mysqli_commit($connect);
 			mysqli_autocommit($connect, TRUE);
 		}
@@ -412,7 +431,7 @@ switch($objectType)
 				die("Error inserting objective");
 			}
 
-			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'objective', 'no', '3000')");
+			$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort, bscType) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'objective', 'no', '3000', '$mainMenuState')");
 			if (!$insert_tree) {
 				mysqli_rollback($connect);
 				file_put_contents("error.txt", "Error inserting tree: " . mysqli_error($connect));
@@ -439,6 +458,14 @@ switch($objectType)
 					die("Error updating objective weights");
 				}
 			}
+
+			//Link the new objective to a KRA
+			$insert_kra_link = mysqli_query($connect, "INSERT INTO objective_kra_map (id, objectiveId, kraId) VALUES (default, '$tree_id', '$kraListId')");
+				if (!$insert_kra_link) {
+					mysqli_rollback($connect);
+					file_put_contents("error.txt", "Error inserting KRA link: " . mysqli_error($connect));
+					die("Error inserting KRA link");
+				}
 
 			mysqli_commit($connect);
 			mysqli_autocommit($connect, TRUE);
@@ -511,7 +538,7 @@ switch($objectType)
 				//file_put_contents("measure_debug.txt", "No valid staff found, using default owner\n", FILE_APPEND);
 				// Use tree_parent as default owner (the parent objective/perspective owner)
 				try {
-					save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiOwner, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags);
+					save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiOwner, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $bscType);
 					// Get the last created measure ID to return
 					$last_id_query = mysqli_query($connect, "SELECT MAX(CAST(SUBSTRING(id, 4, length(id)-3) AS UNSIGNED)) as max_id FROM measure");
 					if ($last_id_query) {
@@ -529,9 +556,9 @@ switch($objectType)
 				for($i = 0; $i < $totalStaff; $i++)
 				{
 					try {
-						save_bulk_kpi($idArray[$i], $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $idArray[$i], $idArray[$i], $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags);
+						save_bulk_kpi($idArray[$i], $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $idArray[$i], $idArray[$i], $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $bscType);
 					} catch (Exception $e) {
-						file_put_contents("error.txt", "Error creating measure for staff " . $idArray[$i] . ": " . $e->getMessage());
+						//file_put_contents("error.txt", "Error creating measure for staff " . $idArray[$i] . ": " . $e->getMessage());
 						// Continue with other staff members
 					}
 				}
@@ -598,7 +625,7 @@ switch($objectType)
 				die("Error checking tree existence");
 			}
 			if(mysqli_num_rows($tree_exists) == 0){
-				$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'individual', 'no', '3000')");
+				$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort, bscType) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'individual', 'no', '3000', '$mainMenuState')");
 				if(!$insert_tree){
 					mysqli_rollback($connect);
 					file_put_contents("error.txt", "Error inserting individual into tree: " . mysqli_error($connect));

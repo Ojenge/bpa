@@ -1,8 +1,8 @@
 <?php
 error_reporting(0); //To show all - change 0 to E_ALL
 ini_set('display_errors', 0); //To show all - change 0 to 1
-require_once("../models/config.php");
-include_once("../config_msqli.php");
+require_once("../admin/models/config.php");
+include_once("../config/config_msqli.php");
 
 @$objectId = $_POST['objectId'];
 //@$objectPeriod = $_POST['objectPeriod'];
@@ -37,7 +37,7 @@ while($row = mysqli_fetch_assoc($pip_result))
 	echo "<td>".$row["intervention"]."</td>";
 	if($row["startDate"] == NULL || $row["startDate"] == '0000-00-00' || $row["startDate"] == '1970-01-01')
 	{
-		$color = "rounded-circle trafficLightBootstrap bg-secondary";
+		$color = "grey3d";
 		echo "<td class='border-end-0'><div class='$color'></div></td><td class='border-start-0' style='text-align:center; white-space:nowrap;'>No Start Date</td>";
 	}
 	else
@@ -46,19 +46,19 @@ while($row = mysqli_fetch_assoc($pip_result))
 		echo "<td class='border-start-0' style='text-align:center; white-space:nowrap;'>".$startDate."</td>";
 	}
 	if($row["dueDate"] <= date("Y-m-d") && $row["completionDate"] == NULL)
-	$color = "rounded-circle trafficLightBootstrap bg-danger";
+	$color = "red3d";
 	
 	else if ($row["dueDate"] < $row["completionDate"] && $row["completionDate"] != NULL)
-	$color = "rounded-circle trafficLightBootstrap bg-warning";
+	$color = "yellow3d";
 	
 	else if ($row["completionDate"] <= $row["dueDate"] && $row["completionDate"] != NULL)
-	$color = "rounded-circle trafficLightBootstrap bg-success";
+	$color = "green3d";
 	
-	else $color = "rounded-circle trafficLightBootstrap bg-secondary";
+	else $color = "grey3d";
 	
 	if($row["dueDate"] == NULL || $row["dueDate"] == '0000-00-00' || $row["dueDate"] == '1970-01-01')
 	{
-		$color = "rounded-circle trafficLightBootstrap bg-secondary";
+		$color = "grey3d";
 		echo "<td class='border-end-0'><div class='$color'></div></td><td class='border-start-0' style='text-align:center; white-space:nowrap;'>No Due Date</td>";
 	}
 	else

@@ -1,7 +1,7 @@
 <?php
 // Check if we're being called from the analytics directory or a subdirectory
 include_once("../config/config_mysqli.php");
-function save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiUpdater, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $tags)
+function save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiUpdater, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $tags, $bscType)
 {
 	global $connect;
 
@@ -59,7 +59,7 @@ function save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescr
 		}
 
 		// Insert into tree table
-		$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'measure', 'no', '$sort')");
+		$insert_tree = mysqli_query($connect, "INSERT INTO tree (id, name, parent, type, linked, sort, bscType) VALUES ('$tree_id', '$tree_name', '$tree_parent', 'measure', 'no', '$sort', '$bscType')");
 
 		if (!$insert_tree) {
 			throw new Exception("Error inserting tree: " . mysqli_error($connect));

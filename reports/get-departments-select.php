@@ -7,6 +7,6 @@ while($result = mysqli_fetch_array($query))
 	$id = '"'.$result["id"].'"';
 	$name = $result["name"];
 	
-	echo "<li><a class='dropdown-item' href='#' onClick='getDepartmentStaffReport($id)'>$name</a></li>";
+	echo "<li><a class='dropdown-item' href='#' onClick='getScorecardSummaryReport($id)'>$name</a></li>";
 }
 ?>

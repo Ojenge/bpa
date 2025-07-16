@@ -136,9 +136,9 @@ while($row = mysqli_fetch_array($staffQuery))
             else $photo = '<image height="40" src="'.$row["photo"].'" class="d-inline-block rounded-circle border border-primary">';
 	
 	if($indScore == "") $trafficLight = '<div class="rounded-circle trafficLightBootstrap bg-white" style="float:left;"></div>';
-	else if($indScore > 0 && $indScore < 50) $trafficLight = '<div class="rounded-circle trafficLightBootstrap bg-danger" style="float:left;"></div>';
-	else if($indScore >= 50 && $indScore < 69) $trafficLight = '<div class="rounded-circle trafficLightBootstrap bg-warning" style="float:left;"></div>';
-	else if($indScore >= 70) $trafficLight = '<div class="rounded-circle trafficLightBootstrap bg-success" style="float:left;"></div>';
+	else if($indScore > 0 && $indScore < 50) $trafficLight = '<div class="red3d" style="float:left;"></div>';
+	else if($indScore >= 50 && $indScore < 69) $trafficLight = '<div class="yellow3d" style="float:left;"></div>';
+	else if($indScore >= 70) $trafficLight = '<div class="green3d" style="float:left;"></div>';
 	
 	echo "<tr>"
 	.'<td>'

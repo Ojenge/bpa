@@ -1,0 +1,79 @@
+    {
+        "id": 1,
+        "user_id": "ind3",
+        "user_name": "hellen.chepkwony",
+        "photo": null,
+        "title": "CEO",
+        "department": "org1",
+        "name": "Hellen Chepkwony",
+        "reportsTo": 0,
+        "className": "table-secondary",
+        "children": [
+            {
+                "id": 2,
+                "user_id": "ind4",
+                "user_name": "peter.ibrae",
+                "photo": null,
+                "title": "Deputy Director HR & Admin",
+                "department": "org6",
+                "name": "Peter Ibrae",
+                "reportsTo": 1,
+                "className": "table-secondary"
+            },
+            {
+                "id": 3,
+                "user_id": "ind5",
+                "user_name": "paul.manga",
+                "photo": null,
+                "title": "Director, DI & BS",
+                "department": "org7",
+                "name": "Paul Manga",
+                "reportsTo": 1,
+                "className": "table-secondary"
+            },
+            {
+                "id": 4,
+                "user_id": "ind6",
+                "user_name": "mary.kiragu",
+                "photo": null,
+                "title": "DIrector, Internal Audit",
+                "department": "org5",
+                "name": "Mary Kiragu",
+                "reportsTo": 1,
+                "className": "table-secondary"
+            },
+            {
+                "id": 5,
+                "user_id": "ind7",
+                "user_name": "lawrence.shoona",
+                "photo": null,
+                "title": "Deputy Director, Strategy & Planning",
+                "department": "org5",
+                "name": "Lawrence Shoona",
+                "reportsTo": 1,
+                "className": "table-secondary"
+            },
+            {
+                "id": 6,
+                "user_id": "ind8",
+                "user_name": "eunice.kitche",
+                "photo": null,
+                "title": "Director, Legal",
+                "department": "org2",
+                "name": "Eunice Kitche",
+                "reportsTo": 1,
+                "className": "bg-danger"
+            },
+            {
+                "id": 7,
+                "user_id": "ind9",
+                "user_name": "crispus.yankem",
+                "photo": null,
+                "title": "Assistant Director",
+                "department": "org8",
+                "name": "Crispus Yankem",
+                "reportsTo": 1,
+                "className": "table-secondary"
+            }
+        ]
+    }

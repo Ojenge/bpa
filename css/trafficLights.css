@@ -8,7 +8,7 @@
 	width: 30px;
     height: 30px;
     background: red;
-    border: 1px solid black;
+    border: 1px solid grey;
 }
 .trafficLightBootstrap
 {
@@ -23,7 +23,7 @@
 	width: 30px;
     height: 30px;
     background: yellow;
-    border: 1px solid black;
+    border: 1px solid grey;
 }
 .greenLight
 {
@@ -32,7 +32,7 @@
 	width: 30px;
     height: 30px;
     background: green;
-    border: 1px solid black;
+    border: 1px solid grey;
 }
 .greyLight
 {
@@ -41,7 +41,7 @@
 	width: 30px;
     height: 30px;
     background: grey;
-    border: 1px solid black;
+    border: 1px solid grey;
 }
 .redColor
 {
@@ -72,3 +72,51 @@
 {
     color: #009900; /*cross check*/
 }
+
+.green3d {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    
+  background: -webkit-radial-gradient(65% 15%, circle, white 1px, lightgreen 3%, darkgreen 60%, lightgreen 100%); 
+  background: -moz-radial-gradient(65% 15%, circle, white 1px, lightgreen 3%, darkgreen 60%, lightgreen 100%); 
+  background: -o-radial-gradient(65% 15%, circle, white 1px, lightgreen 3%, darkgreen 60%, lightgreen 100%);
+  background: radial-gradient(circle at 65% 15%, white 1px, lightgreen 3%, darkgreen 60%, lightgreen 100%);   
+  
+  }
+
+  .yellow3d {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    
+  background: -webkit-radial-gradient(65% 15%, circle, white 1px, gold 3%, darkorange 60%, gold 100%); 
+  background: -moz-radial-gradient(65% 15%, circle, white 1px, gold 3%, darkorange 60%, gold 100%); 
+  background: -o-radial-gradient(65% 15%, circle, white 1px, gold 3%, darkorange 60%, gold 100%);
+  background: radial-gradient(circle at 65% 15%, white 1px, gold 3%, darkorange 60%, gold 100%);    
+  
+  }
+
+  .red3d {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    
+  background: -webkit-radial-gradient(65% 15%, circle, white 1px, red 3%, firebrick 60%, red 100%); 
+  background: -moz-radial-gradient(65% 15%, circle, white 1px, red 3%, firebrick 60%, red 100%); 
+  background: -o-radial-gradient(65% 15%, circle, white 1px, red 3%, firebrick 60%, red 100%);
+  background: radial-gradient(circle at 65% 15%, white 1px, red 3%, firebrick 60%, red 100%);    
+  
+  }
+
+  .grey3d {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    
+  background: -webkit-radial-gradient(65% 15%, circle, white 1px, grey 3%, darkgrey 60%, grey 100%); 
+  background: -moz-radial-gradient(65% 15%, circle, white 1px, grey 3%, darkgrey 60%, grey 100%); 
+  background: -o-radial-gradient(65% 15%, circle, white 1px, grey 3%, darkgrey 60%, grey 100%);
+  background: radial-gradient(circle at 65% 15%, white 1px, grey 3%, darkgrey 60%, grey 100%);    
+  
+  }

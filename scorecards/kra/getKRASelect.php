@@ -9,7 +9,7 @@ $row_count = mysqli_num_rows($kra_result) or die("Could not count rows");
 if ($row_count == null) exit;
 
 $count = 1;
-echo "{ \"identifier\": \"KRA\", \"label\": \"KRA\", \"items\": [";
+echo "{ \"identifier\": \"kraName\", \"label\": \"kraName\", \"items\": [";
 while($row = mysqli_fetch_assoc($kra_result))
 {
 	$data["id"] = $count;

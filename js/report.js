@@ -21,7 +21,7 @@ require([
 {
 	deleteReport = function(reportId)
 	{
-		request.post("../reports/delete-report.php", 
+		request.post("reports/delete-report.php", 
 		{
 			handleAs: "json",
 			data:{
@@ -37,7 +37,7 @@ require([
 		selectedReport = reportId;
 		//alert(reportId+', Test');
 		//console.log("Global date is: " + globalDate);
-		request.post("../reports/get-report.php", 
+		request.post("reports/get-report.php", 
 		{
 			handleAs: "json",
 			data:{
@@ -63,7 +63,7 @@ require([
 		selectedReport = reportId;
 		//alert(reportId+', Test');
 		//console.log("Global date is: " + globalDate + " and org is " + orgId + " and report id is " + reportId);
-		request.post("../reports/get-report.php", 
+		request.post("reports/get-report.php", 
 		{
 			handleAs: "json",
 			data:{
@@ -386,7 +386,7 @@ require([
 			if(dbReport == "true")
 			var initiatives = "<table class='reportTable'><tr style='background-color: #aabcfe'><th>Indicator(s)</th><th>Actual</th><th>Target</th></tr>";
 			else
-			var initiatives = "<table class='reportTable'><tr><th colspan='2'>"+data.reportName+"<img src='../images/icons/delete.png' align='right' style='cursor:pointer' onclick='deleteReport(" + reportId + ")' /></th></tr><tr style='background-color: #aabcfe'><th>Initiative</th><th>Indicator</th><th>Actual</th><th>Target</th></tr>";
+			var initiatives = "<table class='reportTable'><tr><th colspan='2'>"+data.reportName+"<img src='images/icons/delete.png' align='right' style='cursor:pointer' onclick='deleteReport(" + reportId + ")' /></th></tr><tr style='background-color: #aabcfe'><th>Initiative</th><th>Indicator</th><th>Actual</th><th>Target</th></tr>";
 			var count = 0;
 			while(count < data.Initiatives.length)
 			{
@@ -631,7 +631,7 @@ require([
 		if(dijit.byId("initGreenFilter").checked)
 			displayInitGreenFilter = "true";
 		
-		request.post("../reports/save-report.php", 
+		request.post("reports/save-report.php", 
 		{
 			//handleAs: "json",
 			data:{
