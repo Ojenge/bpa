@@ -47,7 +47,7 @@ if(!empty($_GET))
 	<title>Accent Analytics</title>
 
 <?php
-include("header_local.php")
+include("header.php")
 ?>
 <body class="bpaPrint soria">
 <!--
@@ -641,7 +641,7 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
 </div>
 
 <?php
-include_once ('footer_local.php');
+include_once ('footer.php');
 ?>
   <!--<div style="display:none"><span id="lastSelected"></span></div>  -->
 </body>

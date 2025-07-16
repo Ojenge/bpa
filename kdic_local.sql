@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:8889
--- Generation Time: Jul 16, 2025 at 07:03 AM
--- Server version: 8.0.35
--- PHP Version: 8.3.8
+-- Host: localhost
+-- Generation Time: Jul 16, 2025 at 09:49 AM
+-- Server version: 9.3.0
+-- PHP Version: 8.4.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -1033,6 +1033,7 @@ INSERT INTO `measure` (`id`, `name`, `calendarType`, `measureType`, `description
 ('kpi158', 'Culture Entropy', 'Yearly', 'Standard KPI', '', 'obj203', 'Percentage(%)', 'Last Value', '', '', NULL, '20', '0', '22', '', NULL, 'threeColor', '', 'No', 3000, '[]'),
 ('kpi159', 'Recommendations Implemented', 'Yearly', 'Standard KPI', '', 'obj203', 'Standard', 'Last Value', 'ind3', 'ind3', NULL, '13', '0', '25', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind3\\\",\\\"label\\\":\\\"Hellen Chepkwony\\\"}]'),
 ('kpi16', 'Number of identified records digitized', 'Yearly', 'Standard KPI', '', 'obj118', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '500000', '0', '1000000', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
+('kpi160', 'Recommendations Implemented', 'Monthly', 'Standard KPI', '', 'obj206', 'Standard', 'Last Value', 'ind7', 'ind7', NULL, '13', '0', '25', '0', NULL, 'threeColor', '', 'No', 3000, '[{\\\"value\\\":\\\"ind7\\\",\\\"label\\\":\\\"Lawrence Shoona\\\"}]'),
 ('kpi17', 'Certifications Retained', 'Yearly', 'Standard KPI', '', 'obj118', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '1', '0', NULL, 'goalOnly', '', 'No', 3000, '[]'),
 ('kpi18', 'Living Wills', 'Yearly', 'Standard KPI', '', 'obj119', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '2', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
 ('kpi19', 'AI Report', 'Yearly', 'Standard KPI', '', 'obj119', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '1', '0', NULL, 'goalOnly', '', 'No', 3000, '[]'),
@@ -1042,9 +1043,9 @@ INSERT INTO `measure` (`id`, `name`, `calendarType`, `measureType`, `description
 ('kpi22', 'Implemented Recommendations', 'Yearly', 'Standard KPI', '', 'obj119', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '1', '0', NULL, 'goalOnly', '', 'No', 3000, '[]'),
 ('kpi23', 'Retention Rate', 'Yearly', 'Standard KPI', '', 'obj120', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '95', '0', '96', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
 ('kpi24', 'Staff Recruited', 'Yearly', 'Standard KPI', '', 'obj120', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '11', '0', '24', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
-('kpi25', 'Implemented Recommendations', 'Yearly', 'Standard KPI', '', 'obj120', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '100', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
-('kpi26', 'Productivity Index Improved', 'Yearly', 'Standard KPI', '', 'obj120', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '2.323', '0', '2.5', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
-('kpi27', 'Culture Entropy', 'Yearly', 'Standard KPI', '', 'obj120', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '22', '0', '20', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
+('kpi25', 'Implemented Recommendations', 'Yearly', 'Standard KPI', '', 'obj204', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '0', '0', '100', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
+('kpi26', 'Productivity Index Improved', 'Yearly', 'Standard KPI', '', 'obj205', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '2.323', '0', '2.5', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
+('kpi27', 'Culture Entropy', 'Yearly', 'Standard KPI', '', 'obj206', 'Percentage(%)', 'Last Value', 'ind0', 'ind0', NULL, '22', '0', '20', '0', NULL, 'threeColor', '', 'No', 3000, '[]'),
 ('kpi28', 'Corporate Culture: Recommendations', 'Yearly', 'Standard KPI', 'Corporate Culture', 'obj120', 'Standard', 'Last Value', 'ind0', 'ind0', NULL, '13', '0', '25', '', NULL, 'threeColor', '', 'No', 3000, '[]'),
 ('kpi29', 'Budget absorption rate', 'Monthly', 'Standard KPI', '', 'obj121', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '78', '0', '100', '', NULL, 'threeColor', '', 'No', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('kpi3', 'Level of adherence to procurement plan', 'Monthly', 'Standard KPI', '', 'obj112', 'Percentage(%)', 'Last Value', 'ind8', 'ind8', NULL, '100', '0', '93', '', NULL, 'threeColor', '', 'No', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
@@ -1545,16 +1546,16 @@ CREATE TABLE `objective` (
 --
 
 INSERT INTO `objective` (`id`, `name`, `description`, `outcome`, `linkedObject`, `linkedObjectType`, `owner`, `notes`, `chartType`, `organization`, `cascadedfrom`, `weight`, `sortColumn`, `tags`) VALUES
-('obj111', 'Deposit Insurance', 'Prudent Management of the Deposit Insurance Fund', '', 'persp8', NULL, 'ind7', NULL, NULL, 'pc', '', '3300', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
-('obj112', 'Institutional Capacity Development', 'Enhance prudence in the utilisation of resources', '', 'persp8', NULL, '[]', NULL, NULL, NULL, '', '0.33', 3000, NULL),
-('obj113', 'Resolution of Problem Banks', 'Reduce the amount owed by debtors and wind up financial institutions in liquidation', '', 'persp8', NULL, '[]', NULL, NULL, NULL, '', '0.33', 3000, NULL),
-('obj114', 'Institutional Capacity Development', 'Improve Public Awareness Index from 14% in 2023 to 28% in 2028 ', '', 'persp9', NULL, '[]', NULL, NULL, NULL, '', '0.50', 3000, NULL),
-('obj115', 'Risk Minimization', 'Establish and enhance strategic collaborations and partnerships with stakeholders', '', 'persp9', NULL, '[]', NULL, NULL, NULL, '', '0.50', 3000, NULL),
-('obj116', 'Deposit Insurance', 'Enhance depositor protection and compensation', '', 'persp10', NULL, '[]', NULL, NULL, NULL, '', '0.25', 3000, NULL),
-('obj117', 'Resolution of Problem Banks', 'Wind-up financial institutions in liquidation', '', 'persp10', NULL, '[]', NULL, NULL, NULL, '', '0.25', 3000, NULL),
-('obj118', 'Institutional Capacity Development', 'To automate processes and digitize records', '', 'persp10', NULL, '[]', NULL, NULL, NULL, '', '0.25', 3000, NULL),
-('obj119', 'Risk Minimization', 'Strengthen Early Intervention Framework', '', 'persp10', NULL, '[]', NULL, NULL, NULL, '', '0.25', 3000, NULL),
-('obj120', 'Institutional Capacity Development', '', '', 'persp11', NULL, '[]', NULL, NULL, NULL, '', '1.00', 3000, NULL),
+('obj111', 'Prudent Management of the Deposit Insurance Fund', 'Prudent Management of the Deposit Insurance Fund', '', 'persp8', NULL, 'ind7', NULL, NULL, 'pc', '', '330000.0000', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj112', 'Enhance prudence in the utilisation of resources', 'Enhance prudence in the utilisation of resources', '', 'persp8', NULL, 'ind7', NULL, NULL, NULL, '', '0.3300', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj113', 'Reduce the amount owed by debtors and wind up financial institutions in liquidation', 'Reduce the amount owed by debtors and wind up financial institutions in liquidation', '', 'persp8', NULL, 'ind7', NULL, NULL, NULL, '', '0.3300', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj114', 'Improve Public Awareness Index from 14% in 2023 to 28% in 2028', 'Improve Public Awareness Index from 14% in 2023 to 28% in 2028 ', '', 'persp9', NULL, 'ind7', NULL, NULL, NULL, '', '0.5000', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj115', 'Establish and enhance strategic collaborations and partnerships with stakeholders', 'Establish and enhance strategic collaborations and partnerships with stakeholders', '', 'persp9', NULL, 'ind7', NULL, NULL, NULL, '', '0.5000', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj116', 'Enhance depositor protection and compensation', 'Enhance depositor protection and compensation', '', 'persp10', NULL, 'ind7', NULL, NULL, NULL, '', '0.2500', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj117', 'Wind-up financial institutions in liquidation', 'Wind-up financial institutions in liquidation', '', 'persp10', NULL, 'ind7', NULL, NULL, NULL, '', '0.2500', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj118', 'To automate processes and digitize records', 'To automate processes and digitize records', '', 'persp10', NULL, 'ind7', NULL, NULL, NULL, '', '0.2500', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj119', 'Strengthen Early Intervention Framework', 'Strengthen Early Intervention Framework', '', 'persp10', NULL, 'ind7', NULL, NULL, NULL, '', '0.2500', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj120', 'Attract, acquire and retain talent', '', '', 'persp11', NULL, 'ind7', NULL, NULL, NULL, '', '0.25', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
 ('obj121', 'Enhance prudence in the utilisation of resources', '', 'Institutional Capacity Development', 'persp12', NULL, 'ind6', NULL, NULL, NULL, '', '100', 3000, '[{\"value\":\"ind6\",\"label\":\"Mary Kiragu\"},{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj122', 'Establish & enhance strategic collaborations & partnerships with stakeholders', '', 'Risk minimization', 'persp13', NULL, 'ind8', NULL, NULL, NULL, '', '0.33', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
 ('obj123', 'Promote confidence & trust among stakeholders', '', 'Institutional Capacity Development', 'persp13', NULL, 'ind8', NULL, NULL, NULL, '', '0.33', 3000, '[{\"value\":\"ind8\",\"label\":\"Eunice Kitche\"}]'),
@@ -1634,7 +1635,10 @@ INSERT INTO `objective` (`id`, `name`, `description`, `outcome`, `linkedObject`,
 ('obj200', 'Improve Crisis Management Framework', '', 'Risk Minimization', 'ind3', NULL, 'ind3', NULL, NULL, NULL, '', '0.08', 3000, '[{\"value\":\"ind3\",\"label\":\"Hellen Chepkwony\"}]'),
 ('obj201', 'Strengthen Employee Morale', '', 'Institutional Capacity Development', 'ind3', NULL, 'ind3', NULL, NULL, NULL, '', '0.08', 3000, '[{\"value\":\"ind3\",\"label\":\"Hellen Chepkwony\"}]'),
 ('obj202', 'Institutionalize Performance Management and Staff Productivity', '', 'Institutional Capacity Development', 'ind3', NULL, 'ind3', NULL, NULL, NULL, '', '0.08', 3000, '[{\"value\":\"ind3\",\"label\":\"Hellen Chepkwony\"}]'),
-('obj203', 'Build a vibrant and cohesive organizational culture', '', 'Institutional Capacity Development', 'ind3', NULL, 'ind3', NULL, NULL, NULL, '', '0.08', 3000, '[{\"value\":\"ind3\",\"label\":\"Hellen Chepkwony\"}]');
+('obj203', 'Build a vibrant and cohesive organizational culture', '', 'Institutional Capacity Development', 'ind3', NULL, 'ind3', NULL, NULL, NULL, '', '0.08', 3000, '[{\"value\":\"ind3\",\"label\":\"Hellen Chepkwony\"}]'),
+('obj204', 'Strengthen employee morale and motivation', '', '', 'persp11', NULL, 'ind7', NULL, NULL, NULL, '', '0.25', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj205', 'Instittutionalize performance management and staff productivity', '', '', 'persp11', NULL, 'ind7', NULL, NULL, NULL, '', '0.25', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]'),
+('obj206', 'Build a vibrant and cohesive organizational culture', '', '', 'persp11', NULL, 'ind7', NULL, NULL, NULL, '', '0.25', 3000, '[{\"value\":\"ind7\",\"label\":\"Lawrence Shoona\"}]');
 
 -- --------------------------------------------------------
 
@@ -1666,8 +1670,21 @@ CREATE TABLE `objective_kra_map` (
 
 INSERT INTO `objective_kra_map` (`id`, `objectiveId`, `kraId`) VALUES
 (1, 'obj121', '4'),
-(2, 'obj111', ''),
-(3, 'obj111', '');
+(2, 'obj111', '1'),
+(3, 'obj111', '1'),
+(4, 'obj112', '4'),
+(5, 'obj113', '3'),
+(6, 'obj114', '4'),
+(7, 'obj115', '2'),
+(8, 'obj116', '1'),
+(9, 'obj117', '3'),
+(10, 'obj118', '4'),
+(11, 'obj119', '2'),
+(12, 'obj120', '4'),
+(13, 'obj120', '4'),
+(14, 'obj204', '4'),
+(15, 'obj205', '4'),
+(16, 'obj206', '4');
 
 -- --------------------------------------------------------
 
@@ -1992,44 +2009,44 @@ INSERT INTO `tree` (`idTree`, `id`, `name`, `parent`, `type`, `linked`, `sort`, 
 (262, 'persp8', 'Financial Perspective', 'org1', 'perspective', 'no', 3000, ''),
 (263, 'persp9', 'Customer Perspective', 'org1', 'perspective', 'no', 3000, ''),
 (264, 'persp10', 'Internal Business Process Perspective', 'org1', 'perspective', 'no', 3000, ''),
-(265, 'obj111', 'Deposit Insurance', 'persp8', 'objective', 'no', 3000, ''),
+(265, 'obj111', 'Prudent Management of the Deposit Insurance Fund', 'persp8', 'objective', 'no', 3000, ''),
 (266, 'kpi1', 'Growth of the Investment income', 'obj111', 'measure', 'no', 3000, ''),
-(267, 'obj112', 'Institutional Capacity Development', 'persp8', 'objective', 'no', 3000, ''),
+(267, 'obj112', 'Enhance prudence in the utilisation of resources', 'persp8', 'objective', 'no', 3000, ''),
 (268, 'kpi2', 'Budget absorption rate', 'obj112', 'measure', 'no', 3000, ''),
 (269, 'kpi3', 'Level of adherence to procurement plan', 'obj112', 'measure', 'no', 3000, ''),
 (270, 'kpi4', 'Implementation of board resolutions', 'obj112', 'measure', 'no', 3000, ''),
 (271, 'kpi5', 'Management of litigation costs', 'obj112', 'measure', 'no', 3000, ''),
-(272, 'obj113', 'Resolution of Problem Banks', 'persp8', 'objective', 'no', 3000, ''),
+(272, 'obj113', 'Reduce the amount owed by debtors and wind up financial institutions in liquidation', 'persp8', 'objective', 'no', 3000, ''),
 (273, 'kpi6', 'Amount of loans/ debts collected', 'obj113', 'measure', 'no', 3000, ''),
-(274, 'obj114', 'Institutional Capacity Development', 'persp9', 'objective', 'no', 3000, ''),
+(274, 'obj114', 'Improve Public Awareness Index from 14% in 2023 to 28% in 2028', 'persp9', 'objective', 'no', 3000, ''),
 (275, 'kpi7', 'Public Awareness Index', 'obj114', 'measure', 'no', 3000, ''),
-(276, 'obj115', 'Risk Minimization', 'persp9', 'objective', 'no', 3000, ''),
+(276, 'obj115', 'Establish and enhance strategic collaborations and partnerships with stakeholders', 'persp9', 'objective', 'no', 3000, ''),
 (277, 'kpi8', 'Number of Engagements', 'obj115', 'measure', 'no', 3000, ''),
 (278, 'kpi9', 'Approval of the Deposit Insurance Academy', 'obj115', 'measure', 'no', 3000, ''),
-(279, 'obj116', 'Deposit Insurance', 'persp10', 'objective', 'no', 3000, ''),
+(279, 'obj116', 'Enhance depositor protection and compensation', 'persp10', 'objective', 'no', 3000, ''),
 (280, 'kpi20', '% of Fund to Insured Deposit (Coverage Ratio)', 'obj116', 'measure', 'no', 3000, ''),
 (281, 'kpi11', '% of Insured Deposits to Total Deposits', 'obj116', 'measure', 'no', 3000, ''),
-(282, 'obj117', 'Resolution of Problem Banks', 'persp10', 'objective', 'no', 3000, ''),
+(282, 'obj117', 'Wind-up financial institutions in liquidation', 'persp10', 'objective', 'no', 3000, ''),
 (283, 'kpi12', 'No. of targeted institutions for winding up', 'obj117', 'measure', 'no', 3000, ''),
 (284, 'kpi13', 'No of institutions wound up', 'obj117', 'measure', 'no', 3000, ''),
 (285, 'kpi14', 'Amount of dividend declared', 'obj117', 'measure', 'no', 3000, ''),
-(286, 'obj118', 'Institutional Capacity Development', 'persp10', 'objective', 'no', 3000, ''),
+(286, 'obj118', 'To automate processes and digitize records', 'persp10', 'objective', 'no', 3000, ''),
 (287, 'kpi15', 'Number of processes automated', 'obj118', 'measure', 'no', 3000, ''),
 (288, 'kpi16', 'Number of identified records digitized', 'obj118', 'measure', 'no', 3000, ''),
 (289, 'kpi17', 'Certifications Retained', 'obj118', 'measure', 'no', 3000, ''),
 (290, 'persp11', 'Organisational Capacity', 'org1', 'perspective', 'no', 3000, ''),
-(291, 'obj119', 'Risk Minimization', 'persp10', 'objective', 'no', 3000, ''),
+(291, 'obj119', 'Strengthen Early Intervention Framework', 'persp10', 'objective', 'no', 3000, ''),
 (292, 'kpi18', 'Living Wills', 'obj119', 'measure', 'no', 3000, ''),
 (293, 'kpi19', 'AI Report', 'obj119', 'measure', 'no', 3000, ''),
 (294, 'kpi20', 'CAMEL Reports', 'obj119', 'measure', 'no', 3000, ''),
 (295, 'kpi21', 'Simulation exercises', 'obj119', 'measure', 'no', 3000, ''),
 (296, 'kpi22', 'Implemented Recommendations', 'obj119', 'measure', 'no', 3000, ''),
-(297, 'obj120', 'Institutional Capacity Development', 'persp11', 'objective', 'no', 3000, ''),
+(297, 'obj120', 'Attract, acquire and retain talent', 'persp11', 'objective', 'no', 3000, ''),
 (298, 'kpi23', 'Retention Rate', 'obj120', 'measure', 'no', 3000, ''),
 (299, 'kpi24', 'Staff Recruited', 'obj120', 'measure', 'no', 3000, ''),
-(300, 'kpi25', 'Implemented Recommendations', 'obj120', 'measure', 'no', 3000, ''),
-(301, 'kpi26', 'Productivity Index Improved', 'obj120', 'measure', 'no', 3000, ''),
-(302, 'kpi27', 'Culture Entropy', 'obj120', 'measure', 'no', 3000, ''),
+(300, 'kpi25', 'Implemented Recommendations', 'obj204', 'measure', 'no', 3000, ''),
+(301, 'kpi26', 'Productivity Index Improved', 'obj205', 'measure', 'no', 3000, ''),
+(302, 'kpi27', 'Culture Entropy', 'obj206', 'measure', 'no', 3000, ''),
 (303, 'kpi28', 'Corporate Culture: Recommendations', 'obj120', 'measure', 'no', 3000, ''),
 (335, 'org2', 'Legal Services Directorate', 'org1', 'organization', 'no', 3000, ''),
 (336, 'persp12', 'Financial Perspective', 'org2', 'perspective', 'no', 1, ''),
@@ -2275,7 +2292,11 @@ INSERT INTO `tree` (`idTree`, `id`, `name`, `parent`, `type`, `linked`, `sort`, 
 (582, 'kpi157', 'Productivity Index Improved', 'obj202', 'measure', 'no', 3000, ''),
 (583, 'obj203', 'Build a vibrant and cohesive organizational culture', 'ind3', 'objective', 'no', 3000, ''),
 (584, 'kpi158', 'Culture Entropy', 'obj203', 'measure', 'no', 3000, ''),
-(585, 'kpi159', 'Recommendations Implemented', 'obj203', 'measure', 'no', 3000, '');
+(585, 'kpi159', 'Recommendations Implemented', 'obj203', 'measure', 'no', 3000, ''),
+(586, 'obj204', 'Strengthen employee morale and motivation', 'persp11', 'objective', 'no', 3000, 'Scorecards'),
+(587, 'obj205', 'Instittutionalize performance management and staff productivity', 'persp11', 'objective', 'no', 3000, 'Scorecards'),
+(588, 'obj206', 'Build a vibrant and cohesive organizational culture', 'persp11', 'objective', 'no', 3000, 'Scorecards'),
+(589, 'kpi160', 'Recommendations Implemented', 'obj206', 'measure', 'no', 3000, '');
 
 -- --------------------------------------------------------
 
@@ -2962,24 +2983,6 @@ CREATE TABLE `v_user_notification_summary` (
 ,`notifications_last_30_days` bigint
 ,`last_notification_date` datetime
 );
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_notification_stats`
---
-DROP TABLE IF EXISTS `v_notification_stats`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`accenta0_NGIwY`@`localhost` SQL SECURITY DEFINER VIEW `v_notification_stats`  AS SELECT `ns`.`id` AS `schedule_id`, `ns`.`name` AS `schedule_name`, `nt`.`email_type` AS `email_type`, count(`nl`.`id`) AS `total_sent`, count((case when (`nl`.`status` = 'sent') then 1 end)) AS `successful_sent`, count((case when (`nl`.`status` = 'failed') then 1 end)) AS `failed_sent`, max(`nl`.`sent_date`) AS `last_sent`, `ns`.`is_active` AS `is_active` FROM ((`notification_schedules` `ns` left join `notification_templates` `nt` on((`ns`.`template_id` = `nt`.`id`))) left join `notification_logs` `nl` on((`ns`.`id` = `nl`.`schedule_id`))) GROUP BY `ns`.`id`, `ns`.`name`, `nt`.`email_type`, `ns`.`is_active` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_user_notification_summary`
---
-DROP TABLE IF EXISTS `v_user_notification_summary`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`accenta0_NGIwY`@`localhost` SQL SECURITY DEFINER VIEW `v_user_notification_summary`  AS SELECT `u`.`id` AS `user_id`, `u`.`display_name` AS `display_name`, `u`.`email` AS `email`, count(`nl`.`id`) AS `total_notifications_received`, count((case when (`nl`.`sent_date` >= (now() - interval 30 day)) then 1 end)) AS `notifications_last_30_days`, max(`nl`.`sent_date`) AS `last_notification_date` FROM (`uc_users` `u` left join `notification_logs` `nl` on((`u`.`id` = `nl`.`user_id`))) WHERE (`u`.`active` = 1) GROUP BY `u`.`id`, `u`.`display_name`, `u`.`email` ;
 
 --
 -- Indexes for dumped tables
@@ -3695,7 +3698,7 @@ ALTER TABLE `objectiveteam`
 -- AUTO_INCREMENT for table `objective_kra_map`
 --
 ALTER TABLE `objective_kra_map`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `pdp`
@@ -3749,7 +3752,7 @@ ALTER TABLE `supervisor_score`
 -- AUTO_INCREMENT for table `tree`
 --
 ALTER TABLE `tree`
-  MODIFY `idTree` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=586;
+  MODIFY `idTree` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=590;
 
 --
 -- AUTO_INCREMENT for table `uc_configuration`
@@ -3798,6 +3801,24 @@ ALTER TABLE `user_backup`
 --
 ALTER TABLE `user_notification_preferences`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_notification_stats`
+--
+DROP TABLE IF EXISTS `v_notification_stats`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_notification_stats`  AS SELECT `ns`.`id` AS `schedule_id`, `ns`.`name` AS `schedule_name`, `nt`.`email_type` AS `email_type`, count(`nl`.`id`) AS `total_sent`, count((case when (`nl`.`status` = 'sent') then 1 end)) AS `successful_sent`, count((case when (`nl`.`status` = 'failed') then 1 end)) AS `failed_sent`, max(`nl`.`sent_date`) AS `last_sent`, `ns`.`is_active` AS `is_active` FROM ((`notification_schedules` `ns` left join `notification_templates` `nt` on((`ns`.`template_id` = `nt`.`id`))) left join `notification_logs` `nl` on((`ns`.`id` = `nl`.`schedule_id`))) GROUP BY `ns`.`id`, `ns`.`name`, `nt`.`email_type`, `ns`.`is_active` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_user_notification_summary`
+--
+DROP TABLE IF EXISTS `v_user_notification_summary`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_user_notification_summary`  AS SELECT `u`.`id` AS `user_id`, `u`.`display_name` AS `display_name`, `u`.`email` AS `email`, count(`nl`.`id`) AS `total_notifications_received`, count((case when (`nl`.`sent_date` >= (now() - interval 30 day)) then 1 end)) AS `notifications_last_30_days`, max(`nl`.`sent_date`) AS `last_notification_date` FROM (`uc_users` `u` left join `notification_logs` `nl` on((`u`.`id` = `nl`.`user_id`))) WHERE (`u`.`active` = 1) GROUP BY `u`.`id`, `u`.`display_name`, `u`.`email` ;
 
 --
 -- Constraints for dumped tables
