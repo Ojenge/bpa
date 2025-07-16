@@ -16,23 +16,39 @@ $table = "<table class='table table-sm table-condensed'>";
 $table .= "<thead class='bg-secondary text-white'>"; 
 $table .= "</thead>"; 
 $table .= "<tbody>";
+$table .= "<tr><td>";
+
+$table .= "</td></tr>";
 for($i = 0; $i < $perspCount; $i++)
 {
     $perspScore = perspObjKpiScore($perspectives[$i]["id"]);
     $perspColor = getColor($perspScore);
+    $rowId = $perspectives[$i]["id"];
+    $rowIdRef = "#".$rowId;
+   
     if($perspColor == "bg-success")
-        $table .= "<tr class='table-primary'><td class='border-bottom-0'><div class='float-start green3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
+        $table .= "<tr class='table-primary' ><td class='border-bottom-0'><div class='float-start green3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
     elseif($perspColor == "bg-warning")
         $table .= "<tr class='table-primary'><td class='border-bottom-0'><div class='float-start yellow3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
     elseif($perspColor == "bg-danger")
         $table .= "<tr class='table-primary'><td class='border-bottom-0'><div class='float-start red3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
     else
-        $table .= "<tr class='table-primary'><td class='border-bottom-0'><div class='float-start grey3d'></div>&nbsp;".$perspectives[$i]["name"].$perspectives[$i]["icon"]."</td></tr>";
-
+    {
+        $table .= "<tr class='table-primary'>";
+        $table .= "<td class='border-bottom-0'>";
+        $table .= '<button class="float-start btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="'.$rowIdRef.'" aria-expanded="true" aria-controls="'.$rowId.'">
+        <i class="bi bi-chevron-expand"></i>
+                        </button>&nbsp;';
+        //$table .= "</td><td>";
+        $table .= "<div class='float-start grey3d'></div>&nbsp;";
+        $table .= $perspectives[$i]["name"];
+        $table .= $perspectives[$i]["icon"];
+        $table .= "</td></tr>";
+    }
     //$table .= "<tr style='background-color: rgba(150, 150, 150, 0.2) !important;'><td>".$perspectives[$i]["name"]."</td></tr>";
     //$table .= "<tr class='bg-gray-300'>".$perspectives[$i]["name"]."</td></tr>";//Expected this to work but it doesn't so hacked as above.
 
-    $objectiveTable = "<table class='table table-sm m-0 p-0 table-bordered'>";
+    $objectiveTable = "<table id='".$rowId."' class='table table-sm m-0 p-0 table-bordered collapse show'>";
     $objectiveTable .= "<thead class=''>";
     $objectiveTable .= "<tr>";
     $objectiveTable .= "<th scope='col' class='col-2' colspan='2'>Objective</th>";
