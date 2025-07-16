@@ -419,3 +419,15 @@ newdate = 2025-07; tempActual = 80
  Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 09:47:36 => 
  Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 09:47:36 => 
  Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 09:47:36 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
+ Could not execute kpi query on line 490 calendar-data.php date =>16 Jul 2025 14:49:04 => 
