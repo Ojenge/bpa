@@ -1,18 +1,17 @@
 <?php
 //include("../lab/header.html");
 ?>
-
 <div id="idParkingLot" style="display:none"></div>
-<button class="btn btn-primary btn-sm" onclick="moveLeft();" title="Previous Page">
+<button class="btn btn-outline-primary btn-sm" onclick="moveLeft();" title="Previous Page">
   <span class="fa fa-arrow-left" style="height:18px !important;"></span>
 </button>
-<button type="button" class="btn btn-primary btn-sm" onClick="moveRight()" title="Next Page">
+<button type="button" class="btn btn-outline-primary btn-sm" onClick="moveRight()" title="Next Page">
   <span class="fa fa-arrow-right" style="height:18px !important;"></span>
 </button>
-<button class="btn btn-primary btn-sm"  onclick="firstReport();">Home</button>&nbsp;
+<button class="btn btn-outline-primary btn-sm"  onclick="firstReport();">Home</button>&nbsp;
 
 <div class="btn-group" style="float:right;">
-  <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+  <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
     Select Department
   </button>
   <ul class="dropdown-menu" id="departmentList"></ul>
@@ -94,6 +93,5 @@ require([
 		getScorecardSummaryReport('org1');
 		dom.byId("idParkingLot").innerHTML = "org1";
 	}
-
 });
 </script>
