@@ -1,5 +1,8 @@
 <?php
-include_once("../config/config_mysqli.php");
+//include_once("../config/config_mysqli.php");
+$path = $_SERVER['DOCUMENT_ROOT'];
+$path .= "/bpa/config/config_mysqli.php";
+include_once($path);
 //include_once("functions/calendar-labels.php");
 //include_once("functions/perspOrg-scores.php");
 //echo return_color(5.0000, "fourColor");

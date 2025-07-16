@@ -1,7 +1,10 @@
 <?php
 
 //include_once("../config.php");
-include_once("../../../bpa/analytics/reports/scores-functions.2.0.php");
+$path = $_SERVER['DOCUMENT_ROOT'];
+$path .= "/bpa/reports/scores-functions.2.0.php";
+include_once($path);
+//include_once("../../../reports/scores-functions.2.0.php");
 
 //@$objectId = $_POST['objectId'];
 //@$objectPeriod = $_POST['objectPeriod'];
