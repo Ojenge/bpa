@@ -9,8 +9,8 @@ $organization = getOrganization($orgId);
 echo "<br>Scorecard Summary for ".$organization["name"]."<br>";
 
 // Organization has Perspectives
-$perspCount = count(getPerspectives($orgId));//Equal to table row numbers
-$perspectives = getPerspectives($orgId);
+$perspCount = count(getPerspectives($orgId, "Scorecards"));//Equal to table row numbers
+$perspectives = getPerspectives($orgId, "Scorecards");
 
 $table = "<table class='table table-sm table-condensed'>";
 $table .= "<thead class='bg-secondary text-white'>"; 

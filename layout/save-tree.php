@@ -215,14 +215,6 @@ if (strpos($weight, '%') !== false) {
     }
 }
 
-// Debug: Log all POST data for measure edits
-if ($objectType == 'measure' && $tree_edit == 'editMe') {
-    file_put_contents("weight_debug.txt", "POST data received for measure edit:\n", FILE_APPEND);
-    file_put_contents("weight_debug.txt", "tree_id: " . (isset($_POST['tree_id']) ? $_POST['tree_id'] : 'not set') . "\n", FILE_APPEND);
-    file_put_contents("weight_debug.txt", "raw weight: " . (isset($_POST['weight']) ? $_POST['weight'] : 'not set') . "\n", FILE_APPEND);
-    file_put_contents("weight_debug.txt", "processed weight: $weight\n", FILE_APPEND);
-    file_put_contents("weight_debug.txt", "weight type: " . (strpos($weight, '%') !== false ? 'percentage' : 'numeric') . "\n", FILE_APPEND);
-}
 $archive = isset($_POST['archive']) ? mysqli_real_escape_string($connect, $_POST['archive']) : 'No';
 $kpiCascade = isset($_POST['kpiCascade']) ? mysqli_real_escape_string($connect, $_POST['kpiCascade']) : '';
 $indPhoto = isset($_POST['indPhoto']) ? mysqli_real_escape_string($connect, $_POST['indPhoto']) : '';
@@ -333,8 +325,31 @@ switch($objectType)
 		{
 			// Use transaction for atomic inserts and weight calculations
 			mysqli_autocommit($connect, FALSE);
+            $tree_nameSubString = substr($tree_name, 0, 3);
+			switch($tree_nameSubString)
+			{
+				case "Fin":
+					$icon = "<i class='bi bi-cash-stack float-end fs-4'></i>";
+					break;
+				case "Cus":
+					$icon = "<i class='bi bi-people float-end fs-4'></i>";
+					break;
+				case "Int":
+					$icon = "<i class='bi bi-diagram-3 float-end fs-4'></i>";
+					break;
+				case "Lea":
+					$icon = "<i class='bi bi-graph-up-arrow float-end fs-4'></i>";
+					break;
+				case "Org":
+					$icon = "<i class='bi bi-graph-up-arrow float-end fs-4'></i>";
+					break;
+				default:
+					$icon = "<i class='bi bi-table float-end fs-4'></i>";
+			}
 
-			$insert_perspective = mysqli_query($connect, "INSERT INTO perspective (id, name, parentId, weight) VALUES ('$tree_id', '$tree_name', '$tree_parent', '$weight')");
+			$icon = mysqli_real_escape_string($connect, $icon);
+
+			$insert_perspective = mysqli_query($connect, "INSERT INTO perspective (id, name, parentId, weight, icon) VALUES ('$tree_id', '$tree_name', '$tree_parent', '$weight', '$icon')");
 			if (!$insert_perspective) {
 				mysqli_rollback($connect);
 				file_put_contents("error.txt", "Error inserting perspective: " . mysqli_error($connect));
@@ -477,8 +492,25 @@ switch($objectType)
 	{
 		if($tree_edit == "editMe")
 		{
-			// Debug: Log the weight value being updated
-			file_put_contents("weight_debug.txt", "Updating measure $tree_id with weight: $weight\n", FILE_APPEND);
+			// Debug: Log all POST data for measure edits
+		/*if ($objectType == 'measure' && $tree_edit == 'editMe') {
+			file_put_contents("measure_debug.txt", "Editing measure with ID: $tree_id\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "measure name: $tree_name\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "collectionFrequency: $collectionFrequency\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "kpiDescription: $kpiDescription\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "thresholdType: $thresholdType\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "kpiOwner: $kpiOwner\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "kpiUpdater: $kpiUpdater\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "measureType: $measureType\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "dataType: $dataType\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "aggregationType: $aggregationType\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "darkGreen: $darkGreen\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "blue: $blue\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "green: $green\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "red: $red\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "archive: $archive\n", FILE_APPEND);
+			file_put_contents("measure_debug.txt", "tags: $kpiOwnerTags\n", FILE_APPEND);
+		}*/
 			
 			$originalName_query = mysqli_query($connect, "SELECT name FROM measure WHERE id = '$tree_id'") or file_put_contents("error.txt", "Error getting original measure name: " . mysqli_error($connect));
 
@@ -486,27 +518,49 @@ switch($objectType)
 			$originalName = $originalName["name"];
 
 			$similarKPIs = mysqli_query($connect, "SELECT id, owner FROM measure WHERE name = '$originalName' AND tags = (SELECT tags FROM measure WHERE id = '$tree_id')") or file_put_contents("error.txt", "Error getting similar KPIs: " . mysqli_error($connect));
-				
-			while($row = mysqli_fetch_array($similarKPIs))
+			$countSimilarKPIs = mysqli_num_rows($similarKPIs);
+			//file_put_contents("measure_debug.txt", "countSimilarKPIs: $countSimilarKPIs\n", FILE_APPEND);
+			if ($countSimilarKPIs > 1) //multiple KPIs with the same name and tag
 			{
-				$kpiId = $row["id"];
-				//$kpiOwnerFromDB = $row["owner"];
+				while($row = mysqli_fetch_array($similarKPIs))
+				{
+					$kpiId = $row["id"];
+					//$kpiOwnerFromDB = $row["owner"];
 
+					$update_measure = mysqli_query($connect, "UPDATE measure SET name = '$tree_name', calendarType = '$collectionFrequency', measureType = '$measureType',
+					description = '$kpiDescription', dataType='$dataType', aggregationType = '$aggregationType', owner='$kpiOwner', updater='$kpiOwner', red='$red', blue='$blue', green = '$green', darkGreen = '$darkGreen', gaugeType = '$thresholdType', archive = '$archive', tags = '$kpiOwnerTags', weight = '$weight' WHERE id = '$kpiId'");
+					if (!$update_measure) {
+						file_put_contents("error.txt", "Error updating measure: " . mysqli_error($connect));
+						die("Error updating measure: " . mysqli_error($connect));
+					}
+						
+					$update_tree = mysqli_query($connect, "UPDATE tree SET name='$tree_name' WHERE id='$kpiId'");
+					if (!$update_tree) {
+						file_put_contents("error.txt", "Error updating tree: " . mysqli_error($connect));
+						die("Error updating tree: " . mysqli_error($connect));
+					}
+					
+					// Debug: Log successful update
+					//file_put_contents("weight_debug.txt", "Successfully updated measure $kpiId with weight: $weight\n", FILE_APPEND);
+				}
+			}
+			else
+			{
 				$update_measure = mysqli_query($connect, "UPDATE measure SET name = '$tree_name', calendarType = '$collectionFrequency', measureType = '$measureType',
-				description = '$kpiDescription', dataType='$dataType', aggregationType = '$aggregationType', owner='$kpiOwner', updater='$kpiOwner', red='$red', blue='$blue', green = '$green', darkGreen = '$darkGreen', gaugeType = '$thresholdType', archive = '$archive', tags = '$kpiOwnerTags', weight = '$weight' WHERE id = '$kpiId'");
+				description = '$kpiDescription', dataType='$dataType', aggregationType = '$aggregationType', owner='$kpiOwner', updater='$kpiOwner', red='$red', blue='$blue', green = '$green', darkGreen = '$darkGreen', gaugeType = '$thresholdType', archive = '$archive', tags = '$kpiOwnerTags', weight = '$weight' WHERE id = '$tree_id'");
 				if (!$update_measure) {
 					file_put_contents("error.txt", "Error updating measure: " . mysqli_error($connect));
 					die("Error updating measure: " . mysqli_error($connect));
 				}
-					
-				$update_tree = mysqli_query($connect, "UPDATE tree SET name='$tree_name' WHERE id='$kpiId'");
+
+				$update_tree = mysqli_query($connect, "UPDATE tree SET name='$tree_name' WHERE id='$tree_id'");
 				if (!$update_tree) {
 					file_put_contents("error.txt", "Error updating tree: " . mysqli_error($connect));
 					die("Error updating tree: " . mysqli_error($connect));
 				}
-				
+
 				// Debug: Log successful update
-				file_put_contents("weight_debug.txt", "Successfully updated measure $kpiId with weight: $weight\n", FILE_APPEND);
+				//file_put_contents("weight_debug.txt", "Successfully updated measure $tree_id with weight: $weight\n", FILE_APPEND);
 			}
 		}
 
@@ -538,7 +592,7 @@ switch($objectType)
 				//file_put_contents("measure_debug.txt", "No valid staff found, using default owner\n", FILE_APPEND);
 				// Use tree_parent as default owner (the parent objective/perspective owner)
 				try {
-					save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiOwner, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $bscType);
+					save_bulk_kpi($tree_parent, $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $kpiOwner, $kpiOwner, $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $mainMenuState);
 					// Get the last created measure ID to return
 					$last_id_query = mysqli_query($connect, "SELECT MAX(CAST(SUBSTRING(id, 4, length(id)-3) AS UNSIGNED)) as max_id FROM measure");
 					if ($last_id_query) {
@@ -556,7 +610,7 @@ switch($objectType)
 				for($i = 0; $i < $totalStaff; $i++)
 				{
 					try {
-						save_bulk_kpi($idArray[$i], $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $idArray[$i], $idArray[$i], $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $bscType);
+						save_bulk_kpi($idArray[$i], $tree_name, $collectionFrequency, $kpiDescription, $thresholdType, $idArray[$i], $idArray[$i], $measureType, $dataType, $aggregationType, $darkGreen, $blue, $green, $red, $archive, $sort, $kpiOwnerTags, $mainMenuState);
 					} catch (Exception $e) {
 						//file_put_contents("error.txt", "Error creating measure for staff " . $idArray[$i] . ": " . $e->getMessage());
 						// Continue with other staff members

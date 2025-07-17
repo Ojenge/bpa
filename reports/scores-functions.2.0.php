@@ -229,12 +229,17 @@ function getOrganization($orgId)
 	mysqli_free_result($result);
 	return $ids;
 }
-function getPerspectives($orgId)
+function getPerspectives($orgId, $mainMenuState)
 {
 	global $connect;
 	$arrayPosition = 0;
 	$ids = array();
-	$result = mysqli_query($connect, "SELECT id, name, icon FROM perspective WHERE parentId = '$orgId'");
+	if($mainMenuState == "performanceContract")
+		$result = mysqli_query($connect, "SELECT id, name, icon FROM perspective WHERE parentId = '$orgId' AND id IN (SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'perspective')");
+	else
+		//Assuming that the perspectives are not performance contracts
+		//This is the default state of the application
+	$result = mysqli_query($connect, "SELECT id, name, icon FROM perspective WHERE parentId = '$orgId' AND id IN (SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'perspective')");
 	while($row = mysqli_fetch_array($result))
 	{
 		$ids[$arrayPosition]["id"] = $row["id"];

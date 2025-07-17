@@ -328,7 +328,7 @@ Global ID Holder for Core Values, Attributes and Attribute Scores
         <table>
         <tr> 
             <td id="tdMeasureName">Measure Name:</td>
-            <td><input type="text"  id="kpiName" data-dojo-type="dijit/form/TextBox" /></td>
+            <td><input type="text"  id="kpiName" data-dojo-type="dijit/form/TextArea" /></td>
         </tr>
         <tr id="addDescription">   
 

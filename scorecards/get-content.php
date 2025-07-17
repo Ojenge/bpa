@@ -12,6 +12,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 	@$objectType = $_POST["objectType"];
 	@$objectPeriod = $_POST['objectPeriod'];
 	@$objectDate = $_POST['objectDate'];
+	@$mainMenuState = $_POST['mainMenuState'];
 	@$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
 	//$table = "measure".$objectPeriod;
 	//$objectDate = strtotime($objectDate);
@@ -70,7 +71,10 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 			}
 			$row = NULL;
 			$count = 1;
-			$perspective_query="SELECT id, name, weight FROM perspective WHERE parentId = '$objectId'";
+			if($mainMenuState == "performanceContract")
+			$perspective_query="SELECT id, name, weight FROM perspective WHERE parentId = '$objectId' AND id IN(SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'perspective')";
+			else
+			$perspective_query="SELECT id, name, weight FROM perspective WHERE parentId = '$objectId' AND id IN(SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'perspective')";
 			$perspective_result=mysqli_query($connect, $perspective_query);
 			while($row = mysqli_fetch_assoc($perspective_result))
 			{
@@ -95,7 +99,10 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 			}
 			$row = NULL;
 			$count = 1;
-			$cascaded_query="SELECT name, id FROM organization where cascadedfrom = '$objectId'";
+			if($mainMenuState == "performanceContract")
+				$cascaded_query="SELECT name, id FROM organization WHERE cascadedfrom = '$objectId' AND id IN (SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'organization')";
+			else
+				$cascaded_query="SELECT name, id FROM organization WHERE cascadedfrom = '$objectId' AND id IN (SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'organization')";
 			$cascaded_result=mysqli_query($connect, $cascaded_query);
 			while($row = mysqli_fetch_assoc($cascaded_result))
 			{
@@ -110,8 +117,10 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // This will make mys
 				$org_row["Cascaded To Score".$count] = $score;
 				$count++;
 			}
-			
-			$cascaded_query="SELECT id, name FROM organization WHERE id = (SELECT cascadedfrom FROM organization where id = '$objectId')";
+			if($mainMenuState == "performanceContract")
+				$cascaded_query = "SELECT id, name FROM organization WHERE id = (SELECT cascadedfrom FROM organization where id = '$objectId') AND id IN (SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'organization')";
+			else
+				$cascaded_query = "SELECT id, name FROM organization WHERE id = (SELECT cascadedfrom FROM organization where id = '$objectId') AND id IN (SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'organization')";
 			$cascaded_result=mysqli_query($connect, $cascaded_query);
 			while($row = mysqli_fetch_assoc($cascaded_result))
 			{
