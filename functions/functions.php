@@ -206,10 +206,15 @@ function kpiGauge($objectId, $objectDate)
 	//file_put_contents("kpiGauge.txt", "Score: $final, $objectId, $calendarType, $measureCount");
 	flush();
 }
-function orgChildIds($objectId)
+function orgChildIds($objectId, $mainMenuState)
 {
 	global $connect;
 	// Level One - get organizations under the subject in question
+	if($mainMenuState == "performanceContract")
+		$organization_level_query = "SELECT id FROM organization WHERE cascadedfrom LIKE '$objectId' AND id IN (SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'organization') OR id = '$objectId' AND id IN (SELECT id FROM tree WHERE bscType = 'performanceContract' AND type = 'organization')";
+	else
+		$organization_level_query = "SELECT id FROM organization WHERE cascadedfrom LIKE '$objectId' AND id IN (SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'organization') OR id = '$objectId' AND id IN (SELECT id FROM tree WHERE bscType != 'performanceContract' AND type = 'organization')";
+
 	$organization_level_query = "SELECT id FROM organization WHERE cascadedfrom LIKE '$objectId' OR id = '$objectId'";
 	$organization_level_result = mysqli_query($connect, $organization_level_query);
 	if(mysqli_num_rows($organization_level_result) > 0)

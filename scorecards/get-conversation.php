@@ -1,8 +1,6 @@
 <?php
 include_once("../config/config_msqli.php");
 
-file_put_contents("commentary.php", "Are we getting here?");
-
 @$linkedId = $_POST['kpiGlobalId'];
 @$userId = $_POST['userId'];
 

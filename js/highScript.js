@@ -3026,7 +3026,6 @@ postTreeCreation = function()
  expandTree = function()
  {
 	 tree.expandAll();
-	 //alert(dom.byId("tree").innerHTML);
  }
 	//************************************************************
 	//handler for clicks on task context menu items
@@ -3166,6 +3165,7 @@ postTreeCreation = function()
 				//dojo.byId("kpiName").value = object.id;
 				domStyle.set(dom.byId("addDescription"), "display", "none");
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
 				domStyle.set(dom.byId("addValues"), "display", "none");
@@ -3189,6 +3189,7 @@ postTreeCreation = function()
 				domStyle.set(dom.byId("addValues"), "display", "table-row");
 				domStyle.set(dom.byId("addDescription"), "display", "none");
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addCollectionFrequency"), "display", "none");
 				domStyle.set(dom.byId("addMeasureType"), "display", "none");
 				domStyle.set(dom.byId("addDataType"), "display", "none");
@@ -3209,6 +3210,7 @@ postTreeCreation = function()
 				domStyle.set(dom.byId("addDescription"), "display", "table-row");
 				domStyle.set(dom.byId("addMeasureOwner"), "display", "table-row");
 				domStyle.set(dom.byId("addOutcome"), "display", "table-row");
+				domStyle.set(dom.byId("addKRA"), "display", "table-row");
 				//domStyle.set(dom.byId("addUpdater"), "display", "table-row");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
@@ -3230,6 +3232,7 @@ postTreeCreation = function()
 				dom.byId("tdMeasureName").innerHTML = "Measure Name";
 				dom.byId("addMeasureOwnerTitle").innerHTML = "Measure Owner(s)";
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
 				domStyle.set(dom.byId("addValues"), "display", "none");
@@ -3250,6 +3253,7 @@ postTreeCreation = function()
 				dom.byId("addMeasureOwnerTitle").innerHTML = "Individual Name";
 				domStyle.set(dom.byId("tdMeasureName"), "display", "none");
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
 				domStyle.set(dom.byId("addValues"), "display", "none");
@@ -3456,6 +3460,7 @@ postTreeCreation = function()
 				dojo.byId("kpiName").value = '';
 				domStyle.set(dom.byId("addDescription"), "display", "none");
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
 				domStyle.set(dom.byId("addValues"), "display", "none");
@@ -3487,6 +3492,7 @@ postTreeCreation = function()
 				domStyle.set(dom.byId("addValues"), "display", "table-row");
 				domStyle.set(dom.byId("addDescription"), "display", "none");
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addCollectionFrequency"), "display", "none");
 				domStyle.set(dom.byId("addMeasureType"), "display", "none");
 				domStyle.set(dom.byId("addDataType"), "display", "none");
@@ -3510,6 +3516,7 @@ postTreeCreation = function()
 				//dom.byId("addUpdaterTitle").innerHTML = "Add User to Team";
 				domStyle.set(dom.byId("addDescription"), "display", "table-row");
 				domStyle.set(dom.byId("addOutcome"), "display", "table-row");
+				domStyle.set(dom.byId("addKRA"), "display", "table-row");
 				domStyle.set(dom.byId("addMeasureOwner"), "display", "table-row");
 				//domStyle.set(dom.byId("addUpdater"), "display", "table-row");
 				//dom.byId("teamNames").innerHTML = 'Team: ';
@@ -3560,6 +3567,7 @@ postTreeCreation = function()
 				//dom.byId("addUpdaterTitle").innerHTML = "Measure Updater: ";
 				dom.byId("addMeasureOwnerTitle").innerHTML = "Measure Owner(s)";
 				domStyle.set(dom.byId("addOutcome"), "display", "none");
+				domStyle.set(dom.byId("addKRA"), "display", "none");
 				domStyle.set(dom.byId("addMission"), "display", "none");
 				domStyle.set(dom.byId("addVision"), "display", "none");
 				domStyle.set(dom.byId("addValues"), "display", "none");
@@ -3640,8 +3648,13 @@ postTreeCreation = function()
 		//kpiOwner = document.querySelector('#kpiOwner').value;
 
 		var tagsOwner = getKpiOwnerValues();
-		kpiOwner = JSON.parse(tagsOwner);
-		kpiOwner = kpiOwner[0].value;
+		if (tagsOwner == "[]") {
+			//console.warn("tagsOwner is null or undefined, setting kpiOwner to empty string");
+			kpiOwner = '';
+		} else {
+			kpiOwner = JSON.parse(tagsOwner);
+			kpiOwner = kpiOwner[0].value;
+		}
 
 		kpiName = dojo.byId("kpiName").value;
 		measureType = dojo.byId("measureType").value;
@@ -4107,6 +4120,21 @@ postTreeCreationTwo = function()
 						domStyle.set(dom.byId("edit"), "display", "table-row");
 						domStyle.set(dom.byId("delete"), "display", "none");
 					}
+					else if(mainMenuState == "performanceContract")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
 					else if(mainMenuState == "Initiatives")
 					{
 						domStyle.set(dom.byId("task"), "display", "table-row");
@@ -4162,6 +4190,21 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "table-row");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("perspective"), "display", "table-row");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("task"), "display", "none");
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4242,6 +4285,21 @@ postTreeCreationTwo = function()
 						domStyle.set(dom.byId("edit"), "display", "table-row");
 						domStyle.set(dom.byId("delete"), "display", "none");
 					}
+					else if(mainMenuState == "performanceContract")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
 					else if(mainMenuState == "Initiatives")
 					{
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4294,6 +4352,21 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("task"), "display", "none");
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4361,6 +4434,21 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "none");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("organization"), "display", "none");
 						domStyle.set(dom.byId("perspective"), "display", "none");
@@ -4566,6 +4654,22 @@ postTreeCreationTwo = function()
 						domStyle.set(dom.byId("editWeight"), "display", "table-row");
 						domStyle.set(dom.byId("delete"), "display", "table-row");
 					}
+					else if(mainMenuState == "performanceContract")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
 					else if(mainMenuState == "Initiatives")
 					{
 						domStyle.set(dom.byId("task"), "display", "table-row");
@@ -4625,6 +4729,22 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "table-row");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("perspective"), "display", "table-row");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("task"), "display", "none");
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4712,6 +4832,22 @@ postTreeCreationTwo = function()
 						domStyle.set(dom.byId("editWeight"), "display", "table-row");
 						domStyle.set(dom.byId("delete"), "display", "table-row");
 					}
+					else if(mainMenuState == "performanceContract")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
 					else if(mainMenuState == "Initiatives")
 					{
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4728,7 +4864,6 @@ postTreeCreationTwo = function()
 						domStyle.set(dom.byId("editWeight"), "display", "none");
 						domStyle.set(dom.byId("delete"), "display", "none");
 					}
-	
 					else if(mainMenuState == "Dashboards")
 					{
 						domStyle.set(dom.byId("task"), "display", "none");
@@ -4768,6 +4903,20 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "none");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("task"), "display", "none");
 						domStyle.set(dom.byId("pdpMenu"), "display", "none");
@@ -4839,6 +4988,22 @@ postTreeCreationTwo = function()
 				var interval = setTimeout(function()
 				{
 					if(mainMenuState == "Scorecards")
+					{
+						domStyle.set(dom.byId("organization"), "display", "none");
+						domStyle.set(dom.byId("perspective"), "display", "none");
+						domStyle.set(dom.byId("objective"), "display", "table-row");
+						domStyle.set(dom.byId("task"), "display", "none");
+						domStyle.set(dom.byId("pdpMenu"), "display", "none");
+						domStyle.set(dom.byId("report"), "display", "none");
+						domStyle.set(dom.byId("dashboard"), "display", "none");
+						domStyle.set(dom.byId("individual"), "display", "table-row");
+						domStyle.set(dom.byId("measure"), "display", "table-row");
+						domStyle.set(dom.byId("linkedMeasure"), "display", "table-row");
+						domStyle.set(dom.byId("edit"), "display", "table-row");
+						domStyle.set(dom.byId("editWeight"), "display", "table-row");
+						domStyle.set(dom.byId("delete"), "display", "table-row");
+					}
+					else if(mainMenuState == "performanceContract")
 					{
 						domStyle.set(dom.byId("organization"), "display", "none");
 						domStyle.set(dom.byId("perspective"), "display", "none");
@@ -7610,7 +7775,8 @@ updateChart = function() /*** #scorecardMap ***/
 					objectType: kpiGlobalType,
 					objectPeriod: period,
 					objectDate: globalDate,
-					valuesCount: valuesCount
+					valuesCount: valuesCount,
+					mainMenuState: mainMenuState
 				}
 				}).then(function(orgData)
 					{	//alert(json.stringify(orgData));
@@ -7936,7 +8102,8 @@ scorecardMain = function(objectId, objectType) /*** #scorecardMap ***/
 			objectId: objectId,
 			objectType: objectType,
 			objectPeriod: period,
-			objectDate: globalDate
+			objectDate: globalDate,
+			mainMenuState: mainMenuState
 		}
 		}).then(function(data) {
 		switch(objectType)

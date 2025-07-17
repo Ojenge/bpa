@@ -11,6 +11,7 @@ include_once("../functions/perspOrg-scores.php");
 	@$objectPeriod = $_POST['objectPeriod'];
 	@$objectDate = $_POST['objectDate'];
 	@$valuesCount = $_POST['valuesCount'];
+	@$mainMenuState = $_POST['mainMenuState'];
 	//$objectDate = date("Y-m-d",strtotime($objectDate."-01"));
 	//$objectDate = strtotime($objectDate);
 	//$objectDate = date("Y-m-d", strtotime("+1 month", $objectDate));
@@ -20,7 +21,7 @@ include_once("../functions/perspOrg-scores.php");
 	//$objectPeriod = "months";
 	//$objectDate = "2015-07";
 	
-	$objectId = orgChildIds($objectId);
+	$objectId = orgChildIds($objectId, $mainMenuState);
 	switch($objectPeriod)
 	{
 		case "days":

@@ -30,10 +30,10 @@ $where_in;
 
 $tree_query="SELECT id, name, parent, type, linked, sort 
 FROM tree 
-WHERE id IN ($where_in) 
-OR id LIKE 'obj%' AND bscType = 'pc'
-OR id LIKE 'persp%' AND bscType = 'pc'
-OR id LIKE 'kpi%' AND bscType = 'pc'
+WHERE id IN ($where_in) AND bscType = 'performanceContract'
+OR id LIKE 'obj%' AND bscType = 'performanceContract'
+OR id LIKE 'persp%' AND bscType = 'performanceContract'
+OR id LIKE 'kpi%' AND bscType = 'performanceContract'
 ORDER BY FIELD(type, 'perspective', 'objective', 'measure', 'individual', 'organization'), sort ASC, sort";//This ensures that we have the scorecard items maintaining proper structure inspite of order in which they were captured in the system. It also ensures the individuals are shown directly under their organizations unlike before. LTK 15.04.21 1912hrs
 $tree_result=mysqli_query($connect, $tree_query);
 $tree_row_count=mysqli_num_rows($tree_result);
