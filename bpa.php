@@ -1,7 +1,7 @@
 <?php
 //include("../phpJobScheduler/firepjs.php");
-//error_reporting(E_ALL);
-//ini_set('display_errors', 'On');
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
 require_once("admin/models/config.php");
 require_once("menu/menu_functions.php");
 if (!securePage($_SERVER['PHP_SELF'])){die();}

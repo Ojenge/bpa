@@ -11,11 +11,10 @@ function menu($userPermission)
 		<div class='vMenu'><a href='#' onClick='indDashboard();'>Personal Dashboard</a></div>
 		<div class='vMenu'><a href='#' onClick='myDataEntry();'>My Measures & Tasks</a></div>
 		<div class='vMenu'><a href='#' onClick='orgChart();'>Org Structure</a></div>
-		<div class='vMenu'><a href='#' onClick='stratMap();'>Strategy Map</a></div>";*/
-
-		$menuList = "
-		<p class='text-secondary fs-6' style='cursor:pointer' onClick='indDashboard();'><i class='bi bi-speedometer text-success'></i> Personal Dashboard</p>
-		<div style='margin-left: 20px; border-left: 2px solid #e9ecef; padding-left: 10px;'>
+		<div class='vMenu'><a href='#' onClick='stratMap();'>Strategy Map</a></div>";
+		*/
+		
+		/*
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='dashboardsOverview();'><i class='bi bi-grid-3x3-gap text-info'></i> Analytics Overview</p>
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='departmentDashboard();'><i class='bi bi-building text-primary'></i> Department Performance</p>
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='executiveSummary();'><i class='bi bi-people text-success'></i> Executive Summary</p>
@@ -23,9 +22,15 @@ function menu($userPermission)
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='goalTrackingDashboard();'><i class='bi bi-bullseye text-danger'></i> Goal Tracking</p>
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='performanceHeatMaps();'><i class='bi bi-thermometer-half text-info'></i> Performance Heat Maps</p>
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='staffManagementDashboard();'><i class='bi bi-person-gear text-secondary'></i> Staff Management</p>
-			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='predictiveAnalytics();'><i class='bi bi-graph-up-arrow text-primary'></i> Predictive Analytics</p>
+			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='predictiveAnalytics();'><i class='bi bi-graph-up-arrow text-primary'></i> Predictive Analytics</p>\
 			<p class='text-secondary fs-6' style='cursor:pointer; font-size: 0.85rem;' onClick='initiativeProjectAnalytics();'><i class='bi bi-kanban text-success'></i> Initiative Analytics</p>
-		</div>
+		
+
+		*/
+
+		$menuList = "
+		<p class='text-secondary fs-6' style='cursor:pointer' onClick='indDashboard();'><i class='bi bi-speedometer text-success'></i> Personal Dashboard</p>
+		
 		<p class='text-secondary fs-6' style='cursor:pointer' onClick='myDataEntry();'><i class='bi bi-bar-chart-line text-warning'></i> My Measures & Tasks</p>
 		<p class='text-secondary fs-6' style='cursor:pointer' onClick='orgChart();'><i class='bi bi-diagram-3 text-danger'></i> Org Structure</p>
         <p class='text-secondary fs-6' style='cursor:pointer' onClick='stratMap();'><i class='bi bi-compass text-primary'></i> Strategy Map</p>";
