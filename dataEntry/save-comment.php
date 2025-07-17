@@ -1,6 +1,6 @@
 <?php
 include_once("../functions/cryptString.php");
-include_once("../config/config_msqli.php");
+include_once("../config/config_mysqli.php");
 
 $objectId = $_POST['objectId'];
 $loggedInUser = $_POST['loggedInUser'];

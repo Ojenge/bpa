@@ -2,7 +2,7 @@
 error_reporting(0); //To show all - change 0 to E_ALL
 ini_set('display_errors', 0); //To show all - change 0 to 1
 require_once("../admin/models/config.php");
-include_once("../config/config_msqli.php");
+include_once("../config/config_mysqli.php");
 
 @$objectId = $_POST['objectId'];
 @$objectPeriod = $_POST['objectPeriod'];
@@ -34,7 +34,7 @@ else
 	$year = date("Y", strtotime($objectDate));
 	$month = date("m", strtotime($objectDate));
 }
-$initiative_query="SELECT id, name, deliverable, startDate, dueDate, completionDate, parent FROM initiative WHERE projectManager = '$objectId' AND archive != 'Yes'";
+$initiative_query="SELECT id, name, deliverable, startDate, dueDate, completionDate, parent, tags FROM initiative WHERE projectManager = '$objectId' AND archive != 'Yes'";
 $initiative_result = mysqli_query($GLOBALS["___mysqli_ston"], $initiative_query);
 $initiative_count = mysqli_num_rows($initiative_result);
 
@@ -46,6 +46,7 @@ echo "<div class='border border-primary rounded-3' style='overflow:hidden;'><tab
 		echo "<th>Deliverable</th>";
 		echo "<th style='white-space:nowrap;'>Objective(s) Impacted</th>";
 		echo "<th colspan='2' style='text-align:center; white-space:nowrap;'>Due Date</th>";
+		echo "<th>Status</th>";
 		if($objectId == $currentUser) echo "<th></th>";
 		echo "<th>Comments</th>";
 	echo "</tr>";
@@ -111,7 +112,62 @@ while($row = mysqli_fetch_assoc($initiative_result))
 			$dueDate = date("d M Y",strtotime($row["dueDate"]));
 			echo "<td class='border-end-0'><div class='$color'></div></td><td class='border-start-0' style='text-align:center; white-space:nowrap;'>".$dueDate."</td>";
 		}
-		if($objectId == $currentUser) echo "<td><a href='#' onClick='editInitiative(".$row["id"].")'>Update</a></td>";
+		// Display tags/status with dropdown
+		$tags = json_decode(isset($row['tags']) ? $row['tags'] : '[]', true);
+		$currentStatus = '';
+		if ($tags && is_array($tags)) {
+			foreach ($tags as $tag) {
+				if (isset($tag['status'])) {
+					$currentStatus = $tag['status'];
+					break; // Use the first status found
+				}
+			}
+		}
+		
+		$statusHtml = '';
+		if ($currentStatus) {
+			$statusClass = '';
+			$statusText = '';
+			switch ($currentStatus) {
+				case 'approved':
+					$statusClass = 'badge bg-success';
+					$statusText = 'Approved';
+					break;
+				case 'needs_review':
+					$statusClass = 'badge bg-warning';
+					$statusText = 'Needs Review';
+					break;
+				default:
+					$statusClass = 'badge bg-secondary';
+					$statusText = $currentStatus;
+			}
+			$statusHtml = "<span class='$statusClass me-1'>$statusText</span>";
+		} else {
+			$statusHtml = "<span class='badge bg-light text-dark'>No Status</span>";
+		}
+		
+		// Create dropdown for status selection
+		$dropdownHtml = "
+			<div style='display: flex; align-items: center; gap: 5px;'>
+				$statusHtml
+				<select class='form-select form-select-sm' style='width: auto; min-width: 120px;' 
+						onchange='updateStatus(\"".$row["id"]."\", \"initiative\", this.value)'>
+					<option value=''>Change Status</option>
+					<option value='approved'" . ($currentStatus === 'approved' ? ' selected' : '') . ">Approved</option>
+					<option value='needs_review'" . ($currentStatus === 'needs_review' ? ' selected' : '') . ">Needs Review</option>
+					<option value='remove'>Remove Status</option>
+				</select>
+			</div>
+		";
+		
+		echo "<td>$dropdownHtml</td>";
+		
+		if($objectId == $currentUser) {
+			echo "<td>";
+			echo "<a href='#' onClick='editInitiative(".$row["id"].")'>Update</a>";
+			echo " <button class='btn btn-outline-info btn-sm' onClick='openTagDialog(\"".$row["id"]."\", \"initiative\")'>Manage Tags</button>";
+			echo "</td>";
+		}
 		
 		$conversationQuery = mysqli_query($GLOBALS["___mysqli_ston"],"SELECT conversation.note AS note, conversation.date AS date, uc_users.display_name AS commenter 
 		FROM conversation, uc_users 
@@ -166,7 +222,7 @@ while($row = mysqli_fetch_assoc($initiative_result))
 		
 		//Get child tasks
 		//$parent = $row["id"];
-		$task_query = "SELECT id, name, deliverable, startDate, dueDate, completionDate FROM initiative WHERE parent = '$link_id'";
+		$task_query = "SELECT id, name, deliverable, startDate, dueDate, completionDate, tags FROM initiative WHERE parent = '$link_id'";
 		$task_result = mysqli_query($GLOBALS["___mysqli_ston"], $task_query);
 		$task_count = mysqli_num_rows($task_result);
 		$taskCounter = 1;
@@ -219,7 +275,62 @@ while($row = mysqli_fetch_assoc($initiative_result))
 					$dueDate = date("d M Y",strtotime($rowTask["dueDate"]));
 					echo "<td class='border-end-0'><div class='$color'></div></td><td class='border-start-0' style='white-space:nowrap;'>".$dueDate."</td>";
 				}
-				if($objectId == $currentUser) echo "<td><a href='#' onClick='editInitiative(".$rowTask["id"].")'>Update</a></td>";
+				// Display tags/status for tasks with dropdown
+				$taskTags = json_decode(isset($rowTask['tags']) ? $rowTask['tags'] : '[]', true);
+				$taskCurrentStatus = '';
+				if ($taskTags && is_array($taskTags)) {
+					foreach ($taskTags as $tag) {
+						if (isset($tag['status'])) {
+							$taskCurrentStatus = $tag['status'];
+							break; // Use the first status found
+						}
+					}
+				}
+				
+				$taskStatusHtml = '';
+				if ($taskCurrentStatus) {
+					$statusClass = '';
+					$statusText = '';
+					switch ($taskCurrentStatus) {
+						case 'approved':
+							$statusClass = 'badge bg-success';
+							$statusText = 'Approved';
+							break;
+						case 'needs_review':
+							$statusClass = 'badge bg-warning';
+							$statusText = 'Needs Review';
+							break;
+						default:
+							$statusClass = 'badge bg-secondary';
+							$statusText = $taskCurrentStatus;
+					}
+					$taskStatusHtml = "<span class='$statusClass me-1'>$statusText</span>";
+				} else {
+					$taskStatusHtml = "<span class='badge bg-light text-dark'>No Status</span>";
+				}
+				
+				// Create dropdown for task status selection
+				$taskDropdownHtml = "
+					<div style='display: flex; align-items: center; gap: 5px;'>
+						$taskStatusHtml
+						<select class='form-select form-select-sm' style='width: auto; min-width: 120px;' 
+								onchange='updateStatus(\"".$rowTask["id"]."\", \"initiative\", this.value)'>
+							<option value=''>Change Status</option>
+							<option value='approved'" . ($taskCurrentStatus === 'approved' ? ' selected' : '') . ">Approved</option>
+							<option value='needs_review'" . ($taskCurrentStatus === 'needs_review' ? ' selected' : '') . ">Needs Review</option>
+							<option value='remove'>Remove Status</option>
+						</select>
+					</div>
+				";
+				
+				echo "<td>$taskDropdownHtml</td>";
+				
+				if($objectId == $currentUser) {
+					echo "<td>";
+					echo "<a href='#' onClick='editInitiative(".$rowTask["id"].")'>Update</a>";
+					echo " <button class='btn btn-outline-info btn-sm' onClick='openTagDialog(\"".$rowTask["id"]."\", \"initiative\")'>Manage Tags</button>";
+					echo "</td>";
+				}
 				
 				$conversationQuery = mysqli_query($GLOBALS["___mysqli_ston"],"SELECT conversation.note AS note, conversation.date AS date, uc_users.display_name AS commenter 
 				FROM conversation, uc_users 

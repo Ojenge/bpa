@@ -1,5 +1,5 @@
 <?php
-include_once("../config/config_msqli.php");
+include_once("../config/config_mysqli.php");
 include_once("../admin/models/config.php");
 
 @$objectId = $_POST['objectId'];
@@ -25,7 +25,7 @@ else
 
 $table = "measuremonths";
 
-$get_gauge = "SELECT id, name, gaugeType, calendarType, measureType, green 
+$get_gauge = "SELECT id, name, gaugeType, calendarType, measureType, green, tags 
 FROM measure 
 WHERE linkedObject = '$objectId' AND measureType = 'Standard KPI' AND archive = 'No'
 OR updater = '$objectId' AND measureType = 'Standard KPI' AND archive = 'No'
@@ -47,6 +47,7 @@ echo "<div class='border border-primary rounded-3' style='overflow:hidden;'><tab
 		echo "<th colspan='2' style='text-align:center;'>Score</th>";
 		echo "<th>Frequency</th>";
 		echo "<th style='white-space:nowrap;'>Last Update</th>";
+		echo "<th>Status</th>";
 		if($objectId == $currentUser) echo "<th></th>";
 		echo "<th>Comments</th>";
 	echo "</tr>";
@@ -182,7 +183,62 @@ while($row = mysqli_fetch_assoc($get_gauge_result))
 		}
 	}
 	
-	if($objectId == $currentUser) echo "<td><a href='#' onClick='myBulkEntry(".$measureId.")'>Update</a></td>";
+	// Display tags/status with dropdown
+	$tags = json_decode(isset($row['tags']) ? $row['tags'] : '[]', true);
+	$currentStatus = '';
+	if ($tags && is_array($tags)) {
+		foreach ($tags as $tag) {
+			if (isset($tag['status'])) {
+				$currentStatus = $tag['status'];
+				break; // Use the first status found
+			}
+		}
+	}
+	
+	$statusHtml = '';
+	if ($currentStatus) {
+		$statusClass = '';
+		$statusText = '';
+		switch ($currentStatus) {
+			case 'approved':
+				$statusClass = 'badge bg-success';
+				$statusText = 'Approved';
+				break;
+			case 'needs_review':
+				$statusClass = 'badge bg-warning';
+				$statusText = 'Needs Review';
+				break;
+			default:
+				$statusClass = 'badge bg-secondary';
+				$statusText = $currentStatus;
+		}
+		$statusHtml = "<span class='$statusClass me-1'>$statusText</span>";
+	} else {
+		$statusHtml = "<span class='badge bg-light text-dark'>No Status</span>";
+	}
+	
+	// Create dropdown for status selection
+	$dropdownHtml = "
+		<div style='display: flex; align-items: center; gap: 5px;'>
+			$statusHtml
+			<select class='form-select form-select-sm' style='width: auto; min-width: 120px;' 
+					onchange='updateStatus(\"$kpiId\", \"measure\", this.value)'>
+				<option value=''>Change Status</option>
+				<option value='approved'" . ($currentStatus === 'approved' ? ' selected' : '') . ">Approved</option>
+				<option value='needs_review'" . ($currentStatus === 'needs_review' ? ' selected' : '') . ">Needs Review</option>
+				<option value='remove'>Remove Status</option>
+			</select>
+		</div>
+	";
+	
+	echo "<td>$dropdownHtml</td>";
+	
+	if($objectId == $currentUser) {
+		echo "<td>";
+		echo "<a href='#' onClick='myBulkEntry(".$measureId.")'>Update</a>";
+		echo " <button class='btn btn-outline-info btn-sm' onClick='openTagDialog(\"".$kpiId."\", \"measure\")'>Manage Tags</button>";
+		echo "</td>";
+	}
 	
 	$conversationQuery = mysqli_query($GLOBALS["___mysqli_ston"],"SELECT conversation.note AS note, conversation.date AS date, uc_users.display_name AS commenter 
 	FROM conversation, uc_users 

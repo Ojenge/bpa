@@ -5,12 +5,15 @@ require_once("../admin/models/config.php");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- <base href="../" /> -->
 
 <title>My Data Entry</title>
 </head>
 
-<script src="js/measure.js"></script>
-<script src="js/initiative.js"></script>
+<script src="/bpa/js/selector-fix.js"></script>
+<script src="/bpa/js/measure.js"></script>
+<script src="/bpa/js/initiative.js"></script>
+<script src="/bpa/js/tag-management.js"></script>
 <script>
 var myPipEdit = 'Edit';
 var myPipEditId;
@@ -87,7 +90,7 @@ if(dijit.byId("bulkMeasureDialog2"))
 //if(dom.byId("dataEntryUserId").innerHTML == 'ind1')
 //{
 	domStyle.set(dom.byId("individualInput"), 'display', 'block');
-	request.post("userCalls/get-users.php",{
+	request.post("/bpa/userCalls/get-users.php",{
 	handleAs: "json",
 	data: {
 	}
@@ -114,7 +117,7 @@ if(dijit.byId("bulkMeasureDialog2"))
 
 getMeasures = function()
 {
-	request.post("dataEntry/get-measures.php",{
+	request.post("/bpa/dataEntry/get-measures.php",{
 	data: {
 		objectId: dom.byId("dataEntryUserId").innerHTML,
 		objectPeriod: period,
@@ -123,13 +126,17 @@ getMeasures = function()
 	}).then(function(data) 
 	{
 		dojo.byId("myMeasureContent").innerHTML = data;
+		// Add tag management buttons after loading measures
+		if (typeof addTagButtons === 'function') {
+			setTimeout(addTagButtons, 100);
+		}
 	})
 }
 getMeasures();
 
 getValues = function()
 {
-	request.post("dataEntry/get-values.php",{
+	request.post("/bpa/dataEntry/get-values.php",{
 	data: {
 		objectId: dom.byId("dataEntryUserId").innerHTML,
 		objectPeriod: period,
@@ -145,7 +152,7 @@ getValues();
 getInitiatives = function()
 {
 	dom.byId("editSaveDelete").innerHTML = "Edit";
-	request.post("dataEntry/get-initiatives.php",{
+	request.post("/bpa/dataEntry/get-initiatives.php",{
 	data: {
 		objectId: dom.byId("dataEntryUserId").innerHTML,
 		objectPeriod: period,
@@ -154,6 +161,10 @@ getInitiatives = function()
 	}).then(function(data) {
 	
 		dojo.byId("myInitiativeContent").innerHTML = data;
+		// Add tag management buttons after loading initiatives
+		if (typeof addTagButtons === 'function') {
+			setTimeout(addTagButtons, 100);
+		}
 		/*
 		
 		skillGap = "skillGap"+pdpCount;
@@ -180,7 +191,7 @@ getInitiatives();
 
 getPip = function()
 {
-	request.post("dataEntry/get-pips.php",{
+	request.post("/bpa/dataEntry/get-pips.php",{
 	data: {
 		objectId: dom.byId("dataEntryUserId").innerHTML,
 		//objectPeriod: period,
@@ -195,7 +206,7 @@ getPip();
 
 getInterpretation = function()
 {
-	request.post("dataEntry/get-interpretation.php",{
+	request.post("/bpa/dataEntry/get-interpretation.php",{
 	data: {
 		objectId: dom.byId("dataEntryUserId").innerHTML,
 		//objectPeriod: period,
@@ -220,7 +231,7 @@ savePdp = function(id)//Put these later in a single js file since they are also 
 		}
 		else pdpId = pdpEditId;*/
 		//console.log("Value = " + dom.byId("dataEntryUserId").innerHTML)
-		request.post("individual/save-pdp.php",{
+		request.post("/bpa/individual/save-pdp.php",{
 		//handleAs: "json",
 		data: {
 				userId : dom.byId("dataEntryUserId").innerHTML,
@@ -246,7 +257,7 @@ savePdp = function(id)//Put these later in a single js file since they are also 
 	}
 	else
 	{
-		request.post("individual/save-pdp.php",{
+		request.post("/bpa/individual/save-pdp.php",{
 		//handleAs: "json",
 		data: {
 				userId : tnAdd,
@@ -275,7 +286,7 @@ editPip = function(id)
 	//console.log("editPip = " + id);
 	myPipEdit = 'Edit';
 	myPipEditId = id;
-	request.post("individual/get-pdp.php",{
+	request.post("/bpa/individual/get-pdp.php",{
 		handleAs: "json",
 		data:{
 			pdpId: myPipEditId
@@ -296,7 +307,7 @@ getMyInitContent = function(id)
 {
 	var initId = "init"+id;
 	var initContent = null;
-	request.post("initiatives/get-initiative.php",{
+	request.post("/bpa/initiatives/get-initiative.php",{
 	// The URL of the request
 	handleAs: "json",
 	data: {
@@ -320,7 +331,7 @@ updateComment = function(objectId, loggedInUser, note)
 //updateComment = function(note)
 {
 	//alert(note + " and " + objectId);
-	request.post("myDataEntry/save-comment.php",{
+	request.post("/bpa/dataEntry/save-comment.php",{
 	data: {
 		objectId: objectId,
 		loggedInUser: loggedInUser,
@@ -336,7 +347,7 @@ updateComment = function(objectId, loggedInUser, note)
 
 function myEditorHandler(editorContent)
 {
-	request.post("scorecards/save-editor-content.php",{
+	request.post("/bpa/scorecards/save-editor-content.php",{
 	data: {
 		Type: "interpretation",
 		objectId: dom.byId("dataEntryUserId").innerHTML,
